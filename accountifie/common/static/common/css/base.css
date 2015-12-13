@@ -1,0 +1,120 @@
+@font-face {
+    font-family: 'arimobold_italic';
+    src: url('arimo-bolditalic-webfont.eot');
+    src: url('arimo-bolditalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('arimo-bolditalic-webfont.woff2') format('woff2'),
+         url('arimo-bolditalic-webfont.woff') format('woff'),
+         url('arimo-bolditalic-webfont.ttf') format('truetype'),
+         url('arimo-bolditalic-webfont.svg#arimobold_italic') format('svg');
+    font-weight: bold;
+    font-style: italic;
+}
+html, body {
+    height: 100%;
+    }
+.page-header {
+  margin-bottom: 0; margin-top: 0; 
+}
+body > .container-fluid {
+	margin-bottom: 3em;
+}
+#sidebar {
+  margin-left: 0;
+  padding-left: 1em;
+  -webkit-box-shadow: -5px 0 4px -2px #888;
+  -moz-box-shadow: -5px 0 4px -2px #888;
+  box-shadow: -5px 0 4px -3px #888;
+  min-height: 20em;
+}
+
+#wrap {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -3em;
+}
+
+#content > * {
+  margin-left: 20px;
+  
+}
+#content > .page-header { margin-left: 0 }
+.breadcrumb li a {
+ text-decoration: none;
+}
+/*
+.breadcrumb li a:after {
+  content: "/";
+  padding: .2em .5em;
+}
+*/
+
+#footer, #push { height: 3em; }
+#footer {
+    background-color: #f5f5f5;
+    padding: 1em;
+	position: fixed;
+	bottom: 0;
+	width: 99.9%;
+}
+
+.nav-collapse ul {
+/*  background: url(../img/rptlab.png) 1em center no-repeat transparent; */
+  padding-left: 9em;
+}
+
+
+.navbar-inverse {
+  background-color: #1E4C9C
+}
+
+.navbar-inverse .navbar-brand {
+  color:white;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+color: white;
+}
+
+.navbar-inverse .navbar-nav>li.btn-group .btn {
+  border-width: 0
+}
+
+.navbar-inverse a:hover {
+    color: #C8C7C7 !important; 
+}
+
+.dl-horizontal dt, dt { margin: 0.1em 0; }
+
+.can_edit td:not{
+    background-color: #f0f7fd;
+    border-color: #d0e3f0;
+    border-right: 5px solid #eee
+}
+
+
+/* attempts by andy to save space at top of template */
+.navbar {
+  margin-bottom: 0
+}
+
+.page-header h1 {margin: 0;}
+
+.muted {
+	color: #999;
+}
+.credit {
+	font-style: italic;
+}
+.reportlab {
+	display: inline-block;
+	font-size: 1.3em;
+	font-family: "Helvetica Neue", "arimobold_italic", Helvetica,Arial,sans-serif;
+	letter-spacing: 0;
+	font-weight: bold;
+	font-style: italic;
+	color: #204D9B;
+}
+.reportlab span {
+	color: #EC2227;
+}

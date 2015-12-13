@@ -1,0 +1,23 @@
+{% extends 'forecasts/base_forecasts.html' %}
+
+{% block title %}Forecasts{% endblock %}
+
+
+{% block content %}
+
+<a class="btn btn btn-info" href="{% url 'forecasts_form' %}">Add Forecast</a>
+
+<table class="table table-striped">
+    
+	<tr><th>Label</th><th>Start</th><th>Comment</th></tr>
+	{% for obj in object_list %}
+	<tr><td><a href="{% url 'forecasts_detail' id=obj.id %}">{{obj.label}}</a></td><td>{{obj.start_date}}</td><td>{{obj.comment}}</td></tr>
+	{% endfor %}
+</table>
+{% endblock %}
+
+
+{% block sidebar %}
+    <a class="btn btn btn-info" href="{% url 'forecasts_form' %}">Add Forecast</a>
+
+{% endblock %}

@@ -1,0 +1,8 @@
+/*use this for styles on anything editable - or remove it if preferred */
+edit_htmlfield {
+  padding: .5em;
+  background-color: #f5f5ff;
+}
+.edit_manytomanyfield + a > span::after {
+	content: " , ";
+}

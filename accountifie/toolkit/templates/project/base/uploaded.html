@@ -1,0 +1,31 @@
+{% extends base_template %}
+
+{% block title %}Error processing file{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+	{% if not object.finished %}
+	<meta http-equiv="refresh" content="5">
+	{% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="/">Home</a></li>
+<li><a href="{{request.url}}">Upload</a></li>
+{% endblock %}
+
+
+{% block content %}
+<h3>Out</h3>
+<pre>
+{{ out }}
+</pre>
+
+<h3>Error</h3>
+<pre>
+{{ err }}
+</pre>
+
+<a href='/' class="btn btn-default">Back home</a>
+
+{% endblock %}

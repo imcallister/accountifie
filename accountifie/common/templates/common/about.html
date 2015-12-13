@@ -1,0 +1,14 @@
+{% extends base_site_template %}
+
+
+{% block head_title %}About {{ block.super }} {% endblock %}
+
+{% block title %}About {{ client_project|upper }}{% endblock %}
+
+{% block content %}
+<h2>About</h2>
+<p>This is a placeholder for whatever few paragraphs might clarify
+the genealogy and purposes of {{ client_project|upper }}.
+</p>
+<p>Developers should override this by placing an extended copy of <pre>&lt;site-packages&gt;docengine/common/templates/common/about.html</pre> <dir>into</dir> <pre>project/templates/common/about.html</pre></p>
+{% endblock%}

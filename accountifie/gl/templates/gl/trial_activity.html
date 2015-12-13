@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+
+{% block title %}Accounts activity between {{ from_date }} and {{ to_date }}{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="/">Home</a></li>
+<li><a href="/gl/">General Ledger</a></li>
+<li class="active">Trial balance</li>
+{% endblock %}
+
+
+{% block content %}
+
+<p>Click on a figure to 'drill down' and see the history of that account.   </p>
+
+
+<table class="table table-striped">
+    <thead>
+        <th>Account</th>
+        <th>On {{from_date}}</th>
+        <th>Change in period</th>
+        <th>On {{to_date}}</th>
+    </thead>
+    <tbody>
+    {% for bal in rows %}
+        <tr>
+            <td>{{bal.0}}: {{bal.1}}</td>
+            <td class="align-right">{{bal.2}}</td>
+            <td class="align-right">
+                <a href="/gl/accounts_list/{{bal.0}}/history/?from={{from_date.isoformat}}&to={{to_date.isoformat}}">{{bal.3}}</a>
+            </td>
+            <td class="align-right">{{bal.4}}</td>
+        </tr>    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

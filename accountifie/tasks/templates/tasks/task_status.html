@@ -1,0 +1,36 @@
+{% extends base_site_template %}
+
+{% block extrahead %}
+	{{ block.super }}
+	<meta http-equiv="refresh" content="3">
+{% endblock %}
+
+{% block title %}Task Progress{% endblock %}
+
+{% block breadcrumb %}
+	<li><a href="/">Home</a></li>
+	<li><a href="{% url 'dashboard_index' %}">Dashboard</a></li>
+	<li class="active">Task Progress</li>
+{% endblock %}
+
+
+{% block content %}
+	<h2><span class="text-muted">Processing</span> {{ object.title|default:"Task"}} </h2>
+	<dl class="dl dl-horizontal">
+		<dt>Processing started at </dt><dd>{{ object.start }}</dd<>
+		<dt>Progress</dt> 
+		<dd>
+			<div class="progress">
+				<div class="progress-bar" role="progressbar" aria-valuenow="{{ object.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{ object.progress}}%;">
+					{{ object.progress}}%
+				</div>
+			</div>
+		</dd>
+		<dt>Time remaining (est)</dt><dd>{{ object.estimated }}</dd>
+			<dt>Status</dt><dd>{{ object.status }}</dd>
+	<dl>
+	<br>
+	<p>Should you prefer you can look into the <cite>Deferred Tasks</cite> tab in the 
+		<a href="{% url 'dashboard_index' %}">dashboard</a> and check the status of the pending jobs.
+	</p>
+{% endblock %}

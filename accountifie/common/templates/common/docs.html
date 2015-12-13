@@ -1,0 +1,19 @@
+{% extends base_template %}
+
+{% block head_title %} {{block.super}} Documentaton{% endblock %}
+
+{% block title %}Documentation{% endblock %}
+{% block content %}
+<h2>Documentation</h2>
+<p>This is a placeholder for any manuals or how-to's are found pertinent to any  contributor using the platform.</p>
+
+<p>Developers should override this by placing an extended copy of <pre>&lt;site-packages&gt;docengine/common/templates/common/docs.html</pre> <dir>into</dir> <pre>project/templates/common/docs.html</pre></p>
+
+<p>If you want <i>knowledge management system</i>-like documentation, we would need to provide a means for you to either deliver static HTML files or edit content via a basic CMS app</p>
+{% endblock%}
+
+{% block sidebar %}
+<h4>No sub-items to navigate</h4>
+{% endblock%}
+
+

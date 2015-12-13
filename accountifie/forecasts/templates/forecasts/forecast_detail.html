@@ -1,0 +1,111 @@
+{% extends base_template %}
+
+{% block title %}Forecast detail{% endblock %}
+
+{% block extrahead %}
+	{{ block.super }}
+	{{ form.media.css }}
+	<style>
+		.handsontable {max-width:100%; overflow-x: scroll} 
+		label[for$="entries"] + .col-sm-10 {
+			clear:left;
+			width: 100%;
+		}
+	{% if company_color %}
+	.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
+		background-color: {{ company_color }} } 
+	{% endif %}
+	</style>
+{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="/">Home</a></li>
+<li><a href="/forecasts/">Forecasts</a></li>
+<li class="active">{{ f.name }}</li>
+{% endblock %}
+
+{% block sidebar %}
+<!--
+<form class="form" method="post" action="{% url 'run_forecast' %}" name="run_forecast">
+	{% csrf_token %}
+	<input type="hidden" name="forecast" value="{{f.id}}">
+	<button type="submit" class="btn btn-info">Run Forecast</button>
+</form>
+</br>
+
+<form class="form" method="post" action="{% url 'run_forecast' %}" name="run_forecast">
+	{% csrf_token %}
+	<input type="hidden" name="forecast" value="{{f.id}}">
+	<button type="submit" class="btn btn-info">Add Assumptions</button>
+</form>
+</br>
+-->
+<form class="form" method="get" action="{% url 'upload_gl' %}">
+	{% csrf_token %}
+	<input type="hidden" name="forecast" value="{{f.id}}">
+	<button type="submit" class="btn btn-info">Load GL Projections</button>
+</form>
+
+</br>
+
+<form class="form" method="get" action="{% url 'fcast_projections' %}">
+	{% csrf_token %}
+	<input type="hidden" name="fcast_id" value="{{f.id}}">
+	<button type="submit" class="btn btn-info">View GL Projections</button>
+</form>
+
+</br>
+</br>
+
+<h3>Get 5 year projections</h3>
+
+<a href="/forecasts/run?forecast={{f.id}}&report=IncBalanceSheet" class="btn btn-success">Balance Sheet</a>
+</br>
+</br>
+
+<a href="/forecasts/run?forecast={{f.id}}&report=IncomeStatement" class="btn btn-success">Income Statement</a>
+</br>
+</br>
+
+<a href="/forecasts/run?forecast={{f.id}}&report=Cashflow" class="btn btn-success">Cashflow Statement</a>
+</br>
+
+
+
+
+{{block.super}}
+
+
+{% endblock %}
+
+
+{% block content %}
+	
+	<div class="row">
+    <div class="col-md-6">
+		<h2>{{ f.id }} - {{ f.label }}</h2>
+
+		{% if form.non_field_errors %}
+		<ul class="errors">
+		    {% for error in form.non_field_errors %}
+		    <li>{{error}}</li>
+		    {% endfor %}
+		</ul>
+		{% endif %}
+		<form role="form" class="form-horizontal">
+			{{ form.as_div }}
+		</form>
+		<a href="{% url 'forecast_delete' pk=f.id %}" class="btn btn-danger">Delete</a>
+	</div>
+	<div class="col-md-4">
+	
+	</div>
+</div>
+
+	
+
+{% endblock %}
+
+{% block extrajs %}
+	{{ form.media.js }}
+{% endblock %}

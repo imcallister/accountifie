@@ -1,0 +1,131 @@
+{% extends base_template %}
+{% load staticfiles common  %}
+{% load url from future %}
+
+
+{% block content %}
+        <div class="tab-pane" id="tab10">
+            <h3>Network Testing</h3>
+            <p>This tool can be used when we suspect corporate networks are slow or intermittent. It
+            is normal to have occasional slowdowns or timeout errors, but if it happens too often,
+            it can affect how we need to design applications.
+
+            </p>
+            <p>"Frequency" is hits per second.  Please do NOT put in a number above 1 unless we tell you to.  
+            "Count" is how many hits to do before the test is ended.  We suggest entering <b>frequency = 0.1</b> 
+            (i.e. every ten seconds), and <b>count=360</b>, to let it run for an hour.  You can leave this running
+            in a separate browser tab.</p>
+            <p>At the end, you can note the typical response times, and if
+            there are many errors, you can paste out the whole form into a document or email and send it back.</p>
+
+            <p><b>Do not log out of your session</b>, unless you want to simulate an error!   You can log out and back in using another window but will see a few failed requests in the meantime</p>
+
+            <hr/>
+            
+            <form class="form-inline" role="form">
+              <div class="form-group">
+                <label for="load_frequency">Frequency (requests per seconds)</label>
+                <input type="text" class="form-control" id="load_frequency" default='0.1' placeholder="Enter a frequency">
+              </div>
+              <div class="form-group">
+                <label for="load_count">Count</label>
+                <input type="text" class="form-control" id="load_count" default='360' placeholder="Enter a count">
+              </div>
+              
+              <button type="submit" id='load_testing_start' class="btn btn-default">Start</button>
+              <button type="submit" id='load_testing_stop' class="btn btn-default">Stop</button>
+            </form>
+            
+            
+            <div class="status">
+              <p id='saving' >Saving...</p>  
+              <p id='success' class="text-success">Saves: 0</p>
+              <p id='errors' class="text-danger">Errors: 0</p>
+              <p id='average' >Average response time:</p>
+            </div>
+            
+            <div class="table-responsive">
+                <p>All responses</p>
+              <table class="table">
+                  <thead>
+                 <tr>
+                    <th>Request ID</th>
+                    <th>Status</th>
+                    <th>Response time</th>
+                  </tr>
+                </thead>
+                <tbody id='total'>
+
+                 </tbody>
+              </table>
+            </div>
+            
+         <script>  
+         
+$(document).ready(function(){
+    var load_tester = docengine_load_tester('/dashboard/load_test/')
+    $('#saving').text('Ready'); 
+    $('#load_frequency').val('0.1')
+    $('#load_count').val('360')
+    //init of load tester, set specific functions to be used for this case
+    load_tester.error(function (response, total, load_time, jqXHR){
+            $('#errors').text('Errors: ' + total.length) 
+            var row = $('<tr></tr>')
+            row.append('<th>' + total.length + '</th>')
+            row.append('<th> ' + jqXHR.status + ' ' + response + '</th>')
+            row.append('<th>' + load_time +  ' ms</th>')
+            $('#total').prepend(row)
+        }).success(function (response, total, load_time, jqXHR){
+            $('#success').text('Success: ' + total.length)
+            var row = $('<tr></tr>')
+            row.append('<th>' + total.length + '</th>')
+            row.append('<th> ' + jqXHR.status + ' Succeeded</th>')
+            row.append('<th>' + load_time +  ' ms</th>')
+            $('#total').prepend(row)
+        }).stop(function(total){
+            $('#saving').text('Load tester stopped...');
+            $('#average').text('Average response time: ' + load_tester.average() + ' ms')
+        }).right_answer(function(response){
+            if (response['number'] == 20){
+                return response
+            }
+            else {
+                return false
+            }
+        }).question(function () { return {'number': 10}});
+    
+    $("#load_testing_start").click(function(ev){
+        ev.preventDefault()
+        
+        var freq = Number($('#load_frequency').val());
+        if (freq > 1) {
+            freq = 1
+        }
+        var per_sec = 1/freq;
+        var count = Number($('#load_count').val());
+        $('#saving').text('Load tester running every ' + per_sec + ' seconds' + ' for: ' + count + ' times');
+        load_tester.start_test(per_sec, count)
+        $('#load_frequency').val('')
+        $('#load_count').val('')
+        $('#average').text('Average response time: ')
+    }) 
+    
+    $("#load_testing_stop").click(function(ev){
+        ev.preventDefault()
+        $('#saving').text('Load tester stopped...');
+        load_tester.stop_test()
+    }) 
+                     
+});
+</script>
+
+{% endblock %}
+           
+        </div> <!-- tab10 -->
+        
+{% block extrajs %}{{block.super}}
+<script src="{{ STATIC_URL }}common/js/bootstrap.min.js"></script>
+<script src="{{ STATIC_URL }}common/js/load_tester.js"></script>
+
+{% endblock %}
+        

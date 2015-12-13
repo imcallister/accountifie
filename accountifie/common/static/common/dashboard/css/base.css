@@ -1,0 +1,113 @@
+html, body, div {
+	margin: 0;
+	padding: 0;
+}
+body {
+	font: 12px Arial, sans-serif;
+	line-height: 18px;
+	color: #333333;
+	background: #FFFFFF;
+}
+p {
+	margin: 0;
+}
+h1 {
+	font-size: 24px;
+	color: #555555;
+	font-weight: normal;
+}
+a {
+	color: #0066CC;
+}
+a:visited {
+	color: #0066CC;
+}
+a img {
+	border: none;
+}
+table {
+	border: 0;
+	margin: 10px 0 10px 0;
+	padding: 0;
+    border-collapse: collapse;
+}
+tr {
+	margin: 0;
+	padding: 0;
+}
+th {
+	border: 1px solid #333333;
+	padding: 5px;
+	text-align: center;
+	background-color: #BBBBBB;
+}
+td {
+	border: 1px solid #333333;
+	padding: 5px;
+	text-align: left;
+}
+object {
+	background: white;
+	padding: 5px 5px 0 5px;
+}
+input[type=text], input[type=password] {
+	font: 12px Arial, sans-serif;
+}
+#header, #content, #footer {
+	display: block;
+}
+#header {
+	margin-bottom: 65px;
+}
+#header #branding {
+	background: #333333;
+	padding: 25px 20px 15px 20px;
+}
+#header #branding #logo {
+	float: right;
+	margin: 0 0 10px 10px;
+	border: 2px solid #BBBBBB;
+	background-color: white;
+}
+#header #branding h1 {
+	font-size: 24px;
+	font-weight: bold;
+	color: #FFFFFF;
+	margin: 0 0 4px 0;
+}
+#header #branding p {
+	color: #DDDDDD;
+	font-weight: bold;
+	margin: 0;
+}
+#header #subheader {
+	padding: 8px 20px 8px 20px;
+	background-color: #DDDDDD;
+}
+#content {
+	margin: 0 45px 0px 45px;
+	padding-bottom: 25px;
+}
+#content .section {
+	margin: 35px 0 0 0;
+	padding-bottom: 35px;
+	border-bottom: 1px solid #AAAAAA;
+}
+#content li {
+	margin: 0 0 0 20px;
+}
+#content ul {
+	margin: 0;
+	padding: 5px 0 0 0;
+}
+#footer {
+	background: #444444;
+	border-bottom: 2px solid #BBBBBB;
+	clear: both;
+	margin-top: 50px;
+}
+#footer p {
+	color: #DDDDDD;
+	margin: 0;
+	padding: 10px 20px 10px 20px;
+}

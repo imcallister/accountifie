@@ -1,0 +1,38 @@
+{% extends base_site_template %}
+{% load staticfiles %}
+{% load url from future %}
+{% block title %}Environment &amp; Request Information!{% endblock %}
+{% block about %}
+<p>This view shows all environment variables and request parameters. It can be useful when investigating web server settings  (e.g. if fiddling around with
+Apache or nginx, or being behind proxies).</p>
+<p>If you need to override any URL whatsoever, add a pattern in your top level urls.py to match everything to this. Example:</p>
+<pre>
+urlpatterns += patterns('',
+    url(r'^.*$', 'accountifie.dashboard.views.show_request'),
+    # etc...
+</pre>
+{% endblock %}
+{% block breadcrumbs %}<li>Home</li>{% endblock %}
+{% block content %}
+<div class="section">
+	<b>os.environ</b>
+	<pre>{{env}}</pre>
+	<b>POST</b>
+	<pre>{{request.POST|pprint}}</pre>
+	<b>GET</b>
+	<pre>{{request.GET|pprint}}</pre>
+	<b>request.META</b>
+	<pre>{{request.META|pprint}}</pre>
+	<b>request.COOKIES</b>
+	<pre>{{request.COOKIES|pprint}}</pre>
+	{%if request.method%}<p><b>request.method:</b><span style="background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;">{{request.method}}</span></p>{%endif%}
+	{%if request.scheme%}<p><b>request.scheme:</b><span style="background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;">{{request.scheme}}</span></p>{%endif%}
+	{%if request.path%}<p><b>request.path:</b><span style="background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;">{{request.path}}</span></p>{%endif%}
+	{%if request.path_info%}<p><b>request.path_info:</b><span style="background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;">{{request.path_info}}</span></p>{%endif%}
+	{%if request.method%}<p><b>request.method:</b><span style="background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;">{{request.method}}</span></p>{%endif%}
+	{%if request.encoding%}<p><b>request.encoding:</b><span style="background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;">{{request.encoding}}</span></p>{%endif%}
+	{%if request.user%}<p><b>request.user:</b><span style="background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;">{{request.user}}</span></p>{%endif%}
+	{%if request.urlconf%}<p><b>request.urlconf:</b><span style="background-color:#f5f5f5;border:1px solid #ccc;border-radius:4px;">{{request.urlconf}}</span></p>{%endif%}
+</div>
+{% endblock %}
+

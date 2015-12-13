@@ -1,0 +1,123 @@
+#sections {
+    margin:50px 0;
+}
+#sections .group {
+    display:block;
+    float:left;
+    width:250px;
+    border:1px solid #000;
+    margin:0 20px 20px 0;
+    background:#444;
+    background:-moz-linear-gradient(center top, #444444 0%, #000000 100%);
+    background:-webkit-gradient(linear, left bottom, left top, color-stop(0, #000000), color-stop(1, #444444));
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#444444', endColorstr='#000000');
+    color:#fff;
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+	-webkit-box-shadow: 2px 2px 8px rgba(0,0,0,.2);
+	-moz-box-shadow: 2px 2px 8px rgba(0,0,0,.2);
+	box-shadow: 2px 2px 8px rgba(0,0,0,.2);
+}
+#sections .group .titlebar {
+    padding:3px 10px 5px 10px;
+}
+#sections .group .titlebar h4 {
+    margin:0;
+    color:#fff;
+    text-shadow:1px 1px 2px rgba(0,0,0,1);
+}
+#sections .group .titlebar .link {
+    float:right;
+    margin:2px 15px 2px 0;
+}
+#sections .group .content {
+    height:160px;
+    overflow:hidden;
+    padding:10px;
+    background:#ddd;
+    color:#444;
+    background:-moz-linear-gradient(center top, #ffffff 0%, #dddddd 100%);
+    background:-webkit-gradient(linear, left bottom, left top, color-stop(0, #dddddd), color-stop(1, #ffffff));
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#dddddd');
+}
+#sections .group .content table {
+    width:100%;
+}
+#sections .group .content td {
+    padding:2px;
+    border-top:1px solid #fff;
+}
+#sections .group .content td.thumbnail {
+    width:53px;
+    height:53px;
+    text-align:center;
+}
+#sections .group .content a {
+    text-decoration: none;
+    color: #000;
+}
+#sections .group .content img {
+    margin: 0 6px 0 0;
+}
+
+
+.option_bar {
+    background:#444;
+    margin:15px 0;
+    padding:4px 6px;
+    border:1px solid #000;
+}
+.option_bar a {
+    color:#fff;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+
+.link_add {
+    display:inline;
+    padding-right:20px;
+    background:url('/media/images/icons/add.png') no-repeat right top;
+}
+.link_delete {
+    display:inline;
+    padding-right:20px;
+    background:url('/media/images/icons/delete.png') no-repeat right top;
+}
+.link_edit {
+    display:inline;
+    padding-right:20px;
+    background:url('/media/images/icons/edit.png') no-repeat right top;
+}
+
+
+
+table.listing {
+    border:1px solid #ddd;
+}
+table.listing th {
+    border:1px solid #000;
+    background:#444;
+    color:#fff;
+    font-weight:bold;
+    padding:4px 6px;
+}
+table.listing td {
+    border:1px solid #000;
+    padding:4px 6px;
+    background:#eee;
+    vertical-align:top;
+}
+table.listing td.nopadding {
+    padding:0;
+}
+
+
+
+/* jGrowl notification plugin */
+div.jGrowl {padding: 10px;z-index: 9999;color: #fff;font-size: 12px;}/** Special IE6 Style Positioning **/div.ie6 {position: absolute;}div.ie6.top-right {right: auto;bottom: auto;left: expression( ( 0 - jGrowl.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );  top: expression( ( 0 + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );}div.ie6.top-left {left: expression( ( 0 + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );top: expression( ( 0 + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );}div.ie6.bottom-right {left: expression( ( 0 - jGrowl.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );top: expression( ( 0 - jGrowl.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );}div.ie6.bottom-left {left: expression( ( 0 + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );top: expression( ( 0 - jGrowl.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );}div.ie6.center {left: expression( ( 0 + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );top: expression( ( 0 + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );width: 100%;}/** Normal Style Positions **/body > div.jGrowl {position:fixed;}body > div.jGrowl.top-left {left: 0px;top: 0px;}body > div.jGrowl.top-right {right: 0px;top: 0px;}body > div.jGrowl.bottom-left {left: 0px;bottom:0px;}body > div.jGrowl.bottom-right {right: 0px;bottom: 0px;}body > div.jGrowl.center {top: 0px;width: 50%;left: 25%;}/** Cross Browser Styling **/div.center div.jGrowl-notification, div.center div.jGrowl-closer {margin-left: auto;margin-right: auto;}div.jGrowl div.jGrowl-notification, div.jGrowl div.jGrowl-closer {background-color: #000;opacity: .85;    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=85)";     filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=85); zoom: 1;width: 235px;padding: 10px;margin-top: 5px;margin-bottom: 5px;font-family: Tahoma, Arial, Helvetica, sans-serif;font-size: 1em;text-align: left;display: none;-moz-border-radius: 5px;-webkit-border-radius:5px;}div.jGrowl div.jGrowl-notification {min-height: 40px;}div.jGrowl div.jGrowl-notification div.header {font-weight: bold;font-size:1.2em;}div.jGrowl div.jGrowl-notification div.close {z-index:99;float: right;font-weight: bold;font-size: 1em;cursor:pointer;}div.jGrowl div.jGrowl-closer {padding-top: 4px;padding-bottom: 4px;cursor: pointer;font-size:.9em;font-weight: bold;text-align: center;}/** Hide jGrowl when printing **/@media print {div.jGrowl {display: none;}}
+

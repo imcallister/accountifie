@@ -1,0 +1,36 @@
+{% extends base_template %}
+
+
+{% block title %}Accounts list{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="/">Home</a></li>
+<li class="active">Accounts List</li>
+{{block.super}}
+{% endblock %}
+
+
+
+{% block content %}
+
+<table class="table table-striped">
+    <thead>
+        <th>id</th>
+        <th>path</th>
+        <th>role</th>
+        <th>etc</th>
+    </thead>
+    <tbody>
+    {% for account in accounts %}
+        <tr>
+            <td>{{account.id}}</td>
+            <td>{{account.display_name}}</td>
+            <td>{{account.path}}</td>
+            <td>{{account.role}}</td>
+            <td>
+                <a href="/reporting/history/account/{{account.id}}/">history</a>            
+            </td>
+        </tr>    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

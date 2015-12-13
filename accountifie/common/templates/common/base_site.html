@@ -1,0 +1,27 @@
+{% extends base_template %}
+{% block extrahead %}
+{{ block.super }}
+<style>
+	#content > .header, #content > .breadcrumb   {margin-left: 0}
+</style>
+{% endblock %}
+{% block outer_content %}
+	<div class="row">
+		<div class="col-lg-8 col-lg-offset-2 col-sm-10 col-sm-offset-1">
+			<div class="page-header">
+				<h1>{% block title %}{% endblock %}<small> {% block tagline %}{% endblock %}</small></h1>
+				{% block about %}{% endblock %}
+			</div>
+			<ul class="breadcrumb {% block breadclass %}hidden-xs{% endblock %}">{% block breadcrumb %}{% endblock %}</ul>
+	</div>
+	<!--div class="row"-->
+		<div class="col-lg-8 col-lg-offset-2 col-sm-10 col-sm-offset-1"><div id="messages"></div>
+		{% if messages %}
+          {% for message in messages %}
+        <div class="alert{% if message.tags %} {{ message.tags|lower }}{% endif %}">{{ message }}</div>
+          {% endfor %}
+      {% endif %}
+			{% block content %}{%endblock%}
+		</div>
+	<!--/div-->
+{% endblock %}

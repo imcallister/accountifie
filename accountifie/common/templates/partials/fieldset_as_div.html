@@ -1,0 +1,21 @@
+{% load common %}
+{% if fieldset.template_name %}
+  {% include fieldset.template_name %}
+{% else %} 
+   	{{ fieldset.errors }}
+  	{% for thing in fieldset %}{% spaceless %}
+   		{% if thing.is_fieldset %}
+			{% if thing.name|is_inline %}
+			<div class="row">
+				{% include fieldset_template_name with fieldset=thing inner_thing=1 colwidth=thing.rows|bscols %}
+			</div>
+			{% else %}
+				{% if thing.name|length > 1 %}<h4>{{thing.name}}</h4>{% endif %}
+				{% include fieldset_template_name with fieldset=thing %} 
+			{% endif %}
+   		{% else %}
+       		{% include field_template_name with field=thing %}
+   		{% endif %}
+		{% endspaceless%}
+   	{% endfor %}
+{% endif %}

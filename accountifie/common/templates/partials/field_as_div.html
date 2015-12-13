@@ -1,0 +1,9 @@
+{% if thing.is_hidden %}
+  {{ thing }}
+{% else %}
+	{% if inner_thing %}	<div class='col-md-{{colwidth|default:"3"}} col-lg-{{colwidth|default:"3"}}'>{% endif %}
+		<div class="form-group">
+			{{thing.label_tag}} {{ thing }}
+		</div>
+	{% if inner_thing %}	</div>{% endif %}
+{% endif %}

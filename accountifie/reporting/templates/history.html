@@ -1,0 +1,57 @@
+{% extends base_template %}
+{% load humanize %}
+
+
+{% block title %}{% if by_date_cleared %}cleared {% endif %}History page{% endblock %}
+{% block tagline %}{{display_name}}{%endblock%}
+
+{% block breadcrumb %}
+<li><a href="/">Home</a></li>
+<li><a href="/reporting/index/">Reporting</a></li>
+<li class="active">History: {{display_name}}</li>
+{% endblock %}
+
+
+{% block content %}
+
+<hr/>
+<p>By year:  
+{%for year in years %}
+    <a href="./?year={{year.id}}">{{year.id}}</a>&nbsp;
+{% endfor %}
+<a href="./?from=2013-01-01">All</a>&nbsp;
+
+
+<p>From {{from_date}} to {{to_date}}</p>
+<table class="table table-striped table-condensed">
+    <thead>
+        {% for colspec in column_titles %}
+            <th>{{colspec}}</th>
+        {% endfor %}
+        
+    </thead>
+    <tbody>
+        {% for h in history %}
+            {% ifchanged h.1.text.month %} 
+                <tr class="info"><td colspan={{h|length}}><i>Year {{h.1.text.year}} month {{h.1.text.month}}</i></td></tr>
+            {% endifchanged %}
+            <tr>
+                {% for value in h %}
+                    {% if value.link %}
+                        <td onclick="document.location='{{value.link}}'">{{value.text}}</td>
+                    {% else %}
+                        <td>{{value.text}}</td>
+                    {% endif %}
+                {% endfor %}
+
+            
+            </tr>    
+        {% endfor %}
+    </tbody>
+</table>
+<p/>
+<p/>
+<hr>
+
+
+{% endblock %}

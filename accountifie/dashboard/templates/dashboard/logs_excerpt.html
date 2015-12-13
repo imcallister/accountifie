@@ -1,0 +1,43 @@
+{% if logs.paginator.num_pages %}
+<div class="pull-right">
+    Page {{logs.number}} of {{logs.paginator.num_pages}}
+</div>
+{% endif %}
+<table class="table table-striped">
+{% for log in logs.object_list %}
+    {% if forloop.first%}
+    <tr>
+        <th>LVL</th><th>time</th><th>request</th><th>message</th><th>traceback</th>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>{{log.level}}</td><td>{{log.time|date:"SHORT_DATETIME_FORMAT" }}</td><td>{{log.request}}</td><td>{{log.message}}</td><td>{{log.traceback}}</td>
+    </tr>
+{% endfor %}
+</table>
+{% if logs.paginator.num_pages %}
+<ul class="pagination" name="pagination">
+    {% if logs.has_previous %}
+  <li><a href="#pagination" data-page="{{logs.previous_page_number}}">&laquo;</a></li>
+    {% else%}
+  <li class="disabled"><a>&laquo;</a></li>
+    {% endif %}
+    {% for pg in logs.paginator.page_range %}
+            {% if not pg = logs.number %}
+  <li><a href="#pagination" data-page="{{pg}}">{{pg}}</a></li>
+            {% else %}
+  <li class="active"><a href="#">{{pg}}</a></li>
+            {% endif %}
+    {% endfor %}
+    {% if logs.has_next %}
+  <li><a href="#pagination" data-page="{{logs.next_page_number}}">&raquo;</a></li>
+    {% else%}
+  <li class="disabled"><a>&raquo;</a></li>
+    {% endif %}
+{% endif %}
+</ul>
+<script>
+    $('.pagination li a').click(function(event){
+        load_logs($(this).data('page'))
+        });
+</script>

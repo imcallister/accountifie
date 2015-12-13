@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+
+{% block title %}General ledger transaction: {{tran.id}}{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="/">Home</a></li>
+<li><a href="/gl/">GL</a></li>
+<li class="active">Transaction</li>
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<table class="table table-condensed">
+    <tbody>
+        <tr><td>ID:</td><td>{{tran.id}}</td><td></td></tr>
+        <tr><td>Date:</td><td>{{tran.date}}</td><td></td></tr>
+        <tr><td>Date End:</td><td>{{tran.date_end}}</td><td></td></tr>
+        <tr><td>Comment:</td><td>{{tran.comment}}</td><td></td></tr>
+        <tr><td></td><td></td><td></td></tr>
+
+
+
+
+<table class="table table-striped">
+    <thead>
+        <th>Account</th>
+        <th>Amount</th>
+        <th>Counterparty</th>
+    </thead>
+    <tbody>
+    {% for line in tran.tranline_set.all %}
+        <tr>
+            <td><a href="/gl/accounts_list/{{line.account.id}}/">{{line.account.display_name}}</td>
+            <td>{{line.amount}}</td>
+            <td><a href="/gl/counterparty_list/{{line.counterparty.id}}/">{{line.counterparty.name}}</td>
+        </tr>    {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+
+<h2>Derived from..</h2>
+<p>(Hope to generically display the original one here soon)</p>
+<p><a href="{{source_admin_url}}">{{source}}</a></p>
+
+
+{% endblock %}

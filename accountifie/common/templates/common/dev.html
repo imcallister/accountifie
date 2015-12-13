@@ -1,0 +1,57 @@
+{% extends "common/base_site.html" %}
+{% load staticfiles %}
+{% load url from future %}
+{% block extrahead %}
+{% endblock %}
+{% block title %}{% endblock %}
+
+{% block content %}
+{% block onloadjs %}{% endblock %}
+        <!-- Header -->
+        <div class="page-header">
+            <h1><img src="{{STATIC_URL}}common/img/logo.png" height="50"/><small> For developers</small></h1>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="breadcrumb">
+                  <li><a href='..'>Home</a></li>
+                  <li>Developers</li>
+                </ul>
+            </div>
+        </div>
+        <!-- END Header -->
+
+
+<p class="text lead">Here we go</p>
+<div class="row">
+  <div class="col-lg-8">
+    <pre class="prettyprint linenums">
+import os
+from django.test import TestCase
+from django.test.client import Client
+from django.conf import settings
+from django.utils import simplejson
+from django.test.utils import override_settings
+
+from docengine.common.tasks import test_monitored_task
+from docengine.common.models import TaskMonitor
+
+@override_settings(TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner', CELERY_ALWAYS_EAGER = True)
+class AddTestCase(TestCase):
+
+    def testSuccessWithTenPercent(self):
+        result = test_monitored_task.delay(percent=10)
+        self.assertTrue(result.successful())
+        m = TaskMonitor.objects.get(task_id=result.get())#the task is returning the task_id in this case
+        self.assertEquals(m.task_state, 'succeeded')
+        self.assertEquals(m.percent_complete, 10)
+        self.assertEquals(m.log_info, 'test log')
+        self.assertEquals(m.initiator, 'test user')
+    </pre>
+  </div>
+</div>
+
+
+
+{% endblock %}
+

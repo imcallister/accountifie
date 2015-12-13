@@ -1,0 +1,8 @@
+{% extends base_site_template %}
+
+{% block title %}Logged out{% endblock %}
+
+{% block content %}
+<p>You logged out.</p>
+{% block return_url %}<p><a href="/login/?next={% if 'logout' in request.META.HTTP_REFERER %}/{% else %}{% firstof request.META.HTTP_REFERER '/' %}{% endif %}">Login again</a></p>{% endblock %}
+{% endblock %}

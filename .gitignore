@@ -1,0 +1,10 @@
+.Python
+.DS_Store
+*.ipynb
+*.idea/*
+*.pyc
+*.pyo
+*.sublime-*
+*.swp
+*.ipynb
+*.iml

@@ -1,0 +1,19 @@
+{% extends base_site_template %}
+{% load staticfiles %}
+{% load url from future %}
+{% block title %}New Docengine Project{% endblock %}
+
+{% block breadcrumbs %}<li>Home</li>{% endblock %}
+{% block content %}
+<div class="section">
+    <h3>Well done, grasshopper</h3>
+    
+    <img src="/static/common/img/kung_fu.jpg" alt="well done">
+    <p>You have come a long way.</p>
+    <p>You probably want to define a root URL handler, higher up
+    than the docengine ones, to override this.  But well done,
+    you have come a long way.</p>
+</div>
+{{ content }}
+{% endblock %}
+

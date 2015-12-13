@@ -1,0 +1,2 @@
+recursive-include accountifie/common/templates *
+recursive-include accountifie/common/static *

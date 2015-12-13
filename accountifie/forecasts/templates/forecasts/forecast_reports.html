@@ -1,0 +1,406 @@
+{% extends 'forecasts/base_forecasts.html' %}
+
+
+{% block title %}Forecasting Report Center{% endblock %}
+
+
+
+
+{% block content %}
+
+
+
+    <div class="row">
+        <div class="col-md-6">
+
+             
+            <ul  class="nav nav-pills">
+                <li class="active"><a  href="#annual" data-toggle="tab">Annual Periods</a></li>
+                <li><a href="#quarterly" data-toggle="tab">Quarterly Periods</a></li>
+                <li><a href="#monthly" data-toggle="tab">Monthly Periods</a></li>
+                <li><a href="#today" data-toggle="tab">Single Date</a></li>
+            </ul>
+
+            <div class="tab-content clearfix">
+
+                
+                <div class="tab-pane active panel panel-default" id="annual">
+                    
+                    <div class="panel-body">
+                        <form action="/forecasts/get_report">
+
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="form-group">
+                                        <label class="col-xs-3 control-label">Forecast</label>
+                                        <div class="col-xs-9">
+                                            <select class="form-control" name="fcast_id">
+                                                {% for fcast in fcasts %}
+                                                    <option value={{fcast.0}}>{{fcast.1}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+
+
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="btn-group" data-toggle="buttons">
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q156" name="yr" value="2015"/> 2015
+                                        </label> 
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q157" name="yr" value="2016" /> 2016
+                                        </label> 
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q158" name="yr" value="2017" /> 2017
+                                        </label> 
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br/>
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="btn-group" data-toggle="buttons">
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q156" name="period" value="Monthly" /> Monthly
+                                        </label> 
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q157" name="period" value="Quarterly" /> Quarterly
+                                        </label> 
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q158" name="period" value="Annual" /> Annual
+                                        </label> 
+                                        
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <br/>
+
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <div class="btn-group-vertical" data-toggle="buttons">
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q156" name="rpt" value="TrialBalance" /> Trial Balance
+                                        </label> 
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q157" name="rpt" value="IncBalanceSheet" /> Balance Sheet
+                                        </label> 
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q158" name="rpt" value="IncomeStatement" /> Income Statement
+                                        </label> 
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q158" name="rpt" value="Cashflow" /> Cashflow Statement
+                                        </label> 
+                                        <label class="btn btn-default">
+                                            <input type="radio" id="q158" name="rpt" value="ChgInEquityStatement" /> Change in Equity
+                                        </label> 
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <input type="checkbox" id='cl_cache' name="cl_cache" value='checked'/><label for="cl_cache">Clear Cache</label> 
+                            <br/>
+                            <input type="submit" class="btn btn-primary" value="Get Report"></input>
+                            <br/>
+                            
+                            
+
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane panel panel-default" id="quarterly">
+                    
+                    <div class="panel-body">
+
+                    <form action="/forecasts/get_report">
+                        
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="yr" value="2015" /> 2015
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="yr" value="2016" /> 2016
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="yr" value="2017" /> 2017
+                                    </label> 
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+                        </br>
+
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="qtr" value="1" /> Q1
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="qtr" value="2" /> Q2
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="qtr" value="3" /> Q3
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q159" name="qtr" value="4" /> Q4
+                                    </label> 
+                                </div>
+                            </div>
+                        </div>
+
+                        <br/>
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="period" value="Monthly" /> Monthly
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="period" value="Quarterly" /> Quarterly
+                                    </label> 
+                                </div>
+                            </div>
+                        </div>
+        
+                        <br/>
+
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="btn-group-vertical" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="rpt" value="TrialBalance" /> Trial Balance
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="rpt" value="IncBalanceSheet" /> Balance Sheet
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="IncomeStatement" /> Income Statement
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="Cashflow" /> Cashflow Statement
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="ChgInEquityStatement" /> Change in Equity
+                                    </label> 
+                                </div>
+                            </div>
+                        </div>
+                            
+                        <br/>
+                        <input type="submit" class="btn btn-primary" value="Get Report"></input>
+                        <br/>
+                        <br/>
+                    </form>
+
+
+                        
+                    </div>
+                </div>
+
+
+                <div class="tab-pane panel panel-default" id="monthly">
+                    
+                    <div class="panel-body">
+
+                    <form action="/forecast/get_report">
+                        
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="yr" value="2015" /> 2015
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="yr" value="2016" /> 2016
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="yr" value="2017" /> 2017
+                                    </label> 
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+                        </br>
+
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="mth" value="01" /> Jan
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="mth" value="02" /> Feb
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="mth" value="03" /> Mar
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q159" name="mth" value="04" /> Apr
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="mth" value="05" /> May
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="mth" value="06" /> Jun
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="mth" value="07" /> Jul
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q159" name="mth" value="08" /> Aug
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="mth" value="09" /> Sep
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="mth" value="10" /> Oct
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="mth" value="11" /> Nov
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q159" name="mth" value="12" /> Dec
+                                    </label> 
+                                </div>
+                            </div>
+                        </div>
+
+                        <br/>
+
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="btn-group-vertical" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="rpt" value="TrialBalance" /> Trial Balance
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="rpt" value="IncBalanceSheet" /> Balance Sheet
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="IncomeStatement" /> Income Statement
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="Cashflow" /> Cashflow Statement
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="ChgInEquityStatement" /> Change in Equity
+                                    </label> 
+                                </div>
+                            </div>
+                        </div>
+                            
+                        <br/>
+                        <input type="submit" class="btn btn-primary" value="Get Report"></input>
+                        <br/>
+                        <br/>
+                    </form>
+
+
+                        
+                    </div>
+                </div>
+
+
+                <div class="tab-pane panel panel-default" id="today">
+                    
+                    <div class="panel-body">
+
+                    <form action="/forecast/get_report">
+                        
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <input type="date" class="form-control" name="date">
+                            </div>
+                        </div>
+                        <br/>
+
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="btn-group-vertical" data-toggle="buttons">
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q156" name="rpt" value="TrialBalance" /> Trial Balance
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q157" name="rpt" value="IncBalanceSheet" /> Balance Sheet
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="IncomeStatement" /> Income Statement
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="Cashflow" /> Cashflow Statement
+                                    </label> 
+                                    <label class="btn btn-default">
+                                        <input type="radio" id="q158" name="rpt" value="ChgInEquityStatement" /> Change in Equity
+                                    </label> 
+                                </div>
+                            </div>
+                        </div>
+                            
+                        <br/>
+                        <input type="submit" class="btn btn-primary" value="Get Report"></input>
+                        <br/>
+                        <br/>
+                    </form>
+
+
+                        
+                    </div>
+                </div>
+
+            </div>            
+        </div>
+
+    </div>
+
+
+{% endblock %}
+
+{% block extrajs %}
+<script src="{{ STATIC_URL }}highcharts/js/highcharts.js"></script>
+<script src="{{ STATIC_URL }}highcharts/js/modules/exporting.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+     var avgByDayOptions = {
+        chart: {
+            renderTo: 'chart_panel',
+            type: 'line',
+        },
+        legend: {enabled: false},
+        title: {text: 'Cumulative Crossed Revenue'},
+        subtitle: {text: 'Last month'},
+        xAxis: {title: {text: null}, labels: {rotation: -45}, type:'datetime'},
+        yAxis: {title: {text: null}},
+        series: [{}],
+    };
+
+    $.ajax({
+        type: 'get',
+        url: "{% url 'chart_data_json' %}",
+        success:function(data) {
+                avgByDayOptions.xAxis.categories = data['chart_data']['dates'];
+                avgByDayOptions.series[0].name = 'Revenue';
+                avgByDayOptions.series[0].data = data['chart_data']['values'];
+                var chart = new Highcharts.Chart(avgByDayOptions);
+        }
+    });
+
+} );
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+/**************************************
+  Yahoo CSS Reset
+ **************************************/
+
+html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var,optgroup{font-style:inherit;font-weight:inherit;}del,ins{text-decoration:none;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:baseline;}sub{vertical-align:baseline;}legend{color:#000;}input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}input,button,textarea,select{*font-size:100%;}
+
+
+/**************************************
+  Base template
+ **************************************/
+
+body {
+    background:#fff;
+    background:-moz-linear-gradient(center top, #eeeeee 0%, #ffffff 100%);
+    background:-webkit-gradient(linear, left bottom, left top, color-stop(0, #ffffff), color-stop(1, #eeeeee));
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#ffffff');
+    padding:30px 20px;
+    font-size:15px;
+    color:#444;
+}
+p {
+    margin:5px;
+}
+h1 {
+    font-size:40px;
+    margin:0 0 10px 0;
+    color:#000;
+    text-shadow:2px 2px 6px rgba(0,0,0,.3);
+}
+h2 {
+    font-size:30px;
+    margin:10px 0;
+    color:#000;
+}
+h3 {
+    font-size:25px;
+    margin:5px 0;
+    color:#000;
+}
+h4 {
+    font-size:20px;
+    margin:5px 0;
+    color:#000;
+}
+
+a {
+    color: #336699;
+}
+
+img.border {
+    border: 1px solid #ddd;
+}
+
+ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+ul li {
+    margin-left: 10px;
+    list-style: square;
+}
+
+
+/**************************************
+  Containers
+ **************************************/
+
+ul#main_menu {
+    float:right;
+}
+ul#main_menu li {
+    float: left;
+    list-style: none;
+    margin-left: 10px;
+}
+.clear {
+    clear:both;
+}
+
+
+
+.error {
+    color:#d00;
+    font-weight:bold;
+}
