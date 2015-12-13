@@ -18,7 +18,7 @@ from django.utils.safestring import mark_safe
 from betterforms.forms import Fieldset, BetterForm, BetterModelForm
 from betterforms.changelist import SearchForm
 from json_field.forms import JSONFormField
-from accountifie.toolkit.fields.htmlfield import HtmlFormField
+
 
 logger = logging.getLogger('default')
 
@@ -373,8 +373,5 @@ class JEditableFormMixin(JEditableMixin, forms.Form):
 
 class JEditableModelForm(JEditableMixin,forms.ModelForm):
     pass
-
-class CommentForm(BootstrapForm):
-    comment = HtmlFormField(label="Comment", required=False)
 
 
