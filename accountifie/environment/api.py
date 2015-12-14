@@ -4,10 +4,10 @@ def get(api_view, params):
     return globals()[api_view](params)
 
 
-
 def alias(params):
     try:
-        return Alias.objects.get(name=params['name']).to_dict()
+        alias = Alias.objects.get(name=params['name'])
+        return dict((k, getattr(alias, k)) for k in ['display_as', 'name'])
     except:
         return None
 
