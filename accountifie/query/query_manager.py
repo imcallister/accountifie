@@ -186,7 +186,15 @@ class QueryManager:
     
     def transaction_info(self, company_id, trans_id):
         return self.gl_strategy.get_transaction(company_id, trans_id)
-        
+    
+
+    def transactions(self, company_id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE):
+        acct_list = [x['id'] for x in accountifie.gl.api.accounts({})]
+        all_entries = self.gl_strategy.transactions(company_id, acct_list, from_date, to_date, 'end-of-month', None, None, None)
+
+        return all_entries
+
+
     def pd_history(self, company_id, q_type, id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE, excl_interco=None, excl_contra=None, incl=None, cp=None):
         if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
             excl_interco = True

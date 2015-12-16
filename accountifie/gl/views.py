@@ -20,6 +20,7 @@ import accountifie._utils
 import accountifie.gl.api
 
 from accountifie.query.query_manager import QueryManager
+from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 
 
 fmt = lambda x: "{:,.0f}".format(x)
@@ -50,17 +51,43 @@ def accounts(request):
 @login_required
 def download_transactions(request):
     company_ID = accountifie._utils.get_company(request)
-    trans = QueryManager().transactions(company_ID)
+
+    snapshot_time = datetime.datetime.now()
+    strategy = QueryManagerStrategyFactory().get('snapshot')
+    strategy.set_cache(None)
+
+    trans = strategy.get_all_transactions(company_ID)
+
+    all_accts_list = accountifie.gl.api.accounts({})
+    all_accts = dict((r['id'], r) for r in all_accts_list)
     
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="transactions.csv"'
     writer = csv.writer(response)
 
-    header_row = ['id', 'Comment', 'Type', 'Company', 'Date', 'object_id']
+    writer.writerow(['', '', '', '', '', '','debit', 'debit', 'debit', 'debit','credit', 'credit', 'credit', 'credit'])
+    writer.writerow(['Id', 'dateEnd', 'date', 'type', 'comment', 'counterpartyId', 'amount', 'accountId', 
+                    'account name','counterpartyId', 'amount', 'accountId', 'account name'])
 
-    writer.writerow(header_row)
     for ex in trans:
-        writer.writerow(ex)
+        first_line = ex['lines'][0]
+        acct_id = first_line['accountId']
+        acct = accountifie.gl.api.account({'id': acct_id})
+        if (acct['role'] in ['asset', 'expense'] and float(first_line['amount']) >0) or \
+            (acct['role'] in ['liability', 'income', 'capital'] and float(first_line['amount']) < 0):
+            debit = ex['lines'][0]
+            credit = ex['lines'][1]
+        else:
+            debit = ex['lines'][1]
+            credit = ex['lines'][0]
+
+        row = [ex[k] for k in ['bmoId', 'dateEnd', 'date', 'type', 'comment']]
+        row += [debit[k] for k in ['counterpartyId', 'amount', 'accountId']]
+        row.append(all_accts[debit['accountId']]['display_name'])
+        row += [credit[k] for k in ['counterpartyId', 'amount', 'accountId']]
+        row.append(all_accts[credit['accountId']]['display_name'])
+
+        writer.writerow(row)
 
     return response
 
