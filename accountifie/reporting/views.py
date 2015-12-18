@@ -288,7 +288,7 @@ def report(request, id):
         for rec in report_data:
             context['rows'] += report.get_row(rec)
 
-        return render_to_response('gl/report.html', RequestContext(request, context))
+        return render_to_response('report.html', RequestContext(request, context))
     else:
         msg = "Sorry. This format is not recognised : %s" % format
         return render_to_response('404.html', RequestContext(request, {'message': msg})), False
