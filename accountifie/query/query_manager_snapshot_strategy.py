@@ -73,6 +73,28 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
         else:
             self.extra = None
             
+    def get_all_transactions(self, company_id):
+
+        if self.snapshot_time:
+            qs = '?snapshotDate=%s' % self.snapshot_time.strftime('%Y-%m-%dT%H:%M')
+        else:
+            qs = ''
+
+        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
+            company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
+            trans = []
+            for cmpny in company_list:
+                cmpny_url = ('%s/gl/%s/snapshot-transactions' % (self.url, cmpny)) + qs
+                trans += json.load(urllib2.urlopen(cmpny_url))
+        else:
+            cmpny_url = '%s/gl/%s/snapshot-transactions' % (self.url, company_id)
+            cmpny_url += qs
+            trans = json.load(urllib2.urlopen(cmpny_url))
+        
+        return trans
+
+
+
     def get_snap_cache(self, company_id):
         
         if self.snapshot_time:
