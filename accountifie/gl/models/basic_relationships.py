@@ -32,6 +32,17 @@ class Counterparty(models.Model):
     def __unicode__(self):
         return self.id
 
+class Project(models.Model):
+    id = models.CharField(max_length=12, primary_key=True)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name_plural = 'Projects'
+        app_label = 'gl'
+        db_table = 'gl_project'
+
+    def __unicode__(self):
+        return self.id
 
 class Department(models.Model):
     #PK is id, that's OK

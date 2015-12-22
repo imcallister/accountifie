@@ -76,6 +76,7 @@ class TranLine(models.Model):
     account = models.ForeignKey(Account)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True)
+    project = models.ForeignKey('gl.Project', blank=True, null=True)
 
     class Meta:
         app_label = 'gl'

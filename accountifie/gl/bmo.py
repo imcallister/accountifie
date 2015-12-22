@@ -76,8 +76,9 @@ class BusinessModelObject(object):
                 'lines': [{
                     'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
                     'amount': "{0:.2f}".format(amount),
-                    'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty
-                } for account, amount, counterparty in lines]
+                    'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
+                    'counterparty': project.id if isinstance (project, accountifie.gl.models.Project) else project
+                } for account, amount, counterparty, project in lines]
             })
 
     def update_gl(self):
