@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import Account, Transaction, TranLine, ExternalBalance, DepreciationPolicy, Company, Counterparty, Department, Employee, ExternalAccount
+from models import *
 
 class TranLineInline(admin.TabularInline):
     model = TranLine
@@ -52,6 +52,9 @@ class CounterpartyAdmin(admin.ModelAdmin):
     ordering = ('id',)
     list_display = ('id', 'name',)
     
+class ProjectAdmin(admin.ModelAdmin):
+    ordering = ('id',)
+    list_display = ('id', 'name',)
 
 class EmployeeAdmin(admin.ModelAdmin):
    
@@ -73,5 +76,6 @@ admin.site.register(DepreciationPolicy, DepreciationPolicyAdmin)
 admin.site.register(Department, DepartmentAdmin)
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Counterparty, CounterpartyAdmin)
+admin.site.register(Project, ProjectAdmin)
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(ExternalAccount, ExternalAccountAdmin)
