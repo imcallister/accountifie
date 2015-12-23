@@ -59,10 +59,10 @@ class BusinessModelObject(object):
                 pass
             tran.save()
             
-            for (account, amount, counterparty) in lines:
+            for (account, amount, counterparty, project) in lines:
                 if type(account) in types.StringTypes:
                     account = accountifie.gl.models.Account.objects.get(id=account)
-                tran.tranline_set.create(account=account, amount=amount, counterparty=counterparty)
+                tran.tranline_set.create(account=account, amount=amount, counterparty=counterparty, project=project)
 
             QMSF.QueryManagerStrategyFactory().upsert_transaction({
                 'id': tran.id,
