@@ -1,4 +1,4 @@
-# accountifie [![Build Status](https://travis-ci.org/electronifie/accountifie.svg)](https://travis-ci.org/electronifie/accountifie)
+# accountifie [![Build Status](https://travis-ci.org/electronifie/accountifie.svg?branch=master)](https://travis-ci.org/electronifie/accountifie)
 
 Core functionality for a Django-based accounting and reporting package.
 Depends on [accountifie-svc](https://github.com/electronifie/accountifie-svc/) for ledger backend and on an implementation (see for example....).
