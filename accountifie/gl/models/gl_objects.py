@@ -5,8 +5,10 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
+from django.contrib.postgres.fields import ArrayField
 
 import simple_history.models
+from jsonfield import JSONField
 
 from colorful.fields import RGBColorField
 
@@ -76,7 +78,7 @@ class TranLine(models.Model):
     account = models.ForeignKey(Account)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True)
-    project = models.ForeignKey('gl.Project', blank=True, null=True)
+    tags = ArrayField(models.CharField(max_length=20, blank=True))
 
     class Meta:
         app_label = 'gl'

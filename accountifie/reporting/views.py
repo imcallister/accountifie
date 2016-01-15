@@ -36,6 +36,31 @@ def api(request, api_view):
     return HttpResponse(json.dumps(accountifie.reporting.api.get(api_view, params), cls=DjangoJSONEncoder), content_type="application/json")
 
 
+@login_required
+def download_ledger(request):
+    from_date, to_date = accountifie._utils.extractDateRange(request)
+    company_ID = accountifie._utils.get_company(request)
+
+    accts = accountifie.gl.api.accounts({})
+
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="ledger.csv"'
+    writer = csv.writer(response)
+
+    header_row = ['id', 'date', 'comment', 'contra_accts', 'counterparty', 'amount', 'balance']
+
+    for acct in accts:
+        history = accountifie.reporting.api.history({'type': 'account', 'from_date': from_date, 'to_date': to_date, 'company_ID': company_ID, 'id': acct['id']})
+        if len(history) > 0:
+            writer.writerow([])
+            writer.writerow([acct['id'], acct['display_name'], acct['path']])
+            writer.writerow([])
+            writer.writerow(header_row)
+            for idx in history.index:
+                writer.writerow([history.loc[idx, col] for col in header_row])
+    
+    return response
 
 
 def balance_trends(request):

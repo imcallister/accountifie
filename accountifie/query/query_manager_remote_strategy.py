@@ -111,7 +111,6 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
                         'account_id': account,
                         'contra_accts': ','.join(transaction['contraAccounts']),
                         'counterparty': transaction['counterparty'],
-                        'project': transaction['project'],
                         'amount': float(transaction['amount'])
                     })
 
@@ -240,7 +239,7 @@ class accountifieSvcClient(object):
             'accountId': line['account'],
             'amount': line['amount'],
             'counterpartyId': line['counterparty'],
-            'projectId': line['project']
+            'tags': line['tags']
             } for line in transaction['lines']]
         })
 
