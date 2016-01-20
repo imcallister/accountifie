@@ -3,7 +3,7 @@ Based on Andy Robinson's DoubleTalk accounting framework; used
 with permission
 """
 
-
+from decimal import Decimal
 import types
 import logging
 
@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 import accountifie.query.query_manager_strategy_factory as QMSF
 
+DZERO = Decimal('0')
 
 logger = logging.getLogger('default')
 
@@ -64,22 +65,24 @@ class BusinessModelObject(object):
                     account = accountifie.gl.models.Account.objects.get(id=account)
                 tran.tranline_set.create(account=account, amount=amount, counterparty=counterparty, tags=tags)
 
-            QMSF.QueryManagerStrategyFactory().upsert_transaction({
-                'id': tran.id,
-                'bmo_id': trans_id,
-                'object_id': tran.object_id,
-                'date': str(tran.date),
-                'date_end': str(tran.date_end or tran.date),
-                'comment': tran.comment,
-                'company': tran.company.id if isinstance (tran.company, accountifie.gl.models.Company) else tran.company,
-                'type': tran.content_type.name,
-                'lines': [{
-                    'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
-                    'amount': "{0:.2f}".format(amount),
-                    'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
-                    'tags': tags
-                } for account, amount, counterparty, tags in lines]
-            })
+            # if we have a balanced transation then upsert
+            if sum([line[1] for line in lines]) == DZERO:
+                QMSF.QueryManagerStrategyFactory().upsert_transaction({
+                    'id': tran.id,
+                    'bmo_id': trans_id,
+                    'object_id': tran.object_id,
+                    'date': str(tran.date),
+                    'date_end': str(tran.date_end or tran.date),
+                    'comment': tran.comment,
+                    'company': tran.company.id if isinstance (tran.company, accountifie.gl.models.Company) else tran.company,
+                    'type': tran.content_type.name,
+                    'lines': [{
+                        'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
+                        'amount': "{0:.2f}".format(amount),
+                        'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
+                        'tags': tags
+                    } for account, amount, counterparty, tags in lines]
+                })
 
     def update_gl(self):
         "Fix up GL after any kind of change"
