@@ -15,7 +15,7 @@ from django.core import serializers
 from accountifie.cal.models import Year
 
 
-from .models import Account, Transaction
+from .models import Account, Transaction, Counterparty
 import accountifie._utils
 import accountifie.gl.api
 
@@ -135,3 +135,9 @@ def accounts_list(request):
     accounts = Account.objects.order_by('id')
     return render_to_response('gl/accounts_list.html', RequestContext(request, dict(accounts=accounts)))
 
+
+@login_required
+def counterparty_list(request):
+    "Show list of each account"
+    counterparties = Counterparty.objects.order_by('id')
+    return render_to_response('gl/counterparty_list.html', RequestContext(request, dict(counterparties=counterparties)))

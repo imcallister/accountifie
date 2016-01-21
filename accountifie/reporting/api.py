@@ -29,6 +29,52 @@ def transaction_info(params):
     
     return None
 
+def history(params):
+    from_date = params['from_date']
+    to_date = params['to_date']
+    company_ID = params['company_ID']
+    cp = params.get('cp', None)
+    type = params.get('type', None)
+    id = params.get('id', None)
+
+    if type == 'account':
+        acct = accountifie.gl.api.account({'id': id})
+        display_name = '%s: %s' %(acct['id'], acct['display_name'])
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
+
+        if cp and not history.empty:
+            history = history[history['counterparty']==cp]
+            history['balance'] = history['amount'].cumsum()
+            display_name += ' -- %s' % cp
+
+        column_titles = ['id', 'date', 'comment', 'contra_accts', 'counterparty', 'amount', 'balance']
+    elif type == 'path':
+        ref = id.replace('_','.')
+        display_name = 'path: %s' % ref
+        excl = request.GET['excl'].split(',') if request.GET.has_key('excl') else None
+        incl = request.GET['incl'].split(',') if request.GET.has_key('incl') else None
+        if excl:
+            excl = [x.replace('_','.') for x in excl]
+            display_name += '  -- excl %s' % ','.join(excl)
+        if incl:
+            incl = [x.replace('_','.') for x in incl]
+            display_name += '  -- incl %s' % ','.join(incl)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, type, ref, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
+        column_titles = ['id', 'date', 'comment', 'account_id', 'contra_accts', 'counterparty', 'amount', 'balance']
+    elif type == 'creditor':
+        cp_info = accountifie.gl.api.counterparty({'id': id})
+        
+        display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)
+        history = history[history['counterparty']==id]
+        history['balance'] = history['amount'].cumsum()
+
+        column_titles = ['id', 'date', 'comment', 'contra_accts', 'amount', 'balance']
+    else:
+        raise ValueError('This type of history is not supported')
+
+    return history
+
 
 def balance_trends(params):
     dt = parse(params['date'])

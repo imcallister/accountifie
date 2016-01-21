@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     
     
     (r'^accounts_list/$', views.accounts_list),    
+    (r'^counterparty_list/$', views.counterparty_list),    
     (r'^transactions/(?P<id>[0-9]+)/$', views.transaction_info),
     
     # utilities
