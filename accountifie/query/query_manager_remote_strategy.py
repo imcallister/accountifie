@@ -69,7 +69,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
             company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
             balances = [self.transactions(cmpny, account_ids, from_date, to_date, chunk_frequency, with_counterparties, True, excl_contra) for cmpny in company_list]
-            return self.__merge_transactions_results([balances])
+            return self.__merge_transactions_results(balances)
 
         client = accountifieSvcClient(company_id)
 
