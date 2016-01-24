@@ -97,7 +97,7 @@ class Detacher(object):
                 maxfd = os.sysconf("SC_OPEN_MAX")
             except (AttributeError, ValueError):
                 maxfd = 256       # default maximum
-            maxfd=16
+            maxfd=4
             for fd in range(0, maxfd):
                 try:
                     os.close(fd)
