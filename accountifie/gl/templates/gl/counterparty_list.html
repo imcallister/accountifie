@@ -20,7 +20,7 @@
     {% for counterparty in counterparties %}
         <tr>
             <td><a href="/admin/gl/counterparty/{{counterparty.id}}/">{{counterparty.name}}</a></td>
-            <td><a href="/reporting/history/account/20100/?cp={{counterparty.id}}">History</a></td>
+            <td><a href="/reporting/history/account/{{ap_acct}}/?cp={{counterparty.id}}">History</a></td>
         </tr>    {% endfor %}
     </tbody>
 </table>

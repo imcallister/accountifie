@@ -146,6 +146,7 @@ def history(request, type, id):
         cp = request.GET.get('cp',None)
         
         acct = accountifie.gl.api.account({'id': id})
+        
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
 
