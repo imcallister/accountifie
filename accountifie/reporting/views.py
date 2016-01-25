@@ -42,8 +42,6 @@ def download_ledger(request):
     company_ID = accountifie._utils.get_company(request)
 
     accts = accountifie.gl.api.accounts({})
-
-    
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="ledger.csv"'
     writer = csv.writer(response)
@@ -61,6 +59,28 @@ def download_ledger(request):
                 writer.writerow([history.loc[idx, col] for col in header_row])
     
     return response
+
+def cparty_payment_summary(request):
+    from_date, to_date = accountifie._utils.extractDateRange(request)
+    company_id = accountifie._utils.get_company(request)
+    qm = accountifie.query.query_manager.QueryManager()
+
+    cp_totals = qm.balance_by_cparty(company_id, ['1001'], from_date=from_date, to_date=to_date)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="1099s.csv"'
+    writer = csv.writer(response)
+
+    writer.writerow(['Payments to Counterparties for period from %s to %s' %(from_date.isoformat(), to_date.isoformat())])
+    writer.writerow(['Counterparty', 'Amount'])
+
+    for cp in cp_totals.index:
+        if cp_totals.loc[cp] <0:
+            cp_name = accountifie.gl.api.counterparty({'id': cp})['name']
+            writer.writerow([cp_name, -cp_totals.loc[cp]])
+
+    return response
+
 
 
 def balance_trends(request):
@@ -146,7 +166,7 @@ def history(request, type, id):
         cp = request.GET.get('cp',None)
         
         acct = accountifie.gl.api.account({'id': id})
-        
+
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
 
