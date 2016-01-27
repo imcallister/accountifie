@@ -44,8 +44,15 @@ def path_accounts(params):
 
 
 def account(params):
-    acct_id = params['id']
-    acct = Account.objects.filter(pk=acct_id).first()
+    acct_id = params.get('id', None)
+    acct_path = params.get('path', None)
+    if acct_id:
+        acct = Account.objects.filter(pk=acct_id).first()
+    elif acct_path:
+        acct = Account.objects.filter(path=acct_path).first()
+    else:
+        acct = None
+
     if acct is None:
         return {}
     else:
