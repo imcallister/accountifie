@@ -169,8 +169,9 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
 
     @staticmethod
     def get_interco_counterparties_for(company):
-        return [cmpy['id'] for cmpy in accountifie.gl.api.companies({}) if cmpy['id']!=company and cmpy['cmpy_type']=='ALO']
-
+        output = [cmpy['id'] for cmpy in accountifie.gl.api.companies({}) if cmpy['id']!=company and cmpy['cmpy_type']=='ALO']
+        output += [x.lower() for x in output]
+        return output
 
 class accountifieSvcClient(object):
     def __init__(self, company_id='*'):

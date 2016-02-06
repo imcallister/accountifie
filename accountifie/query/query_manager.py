@@ -198,7 +198,7 @@ class QueryManager:
     def pd_history(self, company_id, q_type, id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE, excl_interco=None, excl_contra=None, incl=None, cp=None):
         if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
             excl_interco = True
-    
+        
         if q_type == 'account':
             acct_list = [id]
         elif q_type == 'account_list':

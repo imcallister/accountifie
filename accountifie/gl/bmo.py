@@ -60,13 +60,15 @@ class BusinessModelObject(object):
                 pass
             tran.save()
             
+            """
             for (account, amount, counterparty, tags) in lines:
                 if type(account) in types.StringTypes:
                     account = accountifie.gl.models.Account.objects.get(id=account)
                 if type(counterparty) in types.StringTypes:
                     counterparty = accountifie.gl.models.Counterparty.objects.get(id=counterparty)
                 tran.tranline_set.create(account=account, amount=amount, counterparty=counterparty, tags=tags)
-
+            """
+            
             # if we have a balanced transation then upsert
             if sum([line[1] for line in lines]) == DZERO:
                 QMSF.QueryManagerStrategyFactory().upsert_transaction({
