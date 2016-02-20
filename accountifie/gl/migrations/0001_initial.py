@@ -133,7 +133,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('amount', models.DecimalField(max_digits=11, decimal_places=2)),
-                ('tags', models.CharField(default='', max_length=200, blank=True),
+                ('tags', models.CharField(default='', max_length=200, blank=True)),
                 ('account', models.ForeignKey(to='gl.Account')),
                 ('counterparty', models.ForeignKey(blank=True, to='gl.Counterparty', null=True)),
             ],
