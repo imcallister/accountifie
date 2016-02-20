@@ -46,8 +46,8 @@ class Command(BaseCommand):
             for klass in klasses:
                 print 'working on', klass
                 qs =klass.objects.all()
-                for expense in qs:
-                    expense.save()
+                for obj in qs:
+                    obj.update_gl()
             QueryManagerStrategyFactory().set_fast_inserts('*', False)
             QueryManagerStrategyFactory().take_snapshot('*')
         print "updated %d transactions" % qs.count()

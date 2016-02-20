@@ -11,6 +11,7 @@ import accountifie.gl.models
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 import accountifie.query.query_manager_strategy_factory as QMSF
+import accountifie.environment.api
 
 DZERO = Decimal('0')
 
@@ -42,51 +43,61 @@ class BusinessModelObject(object):
             t.delete()
 
     def create_gl_transactions(self, trans):
+        try:
+            GL_strategy = accountifie.environment.api.variable({'name':'GL_STRATEGY'})
+        except:
+            raise ValueError('Unable to find GL_strategy variable in environment') 
+
         "Make any GL transactions this needs"
         for trandict in trans:
             d2 = trandict.copy()
             lines = d2.pop('lines')
             trans_id = d2.pop('trans_id')
+            try:
+                tags = ','.join(d2.pop('tags'))
+            except:
+                tags = ''
+            
             if not d2.has_key('date_end'):
                 d2['date_end'] = d2['date']
 
-            tran = accountifie.gl.models.Transaction(**d2)
-            tran.source_object = self
+            if GL_strategy == 'local':
+                tran = accountifie.gl.models.Transaction(**d2)
+                tran.source_object = self
+                
+                try:
+                    if len(tran.comment) >= 100:
+                        tran.comment = tran.comment[:99]
+                except:
+                    pass
+                tran.save()    
             
-            try:
-                if len(tran.comment) >= 100:
-                    tran.comment = tran.comment[:99]
-            except:
-                pass
-            tran.save()
-            
-            """
-            for (account, amount, counterparty, tags) in lines:
-                if type(account) in types.StringTypes:
-                    account = accountifie.gl.models.Account.objects.get(id=account)
-                if type(counterparty) in types.StringTypes:
-                    counterparty = accountifie.gl.models.Counterparty.objects.get(id=counterparty)
-                tran.tranline_set.create(account=account, amount=amount, counterparty=counterparty, tags=tags)
-            """
-            
-            # if we have a balanced transation then upsert
-            if sum([line[1] for line in lines]) == DZERO:
-                QMSF.QueryManagerStrategyFactory().upsert_transaction({
-                    'id': tran.id,
-                    'bmo_id': trans_id,
-                    'object_id': tran.object_id,
-                    'date': str(tran.date),
-                    'date_end': str(tran.date_end or tran.date),
-                    'comment': tran.comment,
-                    'company': tran.company.id if isinstance (tran.company, accountifie.gl.models.Company) else tran.company,
-                    'type': tran.content_type.name,
-                    'lines': [{
-                        'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
-                        'amount': "{0:.2f}".format(amount),
-                        'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
-                        'tags': tags
-                    } for account, amount, counterparty, tags in lines]
-                })
+                for (account, amount, counterparty, tags) in lines:
+                    if type(account) in types.StringTypes:
+                        account = accountifie.gl.models.Account.objects.get(id=account)
+                    if type(counterparty) in types.StringTypes:
+                        counterparty = accountifie.gl.models.Counterparty.objects.get(id=counterparty)
+                    tran.tranline_set.create(account=account, amount=amount, counterparty=counterparty, tags=tags)
+                
+            elif GL_strategy == 'remote':
+                # if we have a balanced transation then upsert
+                if sum([line[1] for line in lines]) == DZERO:
+                    QMSF.QueryManagerStrategyFactory().upsert_transaction({
+                        'id': trans_id,
+                        'bmo_id': trans_id,
+                        #'object_id': tran.object_id,
+                        'date': str(d2['date']),
+                        'date_end': str(d2.get('date_end', None) or d2['date']),
+                        'comment': d2['comment'],
+                        'company': d2['company'].id if isinstance (d2['company'], accountifie.gl.models.Company) else d2['company'],
+                        'type': None,
+                        'lines': [{
+                            'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
+                            'amount': "{0:.2f}".format(amount),
+                            'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
+                            'tags': tags
+                        } for account, amount, counterparty, tags in lines]
+                    })
 
     def update_gl(self):
         "Fix up GL after any kind of change"
