@@ -53,6 +53,11 @@ class BusinessModelObject(object):
             d2 = trandict.copy()
             lines = d2.pop('lines')
             trans_id = d2.pop('trans_id')
+            try:
+                tags = ','.join(d2.pop('tags'))
+            except:
+                tags = ''
+            
             if not d2.has_key('date_end'):
                 d2['date_end'] = d2['date']
 
