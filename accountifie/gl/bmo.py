@@ -36,11 +36,23 @@ class BusinessModelObject(object):
     def delete_from_gl(self):
         "Find and remove all GL entries which depend on self"
         
-        my_type = ContentType.objects.get_for_model(self)
-        for t in accountifie.gl.models.Transaction.objects.filter(object_id=self.id, content_type=my_type):
-            #logger.info('Deleting transaction %s. ID=%s, Company=%s' % (t, t.id, t.company))
-            QMSF.QueryManagerStrategyFactory().delete_transaction(t.company.id, t.id)
-            t.delete()
+        
+        try:
+            GL_strategy = accountifie.environment.api.variable({'name':'GL_STRATEGY'})
+        except:
+            raise ValueError('Unable to find GL_strategy variable in environment') 
+
+        if GL_strategy=='local':
+            my_type = ContentType.objects.get_for_model(self)
+            for t in accountifie.gl.models.Transaction.objects.filter(object_id=self.id, content_type=my_type):
+                #logger.info('Deleting transaction %s. ID=%s, Company=%s' % (t, t.id, t.company))
+                QMSF.QueryManagerStrategyFactory().delete_transaction(t.company.id, t.id)
+                t.delete()
+        elif GL_strategy=='remote':
+            bmo_id = '%s.%s' %(self.short_code, self.id)
+            logger.info('Deleting transaction %s. ID=%s, Company=%s, Type=%s' % (self, self.id, self.company, bmo_id))
+            QMSF.QueryManagerStrategyFactory().delete_bmo_transactions(self.company.id, bmo_id)
+
 
     def create_gl_transactions(self, trans):
         try:
@@ -53,6 +65,7 @@ class BusinessModelObject(object):
             d2 = trandict.copy()
             lines = d2.pop('lines')
             trans_id = d2.pop('trans_id')
+            bmo_id = d2.pop('bmo_id')
             try:
                 tags = ','.join(d2.pop('tags'))
             except:
@@ -84,7 +97,7 @@ class BusinessModelObject(object):
                 if sum([line[1] for line in lines]) == DZERO:
                     QMSF.QueryManagerStrategyFactory().upsert_transaction({
                         'id': trans_id,
-                        'bmo_id': trans_id,
+                        'bmo_id': '%s.%s' %(self.short_code, bmo_id),
                         #'object_id': tran.object_id,
                         'date': str(d2['date']),
                         'date_end': str(d2.get('date_end', None) or d2['date']),
@@ -114,6 +127,9 @@ class BusinessModelObject(object):
         GL on saving if they do not already exist.
         """
         return []
+
+    def get_company(self):
+        return self.company.id
         
 def on_bmo_save(sender, **kwargs):
     """Alternative method - maintain GL through a signal

@@ -76,6 +76,13 @@ class QueryManagerStrategy(object):
     """
     pass
 
+  def delete_bmo_transactions(self, company_id, bmo_id):
+    """
+    :param bmo_id:  a string identifying the BMO for which to delete transactions
+    :return: None
+    """
+    pass
+
   def erase(self, company_id):
     """
     :param company_id:      the company id

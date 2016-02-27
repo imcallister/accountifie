@@ -75,6 +75,11 @@ class QueryManagerStrategyFactory(object):
       for strategy in self.strategy_singletons:
         self.strategy_singletons[strategy].delete_transaction(company_id, transaction_id)
 
+  def delete_bmo_transactions(self, company_id, bmo_id):
+    if not self.noop_mutating_functions:
+      for strategy in self.strategy_singletons:
+        self.strategy_singletons[strategy].delete_bmo_transactions(company_id, bmo_id)
+
   def erase(self, company_id):
     if not self.noop_mutating_functions:
       for strategy in self.strategy_singletons:

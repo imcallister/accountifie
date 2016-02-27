@@ -18,8 +18,9 @@ from dateutil.parser import parse
 from django.conf import settings
 from query_manager_strategy import QueryManagerStrategy
 import accountifie.gl.api
+import logging
 
-
+logger = logging.getLogger('default')
 INTERCO_EXEMPT_ACCOUNTS = ['1001', '1002', '1003', '1004']
 
 
@@ -143,6 +144,10 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         client = accountifieSvcClient(company_id)
         client.delete_transaction(transaction_id)
 
+    def delete_bmo_transactions(self, company_id, bmo_id):
+        client = accountifieSvcClient(company_id)
+        client.delete_bmo_transactions(bmo_id)
+
     def take_snapshot(self, company_id):
         accountifieSvcClient(company_id).take_snapshot()
 
@@ -181,9 +186,12 @@ class accountifieSvcClient(object):
     def __post(self, path, params=None):
         params = json.dumps(params) if params is not None else '{}'
         url = '%s%s' % (self.url_base, path)
-
         request = urllib2.Request(url, data=params, headers={'Content-Type': 'application/json'})
-        response = urllib2.urlopen(request)
+        try:
+            response = urllib2.urlopen(request)
+        except:
+            logging.info('Accountifie svc post failed on %s with params %s', url, str(params))
+
         json_result = json.load(response)
         return json_result
 
@@ -246,6 +254,9 @@ class accountifieSvcClient(object):
 
     def delete_transaction(self, transaction_id):
         self.__post('/transaction/%s/delete' % transaction_id)
+
+    def delete_bmo_transactions(self, bmo_id):
+        self.__post('/bmo-transactions/%s/delete' % bmo_id)
 
     def erase(self):
         self.__post('/erase')
