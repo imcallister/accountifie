@@ -101,6 +101,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         transactions = interco_excluded_transactions.copy()
         transactions.update(interco_included_transactions)
 
+        make_contras = lambda x: 'more than two' if len(x)>2 else '.'.join(x)
+
         formatted_transactions = []
         for account in transactions:
             for transaction in transactions[account]:
@@ -110,7 +112,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
                         'id': transaction['id'],
                         'comment': transaction['comment'],
                         'account_id': account,
-                        'contra_accts': ','.join(transaction['contraAccounts']),
+                        'contra_accts': make_contras(transaction['contraAccounts']),
                         'counterparty': transaction['counterparty'],
                         'amount': float(transaction['amount'])
                     })
