@@ -56,6 +56,9 @@ def end_of_period(period_id):
 ##### END DOCENGINE  #####
 
 
+from pandas.tseries.offsets import BDay
+def prev_busday(d):
+    return (d - BDay(1)).date()
 
 
 def as_date(thing):
