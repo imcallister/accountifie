@@ -55,6 +55,7 @@ class Transaction(models.Model):
     date_end = models.DateField(db_index=True, blank=True, null=True)
     comment = models.CharField(max_length=100)
     long_desc = models.CharField(max_length=200, blank=True, null=True)
+    bmo_id = models.CharField(max_length=100)
     
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
@@ -66,6 +67,12 @@ class Transaction(models.Model):
     
     def __unicode__(self):
         return u'%s' % self.comment
+
+    def delete(self):
+        tranlines = TranLine.objects.filter(transaction__id=self.id)
+        for tl in tranlines:
+            tl.delete()
+        models.Model.delete(self)
 
     def get_admin_url(self):
         #https://djangosnippets.org/snippets/1916/

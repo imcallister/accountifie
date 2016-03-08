@@ -13,6 +13,7 @@ import json
 import accountifie.environment.api
 import urllib
 import urllib2
+from decimal import Decimal
 
 from dateutil.parser import parse
 from django.conf import settings
@@ -20,6 +21,7 @@ from query_manager_strategy import QueryManagerStrategy
 import accountifie.gl.api
 import logging
 
+DZERO = Decimal('0')
 logger = logging.getLogger('default')
 INTERCO_EXEMPT_ACCOUNTS = ['1001', '1002', '1003', '1004']
 
@@ -138,6 +140,25 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         client = accountifieSvcClient(company_id)
         return client.get_transaction(transaction_id)
 
+    def create_gl_transactions(self, d2, lines, trans_id, bmo_id):
+        if sum([Decimal(line['amount']) for line in lines]) == DZERO:
+            self.upsert_transaction({
+                'id': trans_id,
+                'bmo_id': bmo_id,
+                'date': str(d2['date']),
+                'date_end': str(d2.get('date_end', None) or d2['date']),
+                'comment': d2['comment'],
+                'company': d2['company'],
+                'type': None,
+                'lines': [dict(account=line['account'],
+                                amount=str(Decimal(line['amount'])),
+                                counterparty = line['counterparty'],
+                                tags = line['tags'] ) for line in lines]
+            })
+        else:
+            logger.info('Unbalanced entry for bmo ID: %s' % bmo_id)
+
+
     def upsert_transaction(self, transaction):
         client = accountifieSvcClient(transaction['company'])
         client.upsert_transaction(transaction)
@@ -147,6 +168,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         client.delete_transaction(transaction_id)
 
     def delete_bmo_transactions(self, company_id, bmo_id):
+        logger.info('Deleting transactions: bmp ID=%s, Company=%s' % (company_id, bmo_id))
         client = accountifieSvcClient(company_id)
         client.delete_bmo_transactions(bmo_id)
 

@@ -153,3 +153,12 @@ class QueryManagerStrategyFactory(object):
       return accountifie.environment.api({'name': 'DEFAULT_GL_STRATEGY'})
     except:
       return settings.DEFAULT_GL_STRATEGY
+
+
+# in lieu of a cleaner python implementation of singleton pattern
+instance = None
+def getInstance():
+  global instance
+  if not instance:
+    instance = QueryManagerStrategyFactory()
+  return instance

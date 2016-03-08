@@ -34,24 +34,9 @@ class BusinessModelObject(object):
     """
     
     def delete_from_gl(self):
-        "Find and remove all GL entries which depend on self"
-        
-        
-        try:
-            GL_strategy = accountifie.environment.api.variable({'name':'GL_STRATEGY'})
-        except:
-            raise ValueError('Unable to find GL_strategy variable in environment') 
-
-        if GL_strategy=='local':
-            my_type = ContentType.objects.get_for_model(self)
-            for t in accountifie.gl.models.Transaction.objects.filter(object_id=self.id, content_type=my_type):
-                #logger.info('Deleting transaction %s. ID=%s, Company=%s' % (t, t.id, t.company))
-                QMSF.QueryManagerStrategyFactory().delete_transaction(t.company.id, t.id)
-                t.delete()
-        elif GL_strategy=='remote':
-            bmo_id = '%s.%s' %(self.short_code, self.id)
-            logger.info('Deleting transaction %s. ID=%s, Company=%s, Type=%s' % (self, self.id, self.company, bmo_id))
-            QMSF.QueryManagerStrategyFactory().delete_bmo_transactions(self.company.id, bmo_id)
+        "Find and remove all GL entries which depend on self"        
+        bmo_id = '%s.%s' %(self.short_code, self.id)
+        QMSF.getInstance().get().delete_bmo_transactions(self.company.id, bmo_id)
 
 
     def create_gl_transactions(self, trans):
@@ -63,17 +48,31 @@ class BusinessModelObject(object):
         "Make any GL transactions this needs"
         for trandict in trans:
             d2 = trandict.copy()
-            lines = d2.pop('lines')
-            trans_id = d2.pop('trans_id')
-            bmo_id = d2.pop('bmo_id')
-            try:
-                tags = ','.join(d2.pop('tags'))
-            except:
-                tags = ''
             
             if not d2.has_key('date_end'):
                 d2['date_end'] = d2['date']
 
+            try:
+                tags = ','.join(d2.pop('tags'))
+            except:
+                tags = ''
+
+            d2['company'] = d2['company'].id if isinstance (d2['company'], accountifie.gl.models.Company) else d2['company']
+
+            lines = d2.pop('lines')
+            trans_id = d2.pop('trans_id')
+            bmo_id = d2.pop('bmo_id')
+
+            lines = [{
+                        'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
+                        'amount': "{0:.2f}".format(amount),
+                        'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
+                        'tags': tags
+                        } for account, amount, counterparty, tags in lines]
+            
+            QMSF.getInstance().get().create_gl_transactions(d2, lines, trans_id, bmo_id)
+
+            """
             if GL_strategy == 'local':
                 tran = accountifie.gl.models.Transaction(**d2)
                 tran.source_object = self
@@ -111,6 +110,7 @@ class BusinessModelObject(object):
                             'tags': tags
                         } for account, amount, counterparty, tags in lines]
                     })
+            """    
 
     def update_gl(self):
         "Fix up GL after any kind of change"

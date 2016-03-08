@@ -10,6 +10,7 @@ import dateutil.parser
 import pandas as pd
 import accountifie.gl.cache
 import accountifie.gl.api
+import accountifie.gl.models
 import accountifie._utils as utils
 
 from datetime import datetime
@@ -113,6 +114,31 @@ class QueryManagerLocalStrategy(QueryManagerStrategy):
     entries['date_end'] = entries.apply(clean_end, axis=1)
 
     return entries
+
+  def create_gl_transactions(self, d2, lines, trans_id, bmo_id):
+    tran = accountifie.gl.models.Transaction(**d2)
+    tran.source_object = self
+    
+    try:
+        if len(tran.comment) >= 100:
+            tran.comment = tran.comment[:99]
+    except:
+        pass
+    tran.save()    
+
+    for (account, amount, counterparty, tags) in lines:
+        if type(account) in types.StringTypes:
+            account = accountifie.gl.models.Account.objects.get(id=account)
+        if type(counterparty) in types.StringTypes:
+            counterparty = accountifie.gl.models.Counterparty.objects.get(id=counterparty)
+        tran.tranline_set.create(account=account, amount=amount, counterparty=counterparty, tags=tags)
+                
+
+
+  def delete_bmo_transactions(self, company_id, bmo_id):
+    logger.info('Deleting transactions: bmp ID=%s, Company=%s' % (company_id, bmo_id))
+    for t in accountifie.gl.models.Transaction.objects.filter(bmo_id=bmo_id):
+      t.delete()
 
   def __depreciation_calcs(self, start, end, entries):
     extend_comment = lambda row: row['comment'] + (' (prorated)' if row['deprec_factor'] < Decimal('1') else '')

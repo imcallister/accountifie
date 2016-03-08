@@ -76,6 +76,13 @@ class QueryManagerStrategy(object):
     """
     pass
 
+  def create_gl_transactions(self, d2, lines, trans_id, bmo_id):
+    """
+    :param
+    :return: None
+    """
+    pass
+
   def delete_bmo_transactions(self, company_id, bmo_id):
     """
     :param bmo_id:  a string identifying the BMO for which to delete transactions

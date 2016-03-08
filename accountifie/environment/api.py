@@ -26,6 +26,6 @@ def variable_list(params):
 
 def config(params):
     try:
-        return Config.objects.get(name=name).reporting
+        return Config.objects.get(name=params['name']).reporting
     except:
         raise ValueError("Can't find config variable %s" % params['name'])
