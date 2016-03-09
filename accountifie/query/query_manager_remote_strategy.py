@@ -23,11 +23,12 @@ import logging
 
 DZERO = Decimal('0')
 logger = logging.getLogger('default')
-INTERCO_EXEMPT_ACCOUNTS = ['1001', '1002', '1003', '1004']
 
 
 class QueryManagerRemoteStrategy(QueryManagerStrategy):
     def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
+        interco_exempt_accounts = accountifie.gl.api.ext_accounts_list({})
+
         if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
             company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
             balances = [self.account_balances_for_dates(cmpny, account_ids, dates, with_counterparties, True, excl_contra) for cmpny in company_list]
@@ -38,8 +39,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         date_indexed_account_balances = {}
 
         interco_counterparties = self.get_interco_counterparties_for(company_id) if excl_interco else []
-        accounts_with_interco_exclusion =    [id for id in account_ids if id not in INTERCO_EXEMPT_ACCOUNTS] if excl_interco else []
-        accounts_without_interco_exclusion = [id for id in account_ids if id in INTERCO_EXEMPT_ACCOUNTS]     if excl_interco else account_ids
+        accounts_with_interco_exclusion =    [id for id in account_ids if id not in interco_exempt_accounts] if excl_interco else []
+        accounts_without_interco_exclusion = [id for id in account_ids if id in interco_exempt_accounts]     if excl_interco else account_ids
 
         for dt in dates:
             start = dates[dt]['start']
@@ -69,6 +70,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         return date_indexed_account_balances
 
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
+        interco_exempt_accounts = accountifie.gl.api.ext_accounts_list({})
+        
         if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
             company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
             balances = [self.transactions(cmpny, account_ids, from_date, to_date, chunk_frequency, with_counterparties, True, excl_contra) for cmpny in company_list]
@@ -77,8 +80,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         client = accountifieSvcClient(company_id)
 
         interco_counterparties = self.get_interco_counterparties_for(company_id) if excl_interco else []
-        accounts_with_interco_exclusion =    [id for id in account_ids if id not in INTERCO_EXEMPT_ACCOUNTS] if excl_interco else []
-        accounts_without_interco_exclusion = [id for id in account_ids if id in INTERCO_EXEMPT_ACCOUNTS]     if excl_interco else account_ids
+        accounts_with_interco_exclusion =    [id for id in account_ids if id not in interco_exempt_accounts] if excl_interco else []
+        accounts_without_interco_exclusion = [id for id in account_ids if id in interco_exempt_accounts]     if excl_interco else account_ids
 
         interco_excluded_transactions = client.transactions(
             accounts=accounts_with_interco_exclusion,
