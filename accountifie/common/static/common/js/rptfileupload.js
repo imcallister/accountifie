@@ -16,7 +16,6 @@ test div:
 */
 
 $(document).ready(function() {
-  console.log("V0.712");
   rptMessageArray = new Object();
   build();
 });

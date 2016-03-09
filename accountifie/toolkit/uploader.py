@@ -177,6 +177,7 @@ def save_data(data, company, model, unique, name_cleaner, value_cleaner, exclude
                 message = getattr(e, 'messages', [row])[0]
                 value_errors.append((e.__class__.__name__, index, message))
                 continue
+            
             #need to deconstruct the model instance for later json serialization
             saved.append(dict([(k, v)for k,v in unique_instance.__dict__.items() if k in [f.name for f in unique_instance._meta.fields]]))
         else:

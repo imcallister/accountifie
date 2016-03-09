@@ -292,6 +292,7 @@ var csrf_token = $('#csrfmiddlewaretoken').text();
                     _errs = JSON.parse(xhr.responseText);
                 }
                 catch(err) {
+                    console.log('erroring in editable.js');
                     _errs = "Bad Request";
                 }
 

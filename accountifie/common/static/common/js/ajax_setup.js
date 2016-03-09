@@ -79,6 +79,7 @@ $(document).ajaxError(function(event, xhr, settings, errorThrown) {
 			_errs = JSON.parse(xhr.responseText); 
 		}
 		catch(err) {
+            console.log('erroring in ajax_setup');
 			_errs = "Bad Request";
 		}
 
