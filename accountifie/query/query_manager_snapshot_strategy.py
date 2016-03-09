@@ -15,11 +15,13 @@ import pandas as pd
 import datetime
 
 from django.conf import settings
+import django.core.cache
 
 import accountifie._utils as utils
 from functools import partial
 from query_manager_strategy import QueryManagerStrategy
 import accountifie.environment.api
+import accountifie.gl.api
 
 import logging
 
@@ -98,9 +100,9 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
     def get_snap_cache(self, company_id):
         
         if self.snapshot_time:
-            qs = '?snapshotDate=%s' % self.snapshot_time.strftime('%Y-%m-%dT%H:%M')
+            qs = '?date=%s' % self.snapshot_time.strftime('%Y-%m-%dT%H:%M')
             # try the in-memory cache first
-            memory_cache = django.accountifie.cache.get_cache('default')
+            memory_cache = django.core.cache.get_cache('default')
             snap_cache = memory_cache.get('snap_%s_%s' % (self.snapshot_time.strftime('%Y-%m-%dT%H:%M'), company_id))
         else:
             qs = ''
@@ -265,8 +267,8 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
 
     @staticmethod
     def __inter_co(row):
-        ext_accts = gl.api.ext_accounts_list({})
-        companies = [cmpy['id'] for cmpy in gl.api.companies({})]
+        ext_accts = accountifie.gl.api.ext_accounts_list({})
+        companies = [cmpy['id'] for cmpy in accountifie.gl.api.companies({})]
         if row['account_id'] in ext_accts:
             return False
         if row['counterparty'] in companies:

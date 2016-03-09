@@ -58,7 +58,7 @@ def glsnapshots_balances(request, snap_id):
     strategy = QueryManagerStrategyFactory().get('snapshot')
     strategy.set_cache(snapshot_time)
 
-    report, is_report, format = report_prep(request, 'RecBalances', version='v1')
+    report, is_report, format = report_prep(request, 'RecBalances')
     if not is_report:
         return report
 
@@ -88,7 +88,7 @@ def glsnapshots_balances(request, snap_id):
         for rec in report_data:
             context['rows'] += report.get_row(rec)
 
-        return render_to_response('reporting/report.html', RequestContext(request, context))
+        return render_to_response('report.html', RequestContext(request, context))
     else:
         msg = "Sorry. This format is not recognised : %s" % format
         return render_to_response('404.html', RequestContext(request, {'message': msg})), False
