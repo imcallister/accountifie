@@ -92,6 +92,9 @@ def external_bals_history(params):
 def get_company(params):
     return model_to_dict(Company.objects.get(id=params['company_id']))
 
+def get_company_color(params):
+    return Company.objects.get(id=params['company_id']).color_code
+
 def get_company_list(params):
     company = Company.objects.get(id=params['company_id'])
 
