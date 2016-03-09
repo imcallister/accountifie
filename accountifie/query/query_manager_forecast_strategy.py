@@ -207,8 +207,8 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
     @staticmethod
     def __inter_co(row):
-        ext_accts = gl.api.ext_accounts_list({})
-        companies = [cmpy['id'] for cmpy in gl.api.companies({})]
+        ext_accts = accountifie.gl.api.ext_accounts_list({})
+        companies = [cmpy['id'] for cmpy in accountifie.gl.api.companies({})]
         if row['account_id'] in ext_accts:
             return False
         if row['counterparty'] in companies:

@@ -1,3 +1,4 @@
+from accountifie.cal import is_period_id
 import datetime
 
 ##### DOCENGINE  #####
@@ -17,14 +18,14 @@ def start_of_period(period_id):
         import isoweek
         return isoweek.Week(year, part2).monday()
     elif sep == 'M':
-        return date(year, part2, 1)
+        return datetime.date(year, part2, 1)
     elif sep == 'Q':
         month_id = (part2 - 1) * 3 + 1
-        return date(year, month_id, 1)
+        return datetime.date(year, month_id, 1)
     elif sep == 'H':
         return start_of_half(date(year, (part2*6), 1))
     elif sep == 'Y':
-        return date(year, 1, 1)
+        return datetime.date(year, 1, 1)
     else:
         raise ValueError("Unexpected date identifier %s" % id)
     
@@ -42,13 +43,13 @@ def end_of_period(period_id):
         import isoweek
         return isoweek.Week(year, part2).sunday()
     elif sep == 'M':
-        return end_of_month(date(year, part2, 1))
+        return end_of_month(part2, year)
     elif sep == 'Q':
-        return end_of_quarter(date(year, (part2*3), 1))
+        return end_of_quarter(part2*3, year)
     elif sep == 'H':
-        return end_of_half(date(year, (part2*6), 1))
+        return end_of_half(part2*6, year)
     elif sep == 'Y':
-        return date(year, 12, 31)
+        return datetime.date(year, 12, 31)
     else:
         raise ValueError("Unexpected date identifier %s" % id)
 
