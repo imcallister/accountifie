@@ -64,14 +64,12 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
             ) if len(accounts_without_interco_exclusion) > 0 else []
 
             balances = interco_excluded_balances + interco_included_balances
-
-            date_indexed_account_balances[dt] = dict((balance['id'], float(balance['shift'])) for balance in balances)
-
+            date_indexed_account_balances[dt] = dict((balance['id'], float(balance['shift'])) for balance in balances)        
         return date_indexed_account_balances
 
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
         interco_exempt_accounts = accountifie.gl.api.ext_accounts_list({})
-        
+
         if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
             company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
             balances = [self.transactions(cmpny, account_ids, from_date, to_date, chunk_frequency, with_counterparties, True, excl_contra) for cmpny in company_list]

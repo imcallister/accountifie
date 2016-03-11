@@ -18,6 +18,7 @@ from accountifie.cal.models import Year
 from .models import Account, Transaction, Counterparty
 import accountifie._utils
 import accountifie.gl.api
+import accountifie.environment.api
 
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
@@ -140,4 +141,5 @@ def accounts_list(request):
 def counterparty_list(request):
     "Show list of each account"
     counterparties = Counterparty.objects.order_by('id')
-    return render_to_response('gl/counterparty_list.html', RequestContext(request, dict(counterparties=counterparties)))
+    AP_acct = accountifie.environment.api.variable({'name': 'GL_ACCOUNTS_PAYABLE'})
+    return render_to_response('gl/counterparty_list.html', RequestContext(request, dict(ap_acct=AP_acct, counterparties=counterparties)))
