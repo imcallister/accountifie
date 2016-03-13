@@ -1,0 +1,31 @@
+<div>
+  <form class="form-inline" role="form">
+      <input type="hidden" name="form_type" value="{{ form_type }}">
+      {% for field in form %}
+        {{field}}
+      {% endfor %}
+      <button type="submit" class="btn btn-info">
+        <i class="glyphicon glyphicon-search"></i>
+      </button>
+  </form>
+
+  <table class="table table-striped table-condensed table-bordered">
+
+    <tr>
+      {% for col in col_titles %}
+        <th>{{ col }}</th>
+      {% endfor %}
+    </tr>
+
+    {% load tags %}
+    {% for record in queryset %}
+      <tr>
+
+        {% for fld in flds %}
+          <td>{{ record | _getattr:fld }}</td>
+        {% endfor %}
+        
+      </tr>
+    {% endfor %}
+  </table>
+</div>

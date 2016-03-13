@@ -1,0 +1,19 @@
+<div>  
+  <table class="table table-striped table-condensed table-hover table-bordered">
+    <tr>
+      {% for col in columns %}
+        <th>{{ col }}</th>
+      {% endfor %}
+    </tr>
+    
+    {% load tags %}
+    {% for row in rows %}
+      <tr>
+        {% for col in columns %}
+          <td>{{ row | _getdict:col }}</td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  
+  </table>
+</div>

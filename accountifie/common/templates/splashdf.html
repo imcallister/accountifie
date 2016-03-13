@@ -1,0 +1,22 @@
+<div>  
+  <table class="table table-striped table-condensed table-hover table-bordered">
+    <tr>
+      <th>Counterparty</th>
+      {% for col in columns %}
+        <th>{{ col }}</th>
+      {% endfor %}
+    </tr>
+    
+    {% load tags %}
+    {% for row in rows %}
+      <tr>
+        <td>{{row.name}}</td>
+        {% for col in columns %}
+          <td>{{ row | _getitem:col }}</td>
+        {% endfor %}
+        
+      </tr>
+    {% endfor %}
+  
+  </table>
+</div>

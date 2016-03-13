@@ -1,0 +1,84 @@
+<table id="table"
+        data-toolbar="#toolbar"
+        data-search="true"
+        data-toggle="table"
+        data-striped="true"
+        data-url="{{data_url}}"
+        data-show-pagination-switch="true"
+        data-pagination="{{pagination}}"
+        data-page-list="[10, 25, 50, 100, ALL]"
+        data-page-size="{{pagination_num}}"
+        data-show-columns="true"
+        data-show-export="true">
+    
+    <thead>
+        <tr>
+            {% for row in row_defs %}
+                <th data-field="{{row.data_field}}" data-sortable="true" data-align="center" data-formatter="{{row.formatter}}" data-cell-style="cellStyle">{{row.value}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+</table>
+
+
+
+<script>
+    function cellStyle(value, row, index) {
+        var classes = ['active', 'success', 'info', 'warning', 'danger'];
+        if ( row.fmt_tag == "major_total") {
+            return {
+                css: {
+                    "background-color": "WhiteSmoke",
+                    "border": "3px black",
+                    "font-size": "125%",
+                    "font-color": "black",
+                    "font": "bold"
+                }
+            }
+        } else if ( row.fmt_tag == 'minor_total') {
+            return {
+                css: {
+                    "background-color": "LightGray",
+                    "border": "3px black",
+                    "font-size": "115%",
+                    "font-color": "black",
+                    "font": "bold"
+                }
+            }
+        }
+        return {};
+    }; 
+
+    function labelFormatter(value, row) {
+        return '<i class="glyphicon glyphicon-star"></i> ' + value;
+    }
+
+    function nameFormatter(value, row) {
+        return value;
+    }
+
+    function valueFormatter(value, row) {
+        return Number(Math.round(value)).toLocaleString('us');
+    }
+
+    function drillFormatter(value, row) {
+        if (value.text == 0) {
+            return '-';
+        } else if (row.label=='Totals') {
+          return Number(Math.round(value.text)).toLocaleString('us')
+        } else {
+            return '<a href=' + value.link + '>' + Number(Math.round(value.text)).toLocaleString('us') + '</a>';
+        }
+    }
+
+
+
+    function drillTextFormatter(value, row) {
+        return value.text;
+    }
+
+
+    $(function () {
+        $('#table').bootstrapTable();
+    });
+</script>
