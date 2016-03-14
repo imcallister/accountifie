@@ -214,12 +214,13 @@ class accountifieSvcClient(object):
         request = urllib2.Request(url, data=params, headers={'Content-Type': 'application/json'})
         try:
             response = urllib2.urlopen(request)
+            json_result = json.load(response)
+            return json_result
         except:
-            logging.info('Accountifie svc post failed on %s with params %s', url, str(params))
+            logger.info('Accountifie svc post failed on %s with params %s', url, str(params))
+            return None
 
-        json_result = json.load(response)
-        return json_result
-
+        
     def __get(self, path, params=None):
         if params:
             params = urllib.urlencode(params)
