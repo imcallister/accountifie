@@ -34,7 +34,7 @@ class StandardExceptionMiddleware(object):
         context = {}
         context['exception_detail'] = sys.exc_info()[1]
         context['traceback'] = traceback.format_exc().split('\n')
-        return render_to_response('project/base/exception.html', RequestContext(request,context))
+        return render_to_response('exception.html', RequestContext(request,context))
 
     def handle_404(self, request, exception):
         if settings.DEBUG:

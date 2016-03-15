@@ -18,13 +18,14 @@ from accountifie.cal.models import Year
 import models
 import accountifie.gl.api
 import accountifie.snapshot.api
-from forms import GLSnapshotBetterForm, SplashForm
+#from forms import GLSnapshotBetterForm, SplashForm
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 from accountifie.query.query_manager import QueryManager
 from accountifie.reporting.views import report_prep
 import accountifie._utils
 import tables.bstrap_tables
 
+"""
 class GLSnapshotCreate(CreateView):
     model = models.GLSnapshot
     form_class = GLSnapshotBetterForm
@@ -35,7 +36,7 @@ class GLSnapshotCreate(CreateView):
         form.instance.action = 'create'
         form.instance.user = getCurrentUser()
         return super(GLSnapshotCreate, self).form_valid(form)
-
+"""
 def api(request, api_view):
     params = request.GET
     return HttpResponse(json.dumps(accountifie.snapshot.api.get(api_view, params), cls=DjangoJSONEncoder), content_type="application/json")

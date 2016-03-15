@@ -169,7 +169,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         client.delete_transaction(transaction_id)
 
     def delete_bmo_transactions(self, company_id, bmo_id):
-        logger.info('Deleting transactions: bmp ID=%s, Company=%s' % (company_id, bmo_id))
+        logger.info('Deleting transactions: company=%s, bmo ID=%s' % (company_id, bmo_id))
         client = accountifieSvcClient(company_id)
         client.delete_bmo_transactions(bmo_id)
 
