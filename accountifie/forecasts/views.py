@@ -51,14 +51,14 @@ def forecast_index(request):
     return render_to_response('forecasts/base_forecasts.html', context, context_instance=RequestContext(request))
 
 
-
+"""
 class ForecastCreate(CreateView):
 
     model = Forecast
     form_class = ForecastBetterForm
     template_name = 'forecasts/forecast_form.html'
     success_url = reverse_lazy('forecasts_index')
-
+"""
 
 class ForecastDelete(DeleteView):
 

@@ -374,4 +374,6 @@ class JEditableFormMixin(JEditableMixin, forms.Form):
 class JEditableModelForm(JEditableMixin,forms.ModelForm):
     pass
 
+class CommentForm(BootstrapForm):
+    comment = forms.CharField(widget=forms.Textarea)
 

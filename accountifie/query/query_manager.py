@@ -245,7 +245,6 @@ class QueryManager:
         if all_entries is None or len(all_entries) == 0:
             return pd.DataFrame()
 
-
         entries_tbl = pd.DataFrame(all_entries).sort_index(by='date')
         cp_tbl = entries_tbl[['counterparty','amount']].groupby('counterparty').sum()
 

@@ -15,17 +15,14 @@ urlpatterns = patterns('',
     
     url(r'api/(?P<fcast_id>[()_a-zA-Z0-9]+)/gl_projections',  get_gl_projections),
     url(r'api/(?P<api_view>[_a-zA-Z0-9]+)/$', views.api),
-    
     url(r'reports_center/$', forecasts_reports, name='forecasts_reports'),
     url(r'get_report/$', create_report),
     
-    url(r'add/$', ForecastCreate.as_view(), name="forecasts_form"),
+    #url(r'add/$', ForecastCreate.as_view(), name="forecasts_form"),
     url(r'delete/(?P<pk>[()_a-zA-Z0-9]+)/$', ForecastDelete.as_view(), name="forecast_delete"),
     
     url(r'^run/$', forecast_run, name='run_forecast'),
     url(r'^reportpack/finish/$', FinishedTask.as_view(template_name='forecasts/forecast_finish.html'), name="fcast_finished"),
-
-
     url(r'upload_gl/$', upload_gl, name='upload_gl'),
 
     url(r'forecast/projections',  gl_projections, name="fcast_projections"),
