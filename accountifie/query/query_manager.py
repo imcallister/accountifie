@@ -117,13 +117,13 @@ class QueryManager:
             data[dt] = col[col!=0.0]
         return pd.DataFrame(data).fillna(0.0).T
     
-    def pd_path_balances(self, company_id, dates, paths, filter_zeros=True, assets=False, excl_contra=None, excl_interco=False):
+    def pd_path_balances(self, company_id, dates, paths, filter_zeros=True, assets=False, excl_contra=None, excl_interco=False, with_tags=None, excl_tags=None):
 
         path_accts = dict((p, [x['id'] for x in accountifie.gl.api.path_accounts({'path':p})]) for p in paths)
         acct_list = list(itertools.chain(*[path_accts[p] for p in paths]))
     
         dates_dict = dict((dt, accountifie._utils.get_dates_dict(dates[dt])) for dt in dates)
-        date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, None, excl_interco, excl_contra)
+        date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, None, excl_interco, excl_contra, with_tags, excl_tags)
     
         data = {}
         for dt in date_indexed_account_balances:
@@ -153,7 +153,7 @@ class QueryManager:
               output[col] = output[col] * asset_factor
         return output
     
-    def pd_acct_balances(self, company_id, dates, paths=None, acct_list=None, excl_contra=None, excl_interco=False, cp=None):
+    def pd_acct_balances(self, company_id, dates, paths=None, acct_list=None, excl_contra=None, excl_interco=False, cp=None, with_tags=None, excl_tags=None):
 
         if not acct_list:
             if paths:
@@ -165,7 +165,7 @@ class QueryManager:
         dates_dict = dict((dt, accountifie._utils.get_dates_dict(dates[dt])) for dt in dates)
         
         with_counterparties = [cp.id] if cp else None
-        date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, with_counterparties, excl_interco, excl_contra)
+        date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags)
         
         # filter empties
         for dt in date_indexed_account_balances:

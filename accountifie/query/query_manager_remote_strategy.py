@@ -26,12 +26,12 @@ logger = logging.getLogger('default')
 
 
 class QueryManagerRemoteStrategy(QueryManagerStrategy):
-    def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
+    def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
         interco_exempt_accounts = accountifie.gl.api.ext_accounts_list({})
 
         if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
             company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
-            balances = [self.account_balances_for_dates(cmpny, account_ids, dates, with_counterparties, True, excl_contra) for cmpny in company_list]
+            balances = [self.account_balances_for_dates(cmpny, account_ids, dates, with_counterparties, True, excl_contra, with_tags, excl_tags) for cmpny in company_list]
             return self.__merge_account_balances_for_dates_results(balances)
 
         
@@ -52,7 +52,9 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
                 to_date=end,
                 with_counterparties=with_counterparties,
                 excluding_counterparties=interco_counterparties,
-                excluding_contra_accounts=excl_contra
+                excluding_contra_accounts=excl_contra,
+                with_tags=with_tags,
+                excluding_tags=excl_tags
             ) if len(accounts_with_interco_exclusion) > 0 else []
 
             interco_included_balances = client.balances(
@@ -60,7 +62,9 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
                 from_date=start,
                 to_date=end,
                 with_counterparties=with_counterparties,
-                excluding_contra_accounts=excl_contra
+                excluding_contra_accounts=excl_contra,
+                with_tags=with_tags,
+                excluding_tags=excl_tags
             ) if len(accounts_without_interco_exclusion) > 0 else []
 
             balances = interco_excluded_balances + interco_included_balances
@@ -234,7 +238,7 @@ class accountifieSvcClient(object):
 
         return json_result
 
-    def balances(self, accounts, from_date=None, to_date=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None):
+    def balances(self, accounts, from_date=None, to_date=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None, with_tags=None, excluding_tags=None):
         from_date = None if from_date == '2000-01-01' else from_date
         account_balances = self.__get('/balances', {
             'accounts': ','.join(accounts),
@@ -242,7 +246,9 @@ class accountifieSvcClient(object):
             'to': to_date,
             'withCounterparties': ','.join(with_counterparties or []),
             'excludingCounterparties': ','.join(excluding_counterparties or []),
-            'excludingContraAccounts': ','.join(excluding_contra_accounts or [])
+            'excludingContraAccounts': ','.join(excluding_contra_accounts or []),
+            'withTags': ','.join(with_tags or []),
+            'excludingTags': ','.join(excluding_tags or []),
         })
         return account_balances
 
