@@ -71,14 +71,10 @@ def extractDateRange(request, inclusive=True):
             to_date = datetime.date.today()
             if not inclusive:
                 from_date = day_before(from_date)
-
     else:
         from_date = as_date(request.GET.get('from', settings.DATE_EARLY))
         to_date = as_date(request.GET.get('to', settings.DATE_LATE))
     return from_date, to_date
-
-
-
 
 
 def config_fromcoltag(col_tag, rpt_desc, calc_type):
@@ -103,9 +99,6 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
             column_titles = ['end of %d' % (int(yr)-1), 'chg in %s' % yr, 'end of %s' % yr]
     elif col_tag[-7:] == 'Monthly':
         yr = col_tag[:4]
-        # want to only show to end of current month
-        #today = datetime.date.today()
-
         title = title = '%s for %s -- Monthly Detail' %(rpt_desc, yr)
         if calc_type == 'diff':
             
@@ -124,6 +117,25 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
         title = '%s for %s -- Daily view' %(rpt_desc, dt.isoformat())
     elif col_tag[-3:] == 'YTD':
         print col_tag
+    elif col_tag[:11] == '12Mtrailing':
+        if col_tag[12:]=='':
+            dt = datetime.datetime.today().date()
+        else:
+            dt = parse(col_tag[12:]).date()
+
+        next_month = start_of_next_month(dt)
+        start = datetime.date(dt.year-1,dt.month,1)
+        finish = dt
+
+        months = list(monthrange(start, finish))
+        title = '%s from %s -- trailing 12mth' %(rpt_desc, dt.isoformat())
+
+        if calc_type == 'diff':
+            columns = ['%sM%s' % (x[0], '%02d' % x[1]) for x in months]
+            column_titles = columns
+        elif calc_type == 'as_of':
+            columns = [end_of_month(x[1],x[0]).isoformat() for x in months]
+            column_titles = columns  
     elif col_tag[:3] == '5yr':
         dt = parse(col_tag[4:]).date()
         start = dt

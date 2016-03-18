@@ -160,6 +160,10 @@ def create_row(row, col_order, fmtr=ACCT_DEF):
 @login_required
 def history(request, type, id):
     from_date, to_date = accountifie._utils.extractDateRange(request)
+
+    start_date = settings.DATE_EARLY
+    end_date = to_date
+
     company_ID = accountifie._utils.get_company(request)
 
     if type == 'account':
@@ -168,7 +172,7 @@ def history(request, type, id):
         acct = accountifie.gl.api.account({'id': id})
 
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=start_date, to_date=end_date, cp=cp)
 
         if cp and not history.empty:
             history = history[history['counterparty']==cp]
@@ -187,14 +191,14 @@ def history(request, type, id):
         if incl:
             incl = [x.replace('_','.') for x in incl]
             display_name += '  -- incl %s' % ','.join(incl)
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, type, ref, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, type, ref, from_date=start_date, to_date=end_date, excl_contra=excl, incl=incl)
         column_titles = ['id', 'date', 'comment', 'account_id', 'contra_accts', 'counterparty', 'amount', 'balance']
     elif type == 'creditor':
         cp = request.GET.get('cp',None)
         cp_info = accountifie.gl.api.counterparty({'id': id})
         
         display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=start_date, to_date=end_date, cp=id)
         history = history[history['counterparty']==id]
         history['balance'] = history['amount'].cumsum()
 
@@ -204,8 +208,22 @@ def history(request, type, id):
 
     years = Year.objects.all()
     entries = []
+
     if history is not None:
-        for i in history.index:
+        unused_history = history[history['date']<from_date]
+        used_history = history[history['date']>=from_date]
+
+        if len(unused_history) > 0:
+            start_row = unused_history.iloc[-1]
+            start_row['id'] = 'None'
+            start_row['date'] = from_date
+            start_row['comment'] = 'Opening Balance'
+            start_row['contra_accts'] = 'None'
+            start_row['counterparty'] = 'None'
+            start_row['amount'] = 0
+            entries.append(create_row(start_row, column_titles))
+        
+        for i in used_history.index:
             entries.append(create_row(history.loc[i], column_titles))
     
     context = {}
