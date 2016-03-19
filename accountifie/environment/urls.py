@@ -7,8 +7,8 @@ from . import api
 
 urlpatterns = patterns('',
  
-    url(r'api/(?P<api_view>[_a-zA-Z0-9]+)/$', views.api),
+    url(r'environment/api/(?P<api_view>[_a-zA-Z0-9]+)/$', views.api),
+
+    url(r'api/environment/(?P<api_view>[_a-zA-Z0-9]+)/(?P<variable>[_a-zA-Z0-9]+)/$', views.new_api),
 
 )
-
-#handler404 = views.error404

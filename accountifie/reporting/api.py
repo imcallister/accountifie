@@ -9,7 +9,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 import accountifie._utils
-from accountifie.reporting.models import get_report
+from accountifie.reporting.rptutils import get_report
 import accountifie.gl.api
 import accountifie.query.query_manager as QM
 

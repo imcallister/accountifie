@@ -28,7 +28,7 @@ import accountifie.gl.api
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 import accountifie._utils
-import accountifie.reporting.models
+import accountifie.reporting.rptutils
 import tables.bstrap_tables
 
 logger = logging.getLogger('default')
@@ -141,7 +141,7 @@ def report_prep(request, id, version=None, strategy=None):
     format = request.GET.get('format', 'html')
     company_id = request.GET.get('company', accountifie._utils.get_company(request))
     path = request.GET.get('path', None)
-    report = accountifie.reporting.models.get_report(id, company_ID, version=version)
+    report = accountifie.reporting.rptutils.get_report(id, company_ID, version=version)
     
     if (company_id not in report.works_for):
         msg = "This ain't it. Report not available for %s" % report.company_name
@@ -231,7 +231,7 @@ def forecast_run_task(fcast_id, report_id, col_tag, company_ID=accountifie._util
     strategy = QueryManagerStrategyFactory().get('forecast')
     strategy.set_cache(fcast_id=fcast_id, proj_gl_entries=fcast.get_gl_entries())
 
-    report = accountifie.reporting.models.get_report(report_id, company_ID, version=version)
+    report = accountifie.reporting.rptutils.get_report(report_id, company_ID, version=version)
     report.configure(col_tag=col_tag)
     report.set_gl_strategy(strategy)
 
