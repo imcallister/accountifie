@@ -1,5 +1,6 @@
 from accountifie.cal import is_period_id
 import datetime
+from dateutil.parser import parse
 
 ##### DOCENGINE  #####
 
@@ -59,6 +60,8 @@ def end_of_period(period_id):
 
 from pandas.tseries.offsets import BDay
 def prev_busday(d):
+    if type(d) in [str, unicode]:
+        d = parse(d).date()
     return (d - BDay(1)).date()
 
 

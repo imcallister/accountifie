@@ -4,7 +4,7 @@ from decimal import Decimal
 from dateutil.parser import parse
 import logging
 
-from accountifie.reporting.models import Report, BasicBand, TextBand
+from accountifie.reporting.models import Report
 from accountifie._utils import DZERO
 import accountifie._utils as utils
 import accountifie.gl.models as gl
