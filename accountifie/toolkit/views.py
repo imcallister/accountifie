@@ -106,31 +106,21 @@ def cleanlogs(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def download_data(request):
-    
-    format = request.GET.get('format', 'sql')
-    assert format in ['sql', 'json'], "Can only download data in json or sql format"
-    if format == 'sql':
-        filename = 'latest.sql.gz'
-        dbparams = settings.DATABASES['default']
-        cmd = "mysqldump --user=%(USER)s --password=%(PASSWORD)s %(NAME)s | gzip" % dbparams
-        data = os.popen(cmd).read()
-    else:
-        buf = StringIO()
-        filename = 'latest.json.gz'
-        call_command("dumpdata", indent=2, stdout=buf)
-        data = buf.getvalue()
+def dump_fixtures(request):
+    output = StringIO()
 
-        #pass 2 - gzip it
-        buf = StringIO()
-        #tricky incantation to make gzipfiles in memory
-        with gzip.GzipFile(filename=filename, mode='wb', fileobj=buf) as gzip_obj:
-            gzip_obj.write(data)
+    fixture = request.GET.get('fixture', 'No fixture specified')
 
-        data = buf.getvalue()
+    try:
+        call_command('dumpdata', fixture, '--indent=2', stdout=output)
+        data = output.getvalue()
+        output.close()
 
-
-    resp = HttpResponse(data, content_type="application/octet-stream")
-    resp['Content-Disposition'] = 'attachment; filename="%s"' % filename
-    resp['Content-Encoding'] = 'gzip'
-    return resp
+        file_label = 'fixtures_%s' % datetime.datetime.now().strftime('%d-%b-%Y_%H-%M')
+        response = HttpResponse(data, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename=%s' % file_label
+        return response
+    except:
+        dest =  request.META.get('HTTP_REFERER', '/')
+        messages.info(request, 'Fixture name not recognized: %s' % fixture)
+        return HttpResponseRedirect(dest)
