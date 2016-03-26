@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     url(r'api/(?P<api_view>[_a-zA-Z0-9]+)/$', views.api),
     
     (r'^download_ledger/', views.download_ledger),
-    (r'^1099s/', views.cparty_payment_summary),
+    #(r'^1099s/', views.cparty_payment_summary),
 
     # reports
     (r'^reports/(?P<id>[_a-zA-Z0-9]+)/$', views.report),

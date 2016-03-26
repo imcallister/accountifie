@@ -4,7 +4,7 @@ Interface for swappable strategies used for dealing with transactions in QueryMa
 Based on the strategy pattern https://en.wikipedia.org/wiki/Strategy_patter
 """
 class QueryManagerStrategy(object):
-  def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
+  def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
     """
     :param company_id:           the company id
                                  e.g. 'INC'
@@ -19,6 +19,11 @@ class QueryManagerStrategy(object):
                                  e.g. True
     :param excl_contra:          a list of contra account ids to be excluded
                                  e.g. [ '3001' ]
+    :param with_tags             a list of tags for which to find GL entries
+                                 e.g. ['yearend']
+    :param excl_tags             a list of tags for which to exclude GL entries
+                                 e.g. ['yearend']
+
     :return:                     a dictionary of account balances, indexed by date
                                  e.g. { '2015': { '3001': '1503.23', '3010': '1626.23' } }
     """
