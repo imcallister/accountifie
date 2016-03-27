@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
 import accountifie.reporting.api
-import accountifie.gl.api
+import accountifie.gl.apiv1 as gl_api
 import accountifie.toolkit.utils as utils
 
 
@@ -13,7 +13,7 @@ def download_ledger(request):
     from_date, to_date = utils.extractDateRange(request)
     company_ID = utils.get_company(request)
 
-    accts = accountifie.gl.api.accounts({})
+    accts = gl_api.accounts()
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="ledger.csv"'
     writer = csv.writer(response)

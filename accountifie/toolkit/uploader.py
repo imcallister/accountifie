@@ -20,11 +20,11 @@ from django.db.models.loading import cache
 from django.core.serializers.json import DjangoJSONEncoder
 
 from accountifie.tasks.utils import task, utcnow
-from accountifie._utils import get_default_company, csv_to_modelattr, files_for_dir, create_instance, dirty_key
+from utils import get_default_company, csv_to_modelattr, files_for_dir, create_instance, dirty_key
 
 
 from forms import FileForm
-import accountifie._utils
+import utils
 
 import logging
 
@@ -47,7 +47,7 @@ def upload_file(request, **config):
         upload = request.FILES.values()[0]
         file_name = upload._name
         file_name_with_timestamp = save_file(upload)
-        company = accountifie._utils.get_company(request)
+        company = utils.get_company(request)
 
         model = config.pop('model')
         unique = config.pop('unique')

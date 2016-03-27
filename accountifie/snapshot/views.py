@@ -16,27 +16,16 @@ from django.http import HttpResponse
 from accountifie.cal.models import Year
 
 import models
-import accountifie.gl.api
+import accountifie.gl.apiv1 as gl_api
 import accountifie.snapshot.api
 #from forms import GLSnapshotBetterForm, SplashForm
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 from accountifie.query.query_manager import QueryManager
 from accountifie.reporting.views import report_prep
-import accountifie._utils
+import accountifie.toolkit.utils as utils
 import tables.bstrap_tables
 
-"""
-class GLSnapshotCreate(CreateView):
-    model = models.GLSnapshot
-    form_class = GLSnapshotBetterForm
-    template_name = 'snapshot/glsnapshot_form.html'
-    success_url = reverse_lazy('snapshot')
 
-    def form_valid(self, form):
-        form.instance.action = 'create'
-        form.instance.user = getCurrentUser()
-        return super(GLSnapshotCreate, self).form_valid(form)
-"""
 def api(request, api_view):
     params = request.GET
     return HttpResponse(json.dumps(accountifie.snapshot.api.get(api_view, params), cls=DjangoJSONEncoder), content_type="application/json")
@@ -184,11 +173,11 @@ def uniqify(history):
 
 @login_required
 def history(request, snap_id, account_id):
-    from_date, to_date = accountifie._utils.extractDateRange(request)
+    from_date, to_date = utils.extractDateRange(request)
 
     #from_date = datetime.date(to_date.year, 1, 1)
 
-    company_ID = accountifie._utils.get_company(request)
+    company_ID = utils.get_company(request)
 
     snapshot_time = models.GLSnapshot.objects.get(id=snap_id).snapped_at
     strategy = QueryManagerStrategyFactory().get('snapshot')
@@ -226,7 +215,7 @@ def history(request, snap_id, account_id):
     history['balance_snap'] = history['amount_snap'].cumsum()
     history['balance_curr'] = history['amount_curr'].cumsum()
 
-    acct = accountifie.gl.api.account({'id': account_id})
+    acct = gl_api.account(account_id)
     if acct == {}:
         display_name = 'Unknown Account'
     else:

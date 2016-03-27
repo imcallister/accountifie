@@ -18,7 +18,7 @@ from decimal import Decimal
 from dateutil.parser import parse
 from django.conf import settings
 from query_manager_strategy import QueryManagerStrategy
-import accountifie.gl.api
+import accountifie.gl.apiv1 as gl_api
 import logging
 
 DZERO = Decimal('0')
@@ -27,10 +27,10 @@ logger = logging.getLogger('default')
 
 class QueryManagerRemoteStrategy(QueryManagerStrategy):
     def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
-        interco_exempt_accounts = accountifie.gl.api.ext_accounts_list({})
+        interco_exempt_accounts = gl_api.externalaccounts()
 
-        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
-            company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
+        if gl_api.company(company_id)['cmpy_type'] == 'CON':
+            company_list = gl_api.company_list(company_id)
             balances = [self.account_balances_for_dates(cmpny, account_ids, dates, with_counterparties, True, excl_contra, with_tags, excl_tags) for cmpny in company_list]
             return self.__merge_account_balances_for_dates_results(balances)
 
@@ -72,10 +72,10 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         return date_indexed_account_balances
 
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
-        interco_exempt_accounts = accountifie.gl.api.ext_accounts_list({})
+        interco_exempt_accounts = gl_api.externalaccounts()
 
-        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
-            company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
+        if gl_api.company(company_id)['cmpy_type'] == 'CON':
+            company_list = gl_api.company_list(company_id)
             balances = [self.transactions(cmpny, account_ids, from_date, to_date, chunk_frequency, with_counterparties, True, excl_contra) for cmpny in company_list]
             return self.__merge_transactions_results(balances)
 
@@ -192,8 +192,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
 
     @staticmethod
     def __inter_co(row):
-        ext_accts = accountifie.gl.api.ext_accounts_list({})
-        companies = [cmpy['id'] for cmpy in accountifie.gl.api.companies({}) if cmpy['id']!=company]
+        ext_accts = gl_api.externalaccounts()
+        companies = [cmpy['id'] for cmpy in gl_api.companies() if cmpy['id']!=company]
         if row['account_id'] in ext_accts:
             return False
         if row['counterparty'] in companies:
@@ -203,7 +203,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
 
     @staticmethod
     def get_interco_counterparties_for(company):
-        output = [cmpy['id'] for cmpy in accountifie.gl.api.companies({}) if cmpy['id']!=company and cmpy['cmpy_type']=='ALO']
+        output = [cmpy['id'] for cmpy in gl_api.companies() if cmpy['id']!=company and cmpy['cmpy_type']=='ALO']
         output += [x.lower() for x in output]
         return output
 

@@ -5,10 +5,9 @@ from dateutil.parser import parse
 import logging
 
 from accountifie.reporting.models import Report
-from accountifie._utils import DZERO
-import accountifie._utils as utils
-import accountifie.gl.models as gl
-import accountifie.gl.api
+from accountifie.toolkit.utils import DZERO
+import accountifie.toolkit.utils as utils
+import accountifie.gl.apiv1 as gl_api
 
 
 logger = logging.getLogger('default')
@@ -29,7 +28,7 @@ class TrialBalance(Report):
         self.columns = {'Debits':'Debits', 'Credits': 'Credits'}
         self.calc_type = 'as_of'
         self.set_company()
-        self.works_for = [cmpny['id'] for cmpny in accountifie.gl.api.companies({})]
+        self.works_for = [cmpny['id'] for cmpny in gl_api.companies()]
         self.column_order = ['Debits', 'Credits']
         self.label_map = None
         self.link_map = lambda x: utils.acct_history_link(x.name)
@@ -59,19 +58,19 @@ class TrialBalance(Report):
     def calcs(self):
         bals = self.query_manager.pd_acct_balances(self.company_id, {'balance': self.date})
         
-        accts = gl.Account.objects.all()
-        accts_map = dict((a.id, a) for a in accts)
+        accts = gl_api.accounts()
+        accts_map = dict((a['id'], a) for a in accts)
 
         # dataframe.apply won't work until v0.17 for lambda returning dict... so have to do in roundabout way till then
-        debits_map = lambda x: x['balance'] if accts_map[x.name].role in ['asset', 'expense'] else 0
-        credits_map = lambda x: -x['balance'] if accts_map[x.name].role in ['liability', 'income', 'capital'] else 0
+        debits_map = lambda x: x['balance'] if accts_map[x.name]['role'] in ['asset', 'expense'] else 0
+        credits_map = lambda x: -x['balance'] if accts_map[x.name]['role'] in ['liability', 'income', 'capital'] else 0
         
         bals['Debits'] = bals.apply(debits_map, axis=1)
         bals['Credits'] = bals.apply(credits_map, axis=1)
         del bals['balance']
 
         bals['fmt_tag'] = 'item'
-        label_map = lambda x: x + ': ' + accts_map[x].display_name
+        label_map = lambda x: x + ': ' + accts_map[x]['display_name']
         bals['label'] = bals.index.map(label_map)
         
         totals = bals[self.column_order].sum(axis=0)

@@ -36,8 +36,8 @@ from bands import TextBand, BasicBand
 from reportdef import ReportDef
 
 import accountifie.query.query_manager
-import accountifie.gl.api
-import accountifie._utils
+import accountifie.gl.apiv1 as gl_api
+import accountifie.toolkit.utils as utils
 
 
 
@@ -62,7 +62,6 @@ class Report(object):
         self.bands = bands
         self.columns = columns
         self.calc_type = calc_type
-        #self.query_manager = QueryManager()
         
         self.set_company()
         self.by_id = {}
@@ -70,7 +69,7 @@ class Report(object):
 
 
     def set_company(self):
-        self.company_name = accountifie.gl.api.get_company({'company_id': self.company_id})['name']
+        self.company_name = gl_api.company(self.company_id)['name']
 
 
     def set_columns(self, columns, column_order=None):
@@ -108,7 +107,7 @@ class Report(object):
         self.date = as_of.isoformat()
 
     def config_fromtag(self,col_tag):
-        config = accountifie._utils.config_fromcoltag(col_tag, self.description, self.calc_type)
+        config = utils.config_fromcoltag(col_tag, self.description, self.calc_type)
         self.title = config['title']
         self.set_columns(config['columns'], column_order=config['column_order'])
 
@@ -125,14 +124,14 @@ class Report(object):
             if df_row['fmt_tag'] == 'header':
                 return TextBand(df_row['label'], css_class='normal').get_rows(self)
             else:
-                values = [accountifie._utils.entry(df_row[col_label]['text'] , link=df_row[col_label]['link']) for col_label in self.column_order]
+                values = [utils.entry(df_row[col_label]['text'] , link=df_row[col_label]['link']) for col_label in self.column_order]
                 fmt_tag = df_row['fmt_tag']
                 _css_class = ROW_FORMATS[fmt_tag]['css_class']
                 _indent  = ROW_FORMATS[fmt_tag]['indent']
                 _type  = ROW_FORMATS[fmt_tag]['type']
                 return BasicBand(df_row['label'], css_class=_css_class, values=values, indent=_indent, type=_type).get_rows(self)
         else:
-            values = [accountifie._utils.entry(df_row[col_label]['text'] , link=df_row[col_label]['link']) for col_label in self.column_order]
+            values = [utils.entry(df_row[col_label]['text'] , link=df_row[col_label]['link']) for col_label in self.column_order]
             return BasicBand(df_row['label'], css_class=df_row['css_class'], values=values, \
                                 indent=df_row['indent'], type=df_row['type']).get_rows(self)
 
@@ -227,6 +226,6 @@ class Report(object):
         for row in content:
             if row.has_key('values'):
                 if row['values'] != '':
-                    row['values'] = [{'text': accountifie._utils.fmt(c['text']), 'link': c['link']} if c != '' else '' for c in row['values']]
+                    row['values'] = [{'text': utils.fmt(c['text']), 'link': c['link']} if c != '' else '' for c in row['values']]
                     
         return content

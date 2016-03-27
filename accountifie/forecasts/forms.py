@@ -7,7 +7,7 @@ from accountifie.toolkit.forms import JEditableMixin, BootstrapMixin, Html5Mixin
 from betterforms.changelist import SearchForm
 
 from .models import Forecast
-from accountifie._utils import random_color
+from accountifie.toolkit.utils import random_color
 from accountifie.gl.models import Company
 
 

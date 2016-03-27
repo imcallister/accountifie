@@ -9,9 +9,9 @@ Use query_manager_strategy_factory.py to get an instance of this class.
 import dateutil.parser
 import pandas as pd
 import accountifie.gl.cache
-import accountifie.gl.api
+import accountifie.gl.apiv1 as gl_api
 import accountifie.gl.models
-import accountifie._utils as utils
+import accountifie.toolkit.utils as utils
 
 from datetime import datetime
 from datetime import timedelta
@@ -88,7 +88,7 @@ class QueryManagerLocalStrategy(QueryManagerStrategy):
       return all_entries.filter(items=['date', 'id', 'comment', 'account_id', 'contra_accts', 'counterparty', 'amount']).to_dict()
 
   def __pd_balances_prep(self, company_id, account_ids, excl_contra=None, excl_interco=False, with_counterparties=None):
-    if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
+    if gl_api.company(company_id)['cmpy_type'] == 'CON':
             excl_interco = True
 
     cache = accountifie.gl.cache.get_cache(company_id)
@@ -163,8 +163,8 @@ class QueryManagerLocalStrategy(QueryManagerStrategy):
 
   @staticmethod
   def __inter_co(row):
-    ext_accts = gl.api.ext_accounts_list({})
-    companies = [cmpy['id'] for cmpy in gl.api.companies({})]
+    ext_accts = gl_api.externalaccounts()
+    companies = [cmpy['id'] for cmpy in gl_api.companies()]
     if row['account_id'] in ext_accts:
       return False
     if row['counterparty'] in companies:

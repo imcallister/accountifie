@@ -11,7 +11,6 @@ from . import views
 
 urlpatterns = patterns('',
 	
-    url(r'forecasts/^$', forecast_index, name='forecasts_index'),
     
     url(r'forecasts/api/(?P<fcast_id>[()_a-zA-Z0-9]+)/gl_projections',  get_gl_projections),
     url(r'forecasts/api/(?P<api_view>[_a-zA-Z0-9]+)/$', views.api),
@@ -29,5 +28,6 @@ urlpatterns = patterns('',
     url(r'forecasts/reports/(?P<fcast_id>[()_a-zA-Z0-9]+)/(?P<rpt_id>[_a-zA-Z0-9]+)/$', fcast_report, name='fcast_report'),
     url(r'forecasts/forecast/(?P<id>[()_a-zA-Z0-9]+)/$', forecast_detail, name='forecasts_detail'),
 
-
+    url(r'forecasts/', forecast_index, name='forecasts_index'),
+    
 )

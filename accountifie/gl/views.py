@@ -9,15 +9,14 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core import serializers
 
 from accountifie.cal.models import Year
 
 
 from .models import Account, Transaction, Counterparty
-import accountifie._utils
-import accountifie.gl.api
+import accountifie.toolkit.utils as utils
+import accountifie.gl.apiv1 as gl_api
 import accountifie.environment.api
 
 from accountifie.query.query_manager import QueryManager
@@ -33,25 +32,11 @@ def index(request):
     d = {}
     return render_to_response('index.html', RequestContext(request, d))
 
-
-def api(request, api_view):
-    params = request.GET
-    return HttpResponse(json.dumps(accountifie.gl.api.get(api_view, params), cls=DjangoJSONEncoder), content_type="application/json")
-
-
-@login_required
-def account(request, id):
-    return HttpResponse(json.dumps(accountifie.gl.api.account({'id':id}), cls=DjangoJSONEncoder), content_type="application/json")
-
-
-@login_required
-def accounts(request):
-    return HttpResponse(json.dumps(accountifie.gl.api.accounts(), cls=DjangoJSONEncoder), content_type="application/json")
     
 
 @login_required
 def download_transactions(request):
-    company_ID = accountifie._utils.get_company(request)
+    company_ID = utils.get_company(request)
 
     snapshot_time = datetime.datetime.now()
     strategy = QueryManagerStrategyFactory().get('snapshot')
@@ -59,7 +44,7 @@ def download_transactions(request):
 
     trans = strategy.get_all_transactions(company_ID)
 
-    all_accts_list = accountifie.gl.api.accounts({})
+    all_accts_list = gl_api.accounts()
     all_accts = dict((r['id'], r) for r in all_accts_list)
     
     response = HttpResponse(content_type='text/csv')
@@ -73,7 +58,7 @@ def download_transactions(request):
     for ex in trans:
         first_line = ex['lines'][0]
         acct_id = first_line['accountId']
-        acct = accountifie.gl.api.account({'id': acct_id})
+        acct = gl_api.account(acct_id)
         if (acct['role'] in ['asset', 'expense'] and float(first_line['amount']) >0) or \
             (acct['role'] in ['liability', 'income', 'capital'] and float(first_line['amount']) < 0):
             debit = ex['lines'][0]
@@ -94,7 +79,7 @@ def download_transactions(request):
 
 @login_required
 def download_tranlines(request):
-    company_ID = accountifie._utils.get_company(request)
+    company_ID = utils.get_company(request)
     trans = QueryManager().tranlines(company_ID)
     
     response = HttpResponse(content_type='text/csv')

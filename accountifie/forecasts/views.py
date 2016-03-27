@@ -24,10 +24,9 @@ from accountifie.tasks.utils import task
 from .models import Forecast
 from .forms import ForecastBetterForm, ForecastForm
 import accountifie.forecasts.api
-import accountifie.gl.api
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
-import accountifie._utils
+import accountifie.toolkit.utils as utils
 import accountifie.reporting.rptutils
 import tables.bstrap_tables
 
@@ -139,7 +138,7 @@ def report_prep(request, id, version=None, strategy=None):
     col_tag = request.GET.get('col_tag', None)
 
     format = request.GET.get('format', 'html')
-    company_id = request.GET.get('company', accountifie._utils.get_company(request))
+    company_id = request.GET.get('company', utils.get_company(request))
     path = request.GET.get('path', None)
     report = accountifie.reporting.rptutils.get_report(id, company_ID, version=version)
     
@@ -226,7 +225,7 @@ def fcast_report(request, fcast_id, rpt_id):
 # Run full 5 year monthly projections for 3 main reports
 
 @task
-def forecast_run_task(fcast_id, report_id, col_tag, company_ID=accountifie._utils.get_default_company(), version='v1'):
+def forecast_run_task(fcast_id, report_id, col_tag, company_ID=utils.get_default_company(), version='v1'):
     fcast = Forecast.objects.get(id=fcast_id)
     strategy = QueryManagerStrategyFactory().get('forecast')
     strategy.set_cache(fcast_id=fcast_id, proj_gl_entries=fcast.get_gl_entries())

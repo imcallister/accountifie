@@ -28,7 +28,7 @@ from forms import FileForm
 from accountifie.middleware.docengine import getCurrentRequest
 from accountifie.tasks.utils import task, utcnow
 from accountifie.tasks.models import DeferredTask, isDetachedTask, setProgress, setStatus
-
+from accountifie.common.models import Log
 
 from accountifie.gl.models import ExternalBalance, Transaction, TranLine, Company
 
@@ -37,7 +37,7 @@ from accountifie.forecasts.models import Forecast
 
 
 from .forms import SplashForm
-import accountifie._utils
+import utils
 
 logger = logging.getLogger('default')
 
@@ -50,7 +50,7 @@ def company_context(request):
     This is not a view.
     """
     
-    company_id = accountifie._utils.get_company(request)
+    company_id = utils.get_company(request)
     data = {'company_id': company_id}
     if company_id:
         try:
@@ -94,7 +94,11 @@ def recalculate(request):
 
 @task
 def run_logclean(*args, **kwargs):
-    call_command("clean_log",clean_to=kwargs.pop('clean_to'))
+    clean_to = parse(kwargs.get('clean_to', None))
+    to_clean = Log.objects.filter(time__lte=clean_to)
+    Log.objects.filter(time__lte=clean_to).delete()
+    logger.info('cleaned %d log entries to %s' %(len(to_clean), clean_to.isoformat()))
+    
 
 @user_passes_test(lambda u: u.is_superuser)
 def cleanlogs(request):
