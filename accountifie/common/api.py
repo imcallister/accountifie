@@ -47,7 +47,7 @@ def get_module(group):
         return None
 
 def api_func(*args, **kwargs):
-    qs = kwargs if kwargs is not None else None
+    qs = kwargs.get('qstring', {})
     if len(args)==2:
         return resource_func(args[0], args[1], qstring=qs)
     elif len(args)==3:

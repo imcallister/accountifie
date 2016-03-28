@@ -28,8 +28,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
     def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
         interco_exempt_accounts = api_func('gl', 'externalaccounts')
 
-        if api_func('gl', 'company', 'company_id')['cmpy_type'] == 'CON':
-            company_list = api_func('gl', 'company_list', 'company_id')
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
+            company_list = api_func('gl', 'company_list', company_id)
             balances = [self.account_balances_for_dates(cmpny, account_ids, dates, with_counterparties, True, excl_contra, with_tags, excl_tags) for cmpny in company_list]
             return self.__merge_account_balances_for_dates_results(balances)
 
@@ -73,8 +73,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
         interco_exempt_accounts = api_func('gl', 'externalaccounts')
 
-        if api_func('gl', 'company', 'company_id')['cmpy_type'] == 'CON':
-            company_list = api_func('gl', 'company_list', 'company_id')
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
+            company_list = api_func('gl', 'company_list', company_id)
             balances = [self.transactions(cmpny, account_ids, from_date, to_date, chunk_frequency, with_counterparties, True, excl_contra) for cmpny in company_list]
             return self.__merge_transactions_results(balances)
 
