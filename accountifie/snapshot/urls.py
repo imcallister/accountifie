@@ -7,7 +7,6 @@ from . import views
 
 urlpatterns = patterns('',
  
-    url(r'snapshot/api/(?P<api_view>[_a-zA-Z0-9]+)/$', views.api),
     url(r'snapshot/glsnapshots/$', views.glsnapshots, name='glsnapshots'),
     url(r'snapshot/glsnapshots/balances/(?P<snap_id>[()_a-zA-Z0-9]+)/$', views.glsnapshots_balances),
     url(r'snapshot/glsnapshots/reconcile/(?P<snap_id>[()_a-zA-Z0-9]+)/(?P<account_id>[()_a-zA-Z0-9]+)$', views.glsnapshots_reconcile),

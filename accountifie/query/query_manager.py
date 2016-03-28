@@ -10,7 +10,7 @@ from django.conf import settings
 from collections import defaultdict
 
 import accountifie.toolkit.utils as utils
-import accountifie.gl.apiv1 as gl_api
+from accountifie.common.api import api_func
 
 class QueryManager:
 
@@ -49,7 +49,7 @@ class QueryManager:
     
     ## REFERENCES: 0 internal, 2 external
     def path_drilldown(self, company_id, dates, path, excl_contra=None, excl_interco=None):
-        paths = gl_api.child_paths(path)
+        paths = api_func('gl', 'child_paths', path)
         output = self.pd_path_balances(company_id, dates, paths, excl_contra=excl_contra, excl_interco=excl_interco)
         return output
     
@@ -119,7 +119,7 @@ class QueryManager:
     
     def pd_path_balances(self, company_id, dates, paths, filter_zeros=True, assets=False, excl_contra=None, excl_interco=False, with_tags=None, excl_tags=None):
 
-        path_accts = dict((p, [x['id'] for x in gl_api.path_accounts(p)]) for p in paths)
+        path_accts = dict((p, [x['id'] for x in api_func('gl', 'path_accounts', p)]) for p in paths)
         acct_list = list(itertools.chain(*[path_accts[p] for p in paths]))
     
         dates_dict = dict((dt, utils.get_dates_dict(dates[dt])) for dt in dates)
@@ -157,10 +157,10 @@ class QueryManager:
 
         if not acct_list:
             if paths:
-                accts = list(itertools.chain(*[gl_api.path_accounts(p) for p in paths]))
+                accts = list(itertools.chain(*[api_func('gl', 'path_accounts', p) for p in paths]))
                 acct_list = [x['id'] for x in accts]
             else:
-                acct_list = [x['id'] for x in gl_api.path_accounts('')]
+                acct_list = [x['id'] for x in api_func('gl', 'path_accounts', '')]
 
         dates_dict = dict((dt, utils.get_dates_dict(dates[dt])) for dt in dates)
         
@@ -175,7 +175,7 @@ class QueryManager:
         output = pd.DataFrame(date_indexed_account_balances)
         
         if paths:
-            a = [[x['id'] for x in gl_api.path_accounts(path)] for path in paths]
+            a = [[x['id'] for x in api_func('gl', 'path_accounts', path)] for path in paths]
             accts_list = list(itertools.chain(*a))
             return output[output.index.isin(acct_list)]
         elif acct_list:
@@ -189,14 +189,14 @@ class QueryManager:
     
 
     def transactions(self, company_id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE):
-        acct_list = [x['id'] for x in gl_api.accounts()]
+        acct_list = [x['id'] for x in api_func('gl', accounts)]
         all_entries = self.gl_strategy.transactions(company_id, acct_list, from_date, to_date, 'end-of-month', None, None, None)
 
         return all_entries
 
 
     def pd_history(self, company_id, q_type, id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE, excl_interco=None, excl_contra=None, incl=None, cp=None):
-        if gl_api.company(company_id)['cmpy_type'] == 'CON':
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
             excl_interco = True
         
         if q_type == 'account':
@@ -204,7 +204,7 @@ class QueryManager:
         elif q_type == 'account_list':
             acct_list = incl
         elif q_type=='path':
-            acct_list = [x['id'] for x in gl_api.path_accounts(id, qstring={'excl': excl_contra, 'incl': incl})]
+            acct_list = [x['id'] for x in ap_func('gl', 'path_accounts', id, qstring={'excl': excl_contra, 'incl': incl})]
         else:
             raise ValueError('History not implemented for this type')
 

@@ -16,19 +16,13 @@ from django.http import HttpResponse
 from accountifie.cal.models import Year
 
 import models
-import accountifie.gl.apiv1 as gl_api
+from accountifie.common.api import api_func
 import accountifie.snapshot.api
-#from forms import GLSnapshotBetterForm, SplashForm
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 from accountifie.query.query_manager import QueryManager
 from accountifie.reporting.views import report_prep
 import accountifie.toolkit.utils as utils
 import tables.bstrap_tables
-
-
-def api(request, api_view):
-    params = request.GET
-    return HttpResponse(json.dumps(accountifie.snapshot.api.get(api_view, params), cls=DjangoJSONEncoder), content_type="application/json")
 
 
 
@@ -215,7 +209,7 @@ def history(request, snap_id, account_id):
     history['balance_snap'] = history['amount_snap'].cumsum()
     history['balance_curr'] = history['amount_curr'].cumsum()
 
-    acct = gl_api.account(account_id)
+    acct = api_func('gl', 'account', account_id)
     if acct == {}:
         display_name = 'Unknown Account'
     else:

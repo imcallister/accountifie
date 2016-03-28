@@ -6,7 +6,7 @@ from django.template import RequestContext, Context
 from django.core.serializers.json import DjangoJSONEncoder
 
 from accountifie.cal.models import Year
-import accountifie.gl.apiv1 as gl_api
+from accountifie.common.api import api_func
 import accountifie.query.query_manager
 import accountifie.toolkit.utils as utils
 
@@ -48,8 +48,7 @@ def history(request, type, id):
 
     if type == 'account':
         cp = request.GET.get('cp',None)
-        
-        acct = gl_api.account(id)[0]
+        acct = api_func('gl', 'account', id)
 
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=start_date, to_date=end_date, cp=cp)
@@ -75,7 +74,7 @@ def history(request, type, id):
         column_titles = ['id', 'date', 'comment', 'account_id', 'contra_accts', 'counterparty', 'amount', 'balance']
     elif type == 'creditor':
         cp = request.GET.get('cp',None)
-        cp_info = gl_api.counterparty(id)
+        cp_info = api_func('gl', 'counterparty', id)
         
         display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=start_date, to_date=end_date, cp=id)
@@ -124,7 +123,7 @@ def balance_history(request, type, id):
 
     if type == 'account':
         cp = request.GET.get('cp',None)
-        acct = gl_api.account(id)
+        acct = api_func('gl', 'account', id)
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
 
@@ -150,7 +149,7 @@ def balance_history(request, type, id):
         column_titles = ['date', 'amount']
     elif type == 'creditor':
         cp = request.GET.get('cp',None)
-        cp_info = gl_api.counterparty(id)
+        cp_info = api_func('gl', 'counterparty', id)
         
         display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)

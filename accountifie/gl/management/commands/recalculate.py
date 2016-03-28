@@ -11,8 +11,7 @@ from django.db import transaction
 
 from accountifie.gl.models import Transaction
 from accountifie.gl.bmo import  BusinessModelObject
-import accountifie.environment.api
-
+from accountifie.common.api import api_func
 
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 import accountifie._utils as utils
@@ -30,7 +29,9 @@ class Command(BaseCommand):
         #faster and less likely to mess stuff up.
 
         klasses = []
-        kl_paths = accountifie.environment.api.variable({'name':'BMO_MODULES'}).split(',')
+        #kl_paths = accountifie.environment.api.variable({'name':'BMO_MODULES'}).split(',')
+        kl_paths = api_func('environment', 'variable_list', 'BMO_MODULES')
+
         
         # find all the BMO classes
         for path in kl_paths:

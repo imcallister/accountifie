@@ -1,0 +1,46 @@
+{% extends base_template %}
+{% load url from future %}
+
+{% block extrahead %} 
+<style>
+
+dl.plain, table {margin: 1em}
+
+dl.plain dt {
+    float:left; 
+    width:15%; 
+}
+</style>
+{{block.super}}
+{% endblock %}
+
+{% block breadcrumbs %}<li><a href="..">Home</a></li><li>Dashboard</li>{% endblock %}
+{% block content %}
+<div class="tabbable tabs-left">
+  <h3>Database Logs</h3>
+  <div id="logs_container"></div>
+</div>
+    
+{{ content }}
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block extrajs %}{{block.super}}
+<script src="{{ STATIC_URL }}common/js/load_tester.js"></script>
+<script>
+function load_logs(page){
+    $.get(
+        '{% url "dashboard_logs" %}',
+        {page: page},
+        function(data, textStatus, jqXHR) {
+            $('#logs_container').html(data)
+        },
+        'html'
+    )
+}
+$(document).ready(function(){
+   load_logs(1)
+});
+</script>
+{% endblock %}

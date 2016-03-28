@@ -7,7 +7,7 @@ from accountifie.cal import is_period_id, is_iso_date, start_of_period, end_of_p
 from accountifie.reporting.models import Report
 import accountifie.gl.models as gl
 import accountifie.toolkit.utils as utils
-import accountifie.gl.apiv1 as gl_api
+from accountifie.common.api import api_func
 
 
 class AccountActivity(Report):
@@ -28,7 +28,7 @@ class AccountActivity(Report):
 
         self.path = None
         self.acct_list = None
-        self.works_for = [cmpny['id'] for cmpny in gl_api.companies()]
+        self.works_for = [cmpny['id'] for cmpny in api_func('gl', 'companies')]
         
 
     

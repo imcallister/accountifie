@@ -16,8 +16,7 @@ from accountifie.cal.models import Year
 
 from .models import Account, Transaction, Counterparty
 import accountifie.toolkit.utils as utils
-import accountifie.gl.apiv1 as gl_api
-import accountifie.environment.api
+from accountifie.common.api import api_func
 
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
@@ -44,7 +43,7 @@ def download_transactions(request):
 
     trans = strategy.get_all_transactions(company_ID)
 
-    all_accts_list = gl_api.accounts()
+    all_accts_list = api_func('gl', 'accounts')
     all_accts = dict((r['id'], r) for r in all_accts_list)
     
     response = HttpResponse(content_type='text/csv')
@@ -58,7 +57,7 @@ def download_transactions(request):
     for ex in trans:
         first_line = ex['lines'][0]
         acct_id = first_line['accountId']
-        acct = gl_api.account(acct_id)
+        acct = api_func('gl', 'account', acct_id)
         if (acct['role'] in ['asset', 'expense'] and float(first_line['amount']) >0) or \
             (acct['role'] in ['liability', 'income', 'capital'] and float(first_line['amount']) < 0):
             debit = ex['lines'][0]
@@ -126,5 +125,6 @@ def accounts_list(request):
 def counterparty_list(request):
     "Show list of each account"
     counterparties = Counterparty.objects.order_by('id')
-    AP_acct = accountifie.environment.api.variable({'name': 'GL_ACCOUNTS_PAYABLE'})
+    AP_acct = api_func('environment', 'variable', 'GL_ACCOUNTS_PAYABLE')
+
     return render_to_response('gl/counterparty_list.html', RequestContext(request, dict(ap_acct=AP_acct, counterparties=counterparties)))

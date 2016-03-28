@@ -36,7 +36,7 @@ from bands import TextBand, BasicBand
 from reportdef import ReportDef
 
 import accountifie.query.query_manager
-import accountifie.gl.apiv1 as gl_api
+from accountifie.common.api import api_func
 import accountifie.toolkit.utils as utils
 
 
@@ -69,7 +69,7 @@ class Report(object):
 
 
     def set_company(self):
-        self.company_name = gl_api.company(self.company_id)['name']
+        self.company_name = api_func('gl', 'company', self.company_id)['name']
 
 
     def set_columns(self, columns, column_order=None):

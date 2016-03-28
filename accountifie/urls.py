@@ -13,6 +13,5 @@ urlpatterns = patterns('',
     url(r'', include('accountifie.forecasts.urls')),
     url(r'', include('accountifie.gl.urls')),
     url(r'', include('accountifie.snapshot.urls')),
-    url(r'', include('accountifie.reporting.urls')),
-    url(r'', include('accountifie.environment.urls')),       
+    url(r'', include('accountifie.reporting.urls')),     
 )

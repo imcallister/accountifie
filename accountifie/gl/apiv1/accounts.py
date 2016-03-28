@@ -11,8 +11,6 @@ import os
 
 @api_wrapper
 def accounts(qstring={}):
-    print os.path.split(settings.PROJECT_DIR)[1]
-    print '=' * 20
     return list(Account.objects.order_by('id').values())
 
 
@@ -39,9 +37,9 @@ def path_accounts(path, qstring={}):
 
 def account(acct_id, qstring={}):
     # try to find account by id and by path
-    acct_list = list(Account.objects.filter(pk=acct_id)) + list(Account.objects.filter(path=acct_id))
+    acct = (list(Account.objects.filter(pk=acct_id)) + list(Account.objects.filter(path=acct_id)))[0]
     flds = ['display_name', 'role', 'path', 'id']
-    return [dict((k,v) for k,v in acct.__dict__.iteritems() if k in flds) for acct in acct_list]
+    return dict((k,v) for k,v in acct.__dict__.iteritems() if k in flds)
 
 
 def child_paths(path, qstring={}):

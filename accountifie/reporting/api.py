@@ -10,7 +10,7 @@ from django.template import RequestContext
 
 import accountifie.toolkit.utils as utils
 from accountifie.reporting.rptutils import get_report
-import accountifie.gl.apiv1 as gl_api
+from accountifie.common.api import api_func
 import accountifie.query.query_manager as QM
 
 
@@ -21,7 +21,7 @@ def get(api_view, params):
 def transaction_info(params):
     trans_id = params['id']
     # no way right now to know whether which company it is in
-    companies = [cmpy['id'] for cmpy in gl_api.companies() if cmpy['cmpy_type']=='ALO']
+    companies = [cmpy['id'] for cmpy in api_func('gl', 'companies') if cmpy['cmpy_type']=='ALO']
     for cmpny in companies:
         info = QM.QueryManager().transaction_info(cmpny, trans_id)
         if len(info)>0:
@@ -38,7 +38,7 @@ def history(params):
     id = params.get('id', None)
 
     if type == 'account':
-        acct = gl_api.account(id)
+        acct = api_func('gl', 'account', id)
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
 
@@ -62,7 +62,7 @@ def history(params):
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, type, ref, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
         column_titles = ['id', 'date', 'comment', 'account_id', 'contra_accts', 'counterparty', 'amount', 'balance']
     elif type == 'creditor':
-        cp_info = gl_api.counterparty(id)
+        cp_info = api_func('gl', 'counterparty', id)
         
         display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)
@@ -79,7 +79,7 @@ def history(params):
 def balance_trends(params):
     dt = parse(params['date'])
 
-    accounts = gl_api.accounts()
+    accounts = api_func('gl', 'accounts')
     if 'accts_path' in params:
         acct_list = [x['id'] for x in accounts if params['accts_path'] in x['path']]
     else:

@@ -7,7 +7,7 @@ import logging
 from accountifie.reporting.models import Report
 from accountifie.toolkit.utils import DZERO
 import accountifie.toolkit.utils as utils
-import accountifie.gl.apiv1 as gl_api
+from accountifie.common.api import api_func
 
 
 logger = logging.getLogger('default')
@@ -28,7 +28,7 @@ class TrialBalance(Report):
         self.columns = {'Debits':'Debits', 'Credits': 'Credits'}
         self.calc_type = 'as_of'
         self.set_company()
-        self.works_for = [cmpny['id'] for cmpny in gl_api.companies()]
+        self.works_for = [cmpny['id'] for cmpny in api_func('gl', 'companies')]
         self.column_order = ['Debits', 'Credits']
         self.label_map = None
         self.link_map = lambda x: utils.acct_history_link(x.name)
@@ -58,7 +58,7 @@ class TrialBalance(Report):
     def calcs(self):
         bals = self.query_manager.pd_acct_balances(self.company_id, {'balance': self.date})
         
-        accts = gl_api.accounts()
+        accts = api_func('gl', 'accounts')
         accts_map = dict((a['id'], a) for a in accts)
 
         # dataframe.apply won't work until v0.17 for lambda returning dict... so have to do in roundabout way till then

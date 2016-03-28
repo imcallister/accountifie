@@ -26,7 +26,7 @@ import pandas as pd
 from django.db import connection
 from django.conf import settings
 from accountifie.common.db import query as qry  #might as well use the standard one
-import accountifie.gl.apiv1 as gl_api
+from accountifie.common.api import api_func
 
 DZERO = Decimal('0')
 
@@ -65,7 +65,7 @@ class GLCache(object):
         self.company_id = company_id
         self.conn = connection
         self.accts = {}
-        self.company_list = accountifie.gl_api.company_list(company_id)
+        self.company_list = api_func('gl', 'company_list', company_id)
 
     def get_companyID(self):
         return self.company_id
