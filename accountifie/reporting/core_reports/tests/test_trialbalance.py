@@ -41,7 +41,9 @@ class TrialBalanceTestCase(TestCase):
       dates={'balance': {'start': datetime.date(2013, 1, 1), 'end': None}},
       with_counterparties=None,
       excl_interco=False,
-      excl_contra=None
+      excl_contra=None,
+      with_tags=None, 
+      excl_tags=None
     )
 
     # test result

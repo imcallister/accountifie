@@ -12,9 +12,6 @@ from django.template import RequestContext
 from django.core import serializers
 
 from accountifie.cal.models import Year
-
-
-from .models import Account, Transaction, Counterparty
 import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
 
@@ -94,37 +91,18 @@ def download_tranlines(request):
     return response
 
 
-@login_required
-def transaction_info(request, id):
-    "Show info about each transaction"
-    tran = get_object_or_404(Transaction, pk=id)
-    tran = Transaction.objects.get(pk=id)
-
-    source = tran.source_object
-
-    #there's a cleaner way but I can't get it working...
-    source_admin_url = '/admin/%s/%s/%s/' % (tran.content_type.app_label, tran.content_type.model, source.pk)
-
-    return render_to_response('gl/transaction_info.html',
-        RequestContext(request, dict(
-            tran=tran,
-            source=source,
-            source_admin_url = source_admin_url
-            )))
-
-
 
 @login_required
 def accounts_list(request):
     "Show list of each account"
-    accounts = Account.objects.order_by('id')
+    accounts = api_func('gl', 'accounts')
     return render_to_response('gl/accounts_list.html', RequestContext(request, dict(accounts=accounts)))
 
 
 @login_required
 def counterparty_list(request):
     "Show list of each account"
-    counterparties = Counterparty.objects.order_by('id')
+    counterparties = api_func('gl', 'counterparties')
     AP_acct = api_func('environment', 'variable', 'GL_ACCOUNTS_PAYABLE')
 
     return render_to_response('gl/counterparty_list.html', RequestContext(request, dict(ap_acct=AP_acct, counterparties=counterparties)))

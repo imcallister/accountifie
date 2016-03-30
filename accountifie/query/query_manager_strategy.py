@@ -4,7 +4,7 @@ Interface for swappable strategies used for dealing with transactions in QueryMa
 Based on the strategy pattern https://en.wikipedia.org/wiki/Strategy_patter
 """
 class QueryManagerStrategy(object):
-  def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
+  def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
     """
     :param company_id:           the company id
                                  e.g. 'INC'

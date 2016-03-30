@@ -28,7 +28,8 @@ from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 import accountifie.toolkit.utils as utils
 import accountifie.reporting.rptutils
-import tables.bstrap_tables
+from accountifie.common.table import get_table
+
 
 logger = logging.getLogger('default')
 
@@ -46,7 +47,7 @@ def forecasts_list(request):
 def forecast_index(request):
     context = {}
     context['title'] = 'Forecasts'
-    context['content'] = tables.bstrap_tables.forecasts()
+    context['content'] = get_table('forecasts')()
     return render_to_response('forecasts/base_forecasts.html', context, context_instance=RequestContext(request))
 
 

@@ -22,8 +22,7 @@ from accountifie.query.query_manager_strategy_factory import QueryManagerStrateg
 from accountifie.query.query_manager import QueryManager
 from accountifie.reporting.views import report_prep
 import accountifie.toolkit.utils as utils
-import tables.bstrap_tables
-
+from accountifie.common.table import get_table
 
 
 @login_required
@@ -31,7 +30,7 @@ def glsnapshots(request):
     
     context = {}
     context['title'] = 'Snapshots'
-    context['content'] = tables.bstrap_tables.snapshots()
+    context['content'] = get_table('snapshots')()
     return render_to_response('snapshot/base_snapshot.html', context, context_instance=RequestContext(request))
 
 

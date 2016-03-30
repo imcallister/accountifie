@@ -15,12 +15,13 @@ from accountifie.common.api import api_func
 class QueryManager:
 
     def __init__(self, gl_strategy=None):
-        strategy_inst = query_manager_strategy_factory.QueryManagerStrategyFactory().get()
         if gl_strategy:
             if isinstance(gl_strategy, str):
                 strategy_inst = query_manager_strategy_factory.QueryManagerStrategyFactory().get(strategy=gl_strategy)
             else:
                 strategy_inst = gl_strategy
+        else:
+            strategy_inst = query_manager_strategy_factory.QueryManagerStrategyFactory().get()
         self.gl_strategy = strategy_inst
 
     # CALCULATIONS
