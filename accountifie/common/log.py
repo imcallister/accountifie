@@ -1,12 +1,15 @@
 """
-Adapted with permission from ReportLab's DocEngine framework
+Partially adapted with permission from ReportLab's DocEngine framework
 """
 
 
-
+import requests
 import logging
+import json
 import traceback
+
 from django.views.debug import ExceptionReporter, get_exception_reporter_filter
+from django.conf import settings
 
 class DbLogHandler(logging.Handler):
     def emit(self, record):
@@ -32,3 +35,10 @@ class DbLogHandler(logging.Handler):
                   traceback = stack_trace
               )
         rec.save()
+
+class SlackHandler(logging.Handler):
+    def emit(self, record):
+        
+        new_data = {"text":'%s: %s' %(record.levelname, record.getMessage())}
+        r = requests.post(settings.SLACK_ENDPOINT_URL, data=json.dumps(new_data))
+        
