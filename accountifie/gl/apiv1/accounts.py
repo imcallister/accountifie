@@ -37,9 +37,12 @@ def path_accounts(path, qstring={}):
 
 def account(acct_id, qstring={}):
     # try to find account by id and by path
-    acct = (list(Account.objects.filter(pk=acct_id)) + list(Account.objects.filter(path=acct_id)))[0]
-    flds = ['display_name', 'role', 'path', 'id']
-    return dict((k,v) for k,v in acct.__dict__.iteritems() if k in flds)
+    try:
+        acct = (list(Account.objects.filter(pk=acct_id)) + list(Account.objects.filter(path=acct_id)))[0]
+        flds = ['display_name', 'role', 'path', 'id']
+        return dict((k,v) for k,v in acct.__dict__.iteritems() if k in flds)
+    except:
+        return None
 
 
 def child_paths(path, qstring={}):
