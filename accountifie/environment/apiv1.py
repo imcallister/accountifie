@@ -15,17 +15,17 @@ def variable(key, qstring):
     try:
         return Variable.objects.get(key=key).value
     except:
-        raise ValueError("Can't find system variable %s" % params['name'])
+        raise ValueError("Can't find system variable %s" % key)
 
 def variable_list(key, qstring):
     try:
         return Variable.objects.get(key=key).value.split(',')
     except:
-        raise ValueError("Can't find system variable %s" % params['name'])
+        raise ValueError("Can't find system variable %s" % key)
 
 
 def config(name, qstring):
     try:
         return Config.objects.get(name=name).reporting
     except:
-        raise ValueError("Can't find config variable %s" % params['name'])
+        raise ValueError("Can't find config variable %s" % key)
