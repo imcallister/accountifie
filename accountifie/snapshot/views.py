@@ -17,7 +17,6 @@ from accountifie.cal.models import Year
 
 import models
 from accountifie.common.api import api_func
-import accountifie.snapshot.api
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 from accountifie.query.query_manager import QueryManager
 from accountifie.reporting.views import report_prep
