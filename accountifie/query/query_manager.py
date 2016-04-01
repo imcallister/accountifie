@@ -205,7 +205,7 @@ class QueryManager:
         elif q_type == 'account_list':
             acct_list = incl
         elif q_type=='path':
-            acct_list = [x['id'] for x in ap_func('gl', 'path_accounts', id, qstring={'excl': excl_contra, 'incl': incl})]
+            acct_list = [x['id'] for x in api_func('gl', 'path_accounts', id, qstring={'excl': excl_contra, 'incl': incl})]
         else:
             raise ValueError('History not implemented for this type')
 

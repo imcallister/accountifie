@@ -8,6 +8,6 @@ def counterparties(qstring={}):
 def counterparty(cp_id, qstring={}):
     cp = Counterparty.objects.filter(id=cp_id).first()
     if cp is None:
-        return {}
+        return None
     else:
         return dict((k,v) for k,v in cp.__dict__.iteritems() if k in ['id','name'])
