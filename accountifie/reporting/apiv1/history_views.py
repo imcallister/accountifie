@@ -65,10 +65,10 @@ def history(id, qstring={}):
     
     if api_func('gl', 'account', str(id)) is not None:
         hist = _account_history(id, company_ID, start_date, end_date, cp)
-        return hist[hist['date'] >= start_cutoff].to_dict(orient='records')
+        return _cutoff(start_cutoff, hist).to_dict(orient='records')
     elif api_func('gl', 'counterparty', id) is not None:
         hist = _cp_history(id, company_ID, start_date, end_date)
-        return hist[hist['date'] >= start_cutoff].to_dict(orient='records')
+        return __cutoff(start_cutoff, hist).to_dict(orient='records')
     elif _is_path(id):
         hist = _path_history(id, company_ID, start_date, end_date, excl, incl)
         return _cutoff(start_cutoff, hist).to_dict(orient='records')
