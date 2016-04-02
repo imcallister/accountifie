@@ -5,7 +5,7 @@ from django.conf import settings
 
 from accountifie.common.api import api_func
 import accountifie.query.query_manager as QM
-from accountifie.toolkit.utils import start_of_year
+from accountifie.toolkit.utils import start_of_year, daterange
 
 import logging
 
@@ -74,3 +74,44 @@ def history(id, qstring={}):
         return _cutoff(start_cutoff, hist).to_dict(orient='records')
     else:
         return "ID %s not recognized as an account or counterparty" %id
+
+
+def balance_history(id, qstring={}):
+    start_cutoff = qstring.get('from_date', None)
+    start_date = settings.DATE_EARLY
+    end_date = qstring.get('to_date', datetime.datetime.now().date())
+
+    cp = qstring.get('cp', None)
+    excl = qstring.get('excl', None)
+    incl = qstring.get('incl', None)
+
+    if not start_cutoff:
+        start_cutoff = start_of_year(end_date.year)
+
+    company_ID = qstring.get('company_id', api_func('environment', 'variable', 'DEFAULT_COMPANY_ID'))
+    
+    if api_func('gl', 'account', str(id)) is not None:
+        hist = _account_history(id, company_ID, start_date, end_date, cp)
+        hist = _cutoff(start_cutoff, hist)
+    elif api_func('gl', 'counterparty', id) is not None:
+        hist = _cp_history(id, company_ID, start_date, end_date)
+        hist = _cutoff(start_cutoff, hist)
+    elif _is_path(id):
+        hist = _path_history(id, company_ID, start_date, end_date, excl, incl)
+        hist = _cutoff(start_cutoff, hist)
+    else:
+        return "ID %s not recognized as an account or counterparty" %id
+
+    hist['idx'] = hist.index
+    date_indices = hist[['date','idx']].groupby('date').max()
+    balances = hist.loc[date_indices['idx']][['date','balance']]
+    balances.index = balances['date']
+    del balances['date']
+
+    dates = daterange(balances.index[0], balances.index[-1], bus_days_only=True)
+    filled_balances = pd.DataFrame(index=dates)
+    filled_balances['balance'] = balances['balance']
+    filled_balances.fillna(method='ffill', inplace=True)
+    filled_balances.index = filled_balances.index.map(lambda x: x.isoformat())
+
+    return filled_balances['balance'].to_dict()

@@ -2,7 +2,14 @@ from accountifie.cal import is_period_id
 import datetime
 from dateutil.parser import parse
 
-##### DOCENGINE  #####
+
+def daterange(start, end, bus_days_only=True):
+    dates = [start + datetime.timedelta(days=d) for d in range(0, (end - start).days + 1)]
+
+    if bus_days_only:
+        return [d for d in dates if d.weekday()<5]
+    else:
+        return dates
 
 
 def start_of_period(period_id):
