@@ -57,7 +57,7 @@ class ActivityTestCase(TestCase):
       with_counterparties=None,
       excl_interco=False,
       excl_contra=None,
-      with_tags=None, 
+      with_tags=None,
       excl_tags=None
     )
 

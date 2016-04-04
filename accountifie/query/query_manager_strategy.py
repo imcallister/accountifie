@@ -19,6 +19,11 @@ class QueryManagerStrategy(object):
                                  e.g. True
     :param excl_contra:          a list of contra account ids to be excluded
                                  e.g. [ '3001' ]
+    :param with_tags             a list of tags for which to find GL entries
+                                 e.g. ['yearend']
+    :param excl_tags             a list of tags for which to exclude GL entries
+                                 e.g. ['yearend']
+
     :return:                     a dictionary of account balances, indexed by date
                                  e.g. { '2015': { '3001': '1503.23', '3010': '1626.23' } }
     """
