@@ -1,4 +1,5 @@
 import gl_helpers
+import sys, traceback
 
 import datetime
 import json
@@ -33,7 +34,6 @@ logger = logging.getLogger('default')
 #use this frequently in rounding so give it a name
 DZERO = Decimal("0.00")
 HUNDREDTH = Decimal("0.01")
-
 
 
 def periods(period_tags):

@@ -9,18 +9,19 @@ import query_manager_strategy_factory
 from django.conf import settings
 from collections import defaultdict
 
-import accountifie._utils
-import accountifie.gl.api
+import accountifie.toolkit.utils as utils
+from accountifie.common.api import api_func
 
 class QueryManager:
 
     def __init__(self, gl_strategy=None):
-        strategy_inst = query_manager_strategy_factory.QueryManagerStrategyFactory().get()
         if gl_strategy:
             if isinstance(gl_strategy, str):
                 strategy_inst = query_manager_strategy_factory.QueryManagerStrategyFactory().get(strategy=gl_strategy)
             else:
                 strategy_inst = gl_strategy
+        else:
+            strategy_inst = query_manager_strategy_factory.QueryManagerStrategyFactory().get()
         self.gl_strategy = strategy_inst
 
     # CALCULATIONS
@@ -49,7 +50,7 @@ class QueryManager:
     
     ## REFERENCES: 0 internal, 2 external
     def path_drilldown(self, company_id, dates, path, excl_contra=None, excl_interco=None):
-        paths = accountifie.gl.api.get_child_paths(path)
+        paths = api_func('gl', 'child_paths', path)
         output = self.pd_path_balances(company_id, dates, paths, excl_contra=excl_contra, excl_interco=excl_interco)
         return output
     
@@ -78,7 +79,7 @@ class QueryManager:
         return sub_entries
     
     ## REFERENCES: 0 internal, 1 external
-    def trans_detail(self, trans_list, company_id=accountifie._utils.get_default_company()):
+    def trans_detail(self, trans_list, company_id=utils.get_default_company()):
         
         cache = glcache.get_cache(company_id)
         entries = cache.get_gl_entries_trans(trans_list)
@@ -93,14 +94,14 @@ class QueryManager:
         end_mth = end_date.month
         end_yr = end_date.year
     
-        dt = accountifie._utils.start_of_month(start_date.month, start_date.year)
+        dt = utils.start_of_month(start_date.month, start_date.year)
         dates = {dt.isoformat(): dt}
     
         dt1 = start_date
         dt2 = end_date
         start_month=dt1.month
         end_months=(dt2.year-dt1.year)*12 + dt2.month+1
-        date_list = [accountifie._utils.end_of_month(mn,yr) for (yr, mn) in (
+        date_list = [utils.end_of_month(mn,yr) for (yr, mn) in (
                   ((m - 1) / 12 + dt1.year, (m - 1) % 12 + 1) for m in range(start_month, end_months)
               )]
     
@@ -111,7 +112,7 @@ class QueryManager:
     
         data = {}
         for dt in dates:
-            start, end = accountifie._utils.get_dates(dates[dt])
+            start, end = utils.get_dates(dates[dt])
             sub_entries = self.deprec_calcs(start, end, entries)
             col = sub_entries[['account_id','amount']].groupby('account_id').sum()['amount']
             data[dt] = col[col!=0.0]
@@ -119,10 +120,10 @@ class QueryManager:
     
     def pd_path_balances(self, company_id, dates, paths, filter_zeros=True, assets=False, excl_contra=None, excl_interco=False, with_tags=None, excl_tags=None):
 
-        path_accts = dict((p, [x['id'] for x in accountifie.gl.api.path_accounts({'path':p})]) for p in paths)
+        path_accts = dict((p, [x['id'] for x in api_func('gl', 'path_accounts', p)]) for p in paths)
         acct_list = list(itertools.chain(*[path_accts[p] for p in paths]))
     
-        dates_dict = dict((dt, accountifie._utils.get_dates_dict(dates[dt])) for dt in dates)
+        dates_dict = dict((dt, utils.get_dates_dict(dates[dt])) for dt in dates)
         date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, None, excl_interco, excl_contra, with_tags, excl_tags)
     
         data = {}
@@ -157,12 +158,12 @@ class QueryManager:
 
         if not acct_list:
             if paths:
-                accts = list(itertools.chain(*[accountifie.gl.api.path_accounts({'path':p}) for p in paths]))
+                accts = list(itertools.chain(*[api_func('gl', 'path_accounts', p) for p in paths]))
                 acct_list = [x['id'] for x in accts]
             else:
-                acct_list = [x['id'] for x in accountifie.gl.api.path_accounts({'path':''})]
+                acct_list = [x['id'] for x in api_func('gl', 'path_accounts', '')]
 
-        dates_dict = dict((dt, accountifie._utils.get_dates_dict(dates[dt])) for dt in dates)
+        dates_dict = dict((dt, utils.get_dates_dict(dates[dt])) for dt in dates)
         
         with_counterparties = [cp.id] if cp else None
         date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags)
@@ -175,7 +176,7 @@ class QueryManager:
         output = pd.DataFrame(date_indexed_account_balances)
         
         if paths:
-            a = [[x['id'] for x in accountifie.gl.api.path_accounts({'path':path})] for path in paths]
+            a = [[x['id'] for x in api_func('gl', 'path_accounts', path)] for path in paths]
             accts_list = list(itertools.chain(*a))
             return output[output.index.isin(acct_list)]
         elif acct_list:
@@ -189,14 +190,14 @@ class QueryManager:
     
 
     def transactions(self, company_id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE):
-        acct_list = [x['id'] for x in accountifie.gl.api.accounts({})]
+        acct_list = [x['id'] for x in api_func('gl', accounts)]
         all_entries = self.gl_strategy.transactions(company_id, acct_list, from_date, to_date, 'end-of-month', None, None, None)
 
         return all_entries
 
 
     def pd_history(self, company_id, q_type, id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE, excl_interco=None, excl_contra=None, incl=None, cp=None):
-        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
             excl_interco = True
         
         if q_type == 'account':
@@ -204,7 +205,7 @@ class QueryManager:
         elif q_type == 'account_list':
             acct_list = incl
         elif q_type=='path':
-            acct_list = [x['id'] for x in accountifie.gl.api.path_accounts({'path':id, 'excl': excl_contra, 'incl': incl})]
+            acct_list = [x['id'] for x in api_func('gl', 'path_accounts', id, qstring={'excl': excl_contra, 'incl': incl})]
         else:
             raise ValueError('History not implemented for this type')
 
@@ -227,7 +228,7 @@ class QueryManager:
     
         top_line = pd.Series(dict((col, None) for col in cols))
 
-        top_line['date'] = accountifie._utils.day_before(all_entries_pd.iloc[0]['date'])
+        top_line['date'] = utils.day_before(all_entries_pd.iloc[0]['date'])
         top_line['amount'] = 0.0
         top_line['comment'] = 'Opening Balance'
 

@@ -17,11 +17,11 @@ import datetime
 
 from django.conf import settings
 
-import accountifie._utils as utils
+import accountifie.toolkit.utils as utils
 
 from query_manager_strategy import QueryManagerStrategy
 import query_manager
-import accountifie.gl.api
+from accountifie.common.api import api_func
 from accountifie.forecasts.models import Forecast
 
 import logging
@@ -156,7 +156,7 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
 
     def __pd_balances_prep(self, company_id, account_ids, excl_contra=None, excl_interco=False, with_counterparties=None):
-        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
             excl_interco = True
 
         entries = self.get_gl_entries(company_id, account_ids)
@@ -207,8 +207,8 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
     @staticmethod
     def __inter_co(row):
-        ext_accts = accountifie.gl.api.ext_accounts_list({})
-        companies = [cmpy['id'] for cmpy in accountifie.gl.api.companies({})]
+        ext_accts = api_func('gl', 'externalaccounts')
+        companies = [cmpy['id'] for cmpy in api_func('gl', 'companies')]
         if row['account_id'] in ext_accts:
             return False
         if row['counterparty'] in companies:

@@ -25,6 +25,9 @@ else:
 
 
 urlpatterns = patterns('',
+    url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/(?P<item>(.+))/$', 'accountifie.common.api.get_item'),
+    url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/$', 'accountifie.common.api.get_resource'),
+
     url(r'^test-7491/$', accountifie.common.views.test7491, name='health-check'),
     url(r'^tests/error/$', accountifie.common.views.deliberateError, name='deliberate error'),
     url(r'^api/upload/$', accountifie.common.views.upload),

@@ -11,7 +11,7 @@ import accountifie.gl.models
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 import accountifie.query.query_manager_strategy_factory as QMSF
-import accountifie.environment.api
+
 
 DZERO = Decimal('0')
 
@@ -40,11 +40,7 @@ class BusinessModelObject(object):
 
 
     def create_gl_transactions(self, trans):
-        try:
-            GL_strategy = accountifie.environment.api.variable({'name':'GL_STRATEGY'})
-        except:
-            raise ValueError('Unable to find GL_strategy variable in environment') 
-
+        
         "Make any GL transactions this needs"
         for trandict in trans:
             d2 = trandict.copy()

@@ -9,16 +9,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core import serializers
 
 from accountifie.cal.models import Year
-
-
-from .models import Account, Transaction, Counterparty
-import accountifie._utils
-import accountifie.gl.api
-import accountifie.environment.api
+import accountifie.toolkit.utils as utils
+from accountifie.common.api import api_func
 
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
@@ -33,25 +28,11 @@ def index(request):
     d = {}
     return render_to_response('index.html', RequestContext(request, d))
 
-
-def api(request, api_view):
-    params = request.GET
-    return HttpResponse(json.dumps(accountifie.gl.api.get(api_view, params), cls=DjangoJSONEncoder), content_type="application/json")
-
-
-@login_required
-def account(request, id):
-    return HttpResponse(json.dumps(accountifie.gl.api.account({'id':id}), cls=DjangoJSONEncoder), content_type="application/json")
-
-
-@login_required
-def accounts(request):
-    return HttpResponse(json.dumps(accountifie.gl.api.accounts(), cls=DjangoJSONEncoder), content_type="application/json")
     
 
 @login_required
 def download_transactions(request):
-    company_ID = accountifie._utils.get_company(request)
+    company_ID = utils.get_company(request)
 
     snapshot_time = datetime.datetime.now()
     strategy = QueryManagerStrategyFactory().get('snapshot')
@@ -59,7 +40,7 @@ def download_transactions(request):
 
     trans = strategy.get_all_transactions(company_ID)
 
-    all_accts_list = accountifie.gl.api.accounts({})
+    all_accts_list = api_func('gl', 'accounts')
     all_accts = dict((r['id'], r) for r in all_accts_list)
     
     response = HttpResponse(content_type='text/csv')
@@ -73,7 +54,7 @@ def download_transactions(request):
     for ex in trans:
         first_line = ex['lines'][0]
         acct_id = first_line['accountId']
-        acct = accountifie.gl.api.account({'id': acct_id})
+        acct = api_func('gl', 'account', acct_id)
         if (acct['role'] in ['asset', 'expense'] and float(first_line['amount']) >0) or \
             (acct['role'] in ['liability', 'income', 'capital'] and float(first_line['amount']) < 0):
             debit = ex['lines'][0]
@@ -94,7 +75,7 @@ def download_transactions(request):
 
 @login_required
 def download_tranlines(request):
-    company_ID = accountifie._utils.get_company(request)
+    company_ID = utils.get_company(request)
     trans = QueryManager().tranlines(company_ID)
     
     response = HttpResponse(content_type='text/csv')
@@ -110,36 +91,18 @@ def download_tranlines(request):
     return response
 
 
-@login_required
-def transaction_info(request, id):
-    "Show info about each transaction"
-    tran = get_object_or_404(Transaction, pk=id)
-    tran = Transaction.objects.get(pk=id)
-
-    source = tran.source_object
-
-    #there's a cleaner way but I can't get it working...
-    source_admin_url = '/admin/%s/%s/%s/' % (tran.content_type.app_label, tran.content_type.model, source.pk)
-
-    return render_to_response('gl/transaction_info.html',
-        RequestContext(request, dict(
-            tran=tran,
-            source=source,
-            source_admin_url = source_admin_url
-            )))
-
-
 
 @login_required
 def accounts_list(request):
     "Show list of each account"
-    accounts = Account.objects.order_by('id')
+    accounts = api_func('gl', 'accounts')
     return render_to_response('gl/accounts_list.html', RequestContext(request, dict(accounts=accounts)))
 
 
 @login_required
 def counterparty_list(request):
     "Show list of each account"
-    counterparties = Counterparty.objects.order_by('id')
-    AP_acct = accountifie.environment.api.variable({'name': 'GL_ACCOUNTS_PAYABLE'})
+    counterparties = api_func('gl', 'counterparties')
+    AP_acct = api_func('environment', 'variable', 'GL_ACCOUNTS_PAYABLE')
+
     return render_to_response('gl/counterparty_list.html', RequestContext(request, dict(ap_acct=AP_acct, counterparties=counterparties)))

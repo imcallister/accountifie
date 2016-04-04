@@ -21,7 +21,7 @@ from query_manager_remote_strategy import QueryManagerRemoteStrategy
 from query_manager_local_strategy import QueryManagerLocalStrategy
 from query_manager_snapshot_strategy import QueryManagerSnapshotStrategy
 from query_manager_forecast_strategy import QueryManagerForecastStrategy
-import accountifie.environment.api
+from accountifie.common.api import api_func
 
 
 class QueryManagerStrategyFactory(object):
@@ -32,7 +32,7 @@ class QueryManagerStrategyFactory(object):
       'local': QueryManagerLocalStrategy()
     }
     try:
-      self.noop_mutating_functions = accountifie.environment.api({'name': 'DISABLE_accountifie_SVC_MUTATES'}) == 'true'
+      self.noop_mutating_functions = api_func('environment', 'variable', 'DISABLE_ACCOUNTIFIE_SVC_MUTATES') == 'true'
     except:
       self.noop_mutating_functions = False
 
@@ -150,7 +150,7 @@ class QueryManagerStrategyFactory(object):
       return self.force_default_strategy
 
     try:
-      return accountifie.environment.api({'name': 'DEFAULT_GL_STRATEGY'})
+      return api_func('environment', 'variable', 'DEFAULT_GL_STRATEGY')
     except:
       return settings.DEFAULT_GL_STRATEGY
 

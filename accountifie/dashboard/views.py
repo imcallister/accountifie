@@ -111,6 +111,67 @@ def index(request):
 
     return render_to_response('dashboard/index.html', context)
 
+@staff_member_required
+def logs(request):
+    pip = os.path.join(sys.exec_prefix, 'bin', 'pip')
+    if not os.path.isfile(pip):
+        pip = 'pip'
+    SHELL_COMMANDS = (
+        ('Hostname','hostname'),
+        ('hg version', 'hg id'),
+        ('git version', "git log --pretty=format:'%h' -n 1"),
+        ('hg branch', 'hg branch'),
+        ('git branch', 'git rev-parse --abbrev-ref HEAD'),
+        ('MySQL version', 'mysql --version'),
+        ('Local Packages', '%s freeze -l' % pip)
+    )
+    SD = OrderedDict()
+    for k,v in sorted(settings_list(), key=lambda x: x[0]):
+        SD[k] = v
+    context = RequestContext(request, {
+        'args': sys.argv,
+        'exe': sys.executable,
+        'settings': SD,
+        })
+
+    context['versions'] = OrderedDict()
+    # get versions
+    curr_dir = os.path.realpath(os.path.dirname(__file__))
+    for name, shell_command in SHELL_COMMANDS:
+        try:
+            result = utils.run_shell_command(shell_command, curr_dir)
+            if result:
+                if isinstance(result, list):
+                    result = '<br>'.split(result)
+                context['versions'][name] = result
+        except:
+            pass
+    # machine status    
+    context['machine'] = OrderedDict()
+    if sys.platform == 'darwin':
+        context['machine']['Uptime'] = 'not done yet on MacOS'
+        context['machine']['Disk Space'] = 'not done yet on MacOS'
+    elif sys.platform == 'win32':
+        context['machine']['Uptime'] = 'not done yet on Windows'
+        context['machine']['Disk Space'] = 'not done yet on Windows'
+    else:
+        context['machine']['Uptime'] = utils.server_uptime()
+        context['machine']['Disk Space'] = utils.disk_usage('/')._asdict()
+    if os.path.exists(settings.MEDIA_ROOT):
+        context['machine']['Media Folder'] = utils.sizeof_fmt(utils.folder_size(settings.MEDIA_ROOT))
+
+    context['stats'] = utils.get_available_stats()
+    context['apps'] = [(app.__name__, ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
+    context['relations'] = [[(model.__name__, ', '.join(['%s (%s) through %s' % (relation.__name__, relation.__module__, field.__class__.__name__)
+                                                        for field, relation in relations]), app.__name__) 
+                                                            for model, relations in rel_info] 
+                                                                for app, rel_info in all_relations()]
+    #context['rel_graph'] = 
+    
+    context['config_warnings'] = utils.get_configuration_warnings()
+
+    return render_to_response('dashboard/logs.html', context)
+
 @login_required
 def db_logs_modal(request):
     log_list = Log.objects.all()

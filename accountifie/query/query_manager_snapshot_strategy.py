@@ -17,11 +17,10 @@ import datetime
 from django.conf import settings
 import django.core.cache
 
-import accountifie._utils as utils
+import accountifie.toolkit.utils as utils
 from functools import partial
 from query_manager_strategy import QueryManagerStrategy
-import accountifie.environment.api
-import accountifie.gl.api
+from accountifie.common.api import api_func
 
 import logging
 
@@ -67,7 +66,7 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
     def set_cache(self, snapshot_time, extra=None):
         self.snapshot_time = snapshot_time
         try:
-            self.url = accountifie.environment.api.variable({'name': 'ACCOUNTIFIE_SVC_URL'})
+            self.url = api_func('environment', 'variable', 'ACCOUNTIFIE_SVC_URL')
         except:
             self.url = settings.ACCOUNTIFIE_SVC_URL
         if extra:
@@ -82,8 +81,8 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
         else:
             qs = ''
 
-        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
-            company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
+            company_list = api_func('gl', 'company_list', company_id)
             trans = []
             for cmpny in company_list:
                 cmpny_url = ('%s/gl/%s/snapshot-transactions' % (self.url, cmpny)) + qs
@@ -111,8 +110,8 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
         if snap_cache is None:
             # if not then load everything
             
-            if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
-                company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
+            if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
+                company_list = api_func('gl', 'company_list', company_id)
                 caches = []
                 for cmpny in company_list:
                     cmpny_url = ('%s/gl/%s/snapshot-transactions' % (self.url, cmpny)) + qs
@@ -218,7 +217,7 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
             return all_entries[['date', 'id', 'comment', 'account_id', 'counterparty', 'contra_accts', 'amount']].to_dict()
 
     def __pd_balances_prep(self, company_id, account_ids, excl_contra=None, excl_interco=False, with_counterparties=None):
-        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
             excl_interco = True
 
         entries = self.get_gl_entries(company_id, account_ids)
@@ -267,8 +266,8 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
 
     @staticmethod
     def __inter_co(row):
-        ext_accts = accountifie.gl.api.ext_accounts_list({})
-        companies = [cmpy['id'] for cmpy in accountifie.gl.api.companies({})]
+        ext_accts = api_func('gl', 'externalaccounts')
+        companies = [cmpy['id'] for cmpy in api_func('gl', 'companies')]
         if row['account_id'] in ext_accts:
             return False
         if row['counterparty'] in companies:

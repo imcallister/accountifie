@@ -8,9 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-import accountifie._utils
-from accountifie.reporting.models import get_report
-import accountifie.gl.api
+import accountifie.toolkit.utils as utils
+from accountifie.reporting.rptutils import get_report
+from accountifie.common.api import api_func
 import accountifie.query.query_manager as QM
 
 
@@ -21,7 +21,7 @@ def get(api_view, params):
 def transaction_info(params):
     trans_id = params['id']
     # no way right now to know whether which company it is in
-    companies = [cmpy['id'] for cmpy in accountifie.gl.api.companies({}) if cmpy['cmpy_type']=='ALO']
+    companies = [cmpy['id'] for cmpy in api_func('gl', 'companies') if cmpy['cmpy_type']=='ALO']
     for cmpny in companies:
         info = QM.QueryManager().transaction_info(cmpny, trans_id)
         if len(info)>0:
@@ -38,7 +38,7 @@ def history(params):
     id = params.get('id', None)
 
     if type == 'account':
-        acct = accountifie.gl.api.account({'id': id})
+        acct = api_func('gl', 'account', id)
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
 
@@ -62,7 +62,7 @@ def history(params):
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, type, ref, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
         column_titles = ['id', 'date', 'comment', 'account_id', 'contra_accts', 'counterparty', 'amount', 'balance']
     elif type == 'creditor':
-        cp_info = accountifie.gl.api.counterparty({'id': id})
+        cp_info = api_func('gl', 'counterparty', id)
         
         display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
         history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)
@@ -79,21 +79,21 @@ def history(params):
 def balance_trends(params):
     dt = parse(params['date'])
 
-    accounts = accountifie.gl.api.accounts({})
+    accounts = api_func('gl', 'accounts')
     if 'accts_path' in params:
         acct_list = [x['id'] for x in accounts if params['accts_path'] in x['path']]
     else:
         acct_list = params['acct_list'].split('.')
     
     gl_strategy = params.get('gl_strategy', None)
-    company_id = params.get('company_id', accountifie._utils.get_default_company())
+    company_id = params.get('company_id', utils.get_default_company())
     
     # 3 months for now
     report = get_report('AccountActivity', company_id, version='v1')
     report.set_gl_strategy(gl_strategy)
 
-    M_1 = accountifie._utils.end_of_prev_month(dt.month, dt.year)
-    M_2 = accountifie._utils.end_of_prev_month(M_1.month, M_1.year)
+    M_1 = utils.end_of_prev_month(dt.month, dt.year)
+    M_2 = utils.end_of_prev_month(M_1.month, M_1.year)
 
     three_mth = {}
     three_mth['M_0'] = '%dM%s' % (dt.year, '{:02d}'.format(dt.month))
@@ -117,7 +117,7 @@ def report_prep(request, id):
     as_of = request.GET.get('date', None)
     col_tag = request.GET.get('col_tag', None)
     format = request.GET.get('format', 'html')
-    company_ID = request.GET.get('company', accountifie._utils.get_company(request))
+    company_ID = request.GET.get('company', utils.get_company(request))
     path = request.GET.get('path', None)
     report = get_report(id, company_ID, version='v1')
     gl_strategy = request.GET.get('gl_strategy', None)

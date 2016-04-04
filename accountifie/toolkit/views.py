@@ -28,7 +28,7 @@ from forms import FileForm
 from accountifie.middleware.docengine import getCurrentRequest
 from accountifie.tasks.utils import task, utcnow
 from accountifie.tasks.models import DeferredTask, isDetachedTask, setProgress, setStatus
-
+from accountifie.common.models import Log
 
 from accountifie.gl.models import ExternalBalance, Transaction, TranLine, Company
 
@@ -37,7 +37,7 @@ from accountifie.forecasts.models import Forecast
 
 
 from .forms import SplashForm
-import accountifie._utils
+import utils
 
 logger = logging.getLogger('default')
 
@@ -50,7 +50,7 @@ def company_context(request):
     This is not a view.
     """
     
-    company_id = accountifie._utils.get_company(request)
+    company_id = utils.get_company(request)
     data = {'company_id': company_id}
     if company_id:
         try:
@@ -94,7 +94,11 @@ def recalculate(request):
 
 @task
 def run_logclean(*args, **kwargs):
-    call_command("clean_log",clean_to=kwargs.pop('clean_to'))
+    clean_to = parse(kwargs.get('clean_to', None))
+    to_clean = Log.objects.filter(time__lte=clean_to)
+    Log.objects.filter(time__lte=clean_to).delete()
+    logger.info('cleaned %d log entries to %s' %(len(to_clean), clean_to.isoformat()))
+    
 
 @user_passes_test(lambda u: u.is_superuser)
 def cleanlogs(request):
@@ -106,31 +110,21 @@ def cleanlogs(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def download_data(request):
-    
-    format = request.GET.get('format', 'sql')
-    assert format in ['sql', 'json'], "Can only download data in json or sql format"
-    if format == 'sql':
-        filename = 'latest.sql.gz'
-        dbparams = settings.DATABASES['default']
-        cmd = "mysqldump --user=%(USER)s --password=%(PASSWORD)s %(NAME)s | gzip" % dbparams
-        data = os.popen(cmd).read()
-    else:
-        buf = StringIO()
-        filename = 'latest.json.gz'
-        call_command("dumpdata", indent=2, stdout=buf)
-        data = buf.getvalue()
+def dump_fixtures(request):
+    output = StringIO()
 
-        #pass 2 - gzip it
-        buf = StringIO()
-        #tricky incantation to make gzipfiles in memory
-        with gzip.GzipFile(filename=filename, mode='wb', fileobj=buf) as gzip_obj:
-            gzip_obj.write(data)
+    fixture = request.GET.get('fixture', 'No fixture specified')
 
-        data = buf.getvalue()
+    try:
+        call_command('dumpdata', fixture, '--indent=2', stdout=output)
+        data = output.getvalue()
+        output.close()
 
-
-    resp = HttpResponse(data, content_type="application/octet-stream")
-    resp['Content-Disposition'] = 'attachment; filename="%s"' % filename
-    resp['Content-Encoding'] = 'gzip'
-    return resp
+        file_label = 'fixtures_%s' % datetime.datetime.now().strftime('%d-%b-%Y_%H-%M')
+        response = HttpResponse(data, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename=%s' % file_label
+        return response
+    except:
+        dest =  request.META.get('HTTP_REFERER', '/')
+        messages.info(request, 'Fixture name not recognized: %s' % fixture)
+        return HttpResponseRedirect(dest)

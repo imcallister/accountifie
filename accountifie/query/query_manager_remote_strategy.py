@@ -10,7 +10,6 @@ Use query_manager_strategy_factory.py to get an instance of this class.
 
 import pandas as pd
 import json
-import accountifie.environment.api
 import urllib
 import urllib2
 from decimal import Decimal
@@ -18,7 +17,7 @@ from decimal import Decimal
 from dateutil.parser import parse
 from django.conf import settings
 from query_manager_strategy import QueryManagerStrategy
-import accountifie.gl.api
+from accountifie.common.api import api_func
 import logging
 
 DZERO = Decimal('0')
@@ -27,10 +26,10 @@ logger = logging.getLogger('default')
 
 class QueryManagerRemoteStrategy(QueryManagerStrategy):
     def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
-        interco_exempt_accounts = accountifie.gl.api.ext_accounts_list({})
+        interco_exempt_accounts = api_func('gl', 'externalaccounts')
 
-        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
-            company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
+            company_list = api_func('gl', 'company_list', company_id)
             balances = [self.account_balances_for_dates(cmpny, account_ids, dates, with_counterparties, True, excl_contra, with_tags, excl_tags) for cmpny in company_list]
             return self.__merge_account_balances_for_dates_results(balances)
 
@@ -72,10 +71,10 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         return date_indexed_account_balances
 
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
-        interco_exempt_accounts = accountifie.gl.api.ext_accounts_list({})
+        interco_exempt_accounts = api_func('gl', 'externalaccounts')
 
-        if accountifie.gl.api.get_company({'company_id': company_id})['cmpy_type'] == 'CON':
-            company_list = accountifie.gl.api.get_company_list({'company_id': company_id})
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
+            company_list = api_func('gl', 'company_list', company_id)
             balances = [self.transactions(cmpny, account_ids, from_date, to_date, chunk_frequency, with_counterparties, True, excl_contra) for cmpny in company_list]
             return self.__merge_transactions_results(balances)
 
@@ -173,7 +172,6 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         client.delete_transaction(transaction_id)
 
     def delete_bmo_transactions(self, company_id, bmo_id):
-        logger.info('Deleting transactions: company=%s, bmo ID=%s' % (company_id, bmo_id))
         client = accountifieSvcClient(company_id)
         client.delete_bmo_transactions(bmo_id)
 
@@ -192,8 +190,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
 
     @staticmethod
     def __inter_co(row):
-        ext_accts = accountifie.gl.api.ext_accounts_list({})
-        companies = [cmpy['id'] for cmpy in accountifie.gl.api.companies({}) if cmpy['id']!=company]
+        ext_accts = api_func('gl', 'externalaccounts')
+        companies = [cmpy['id'] for cmpy in api_func('gl', 'companies') if cmpy['id']!=company]
         if row['account_id'] in ext_accts:
             return False
         if row['counterparty'] in companies:
@@ -203,7 +201,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
 
     @staticmethod
     def get_interco_counterparties_for(company):
-        output = [cmpy['id'] for cmpy in accountifie.gl.api.companies({}) if cmpy['id']!=company and cmpy['cmpy_type']=='ALO']
+        output = [cmpy['id'] for cmpy in api_func('gl', 'companies') if cmpy['id']!=company and cmpy['cmpy_type']=='ALO']
         output += [x.lower() for x in output]
         return output
 
@@ -304,4 +302,4 @@ class accountifieSvcClient(object):
 
     @staticmethod
     def __accountifie_svc_url():
-        return accountifie.environment.api.get('variable', {'name':'ACCOUNTIFIE_SVC_URL'})
+        return api_func('environment', 'variable', 'ACCOUNTIFIE_SVC_URL')
