@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% load i18n %}{% load admin_static bootstrapped_goodies_tags %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{{STATIC_URL}}base/css/base.css" />
+{% endblock %}
+
+{% block title %}{{admin_site_title}}{% endblock %}
+
+{% block branding %}
+<a class="navbar-brand" href="/"><img src="/static/{{logo}}" height="25" /></a>
+{% endblock %}
+
+{% block welcome-msg %}{% endblock %}
+
+
+{% block nav-global %}
+    {% for key, value in menu_items.items %} 
+      <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
+    {% endfor %}
+
+    {% if user.is_superuser %}
+    <li class="btn-group">
+        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-wrench"></span> POWER USERS <span class="caret"></span></a>
+      <ul class="dropdown-menu" role="menu">
+        <li><a class="btn-sm" type="button" href="/admin/">Admin</a></li>
+        <li><a class="btn-sm" type="button" href="/maintenance/">Maintenance</a></li>
+        <li><a class="btn-sm" type="button" href="/dashboard/">Dashboard</a></li>
+        <li><a class="btn-sm" type="button" href="/dashboard/logs">Logs</a></li>
+      </ul>
+    </li>
+
+    {% endif %}
+    <li class="btn-group">
+        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> {{ company_id }} <span class="caret"></span></a>
+      <ul class="dropdown-menu" role="menu">
+        {% for cmpny in company_list %}
+          <li><a href="/choose_company/{{cmpny}}">{{cmpny}}</a></li>
+        {% endfor %}
+      </ul>
+    </li>
+
+
+{% endblock %}
+
