@@ -9,9 +9,6 @@ class GLSnapshot(models.Model):
     comment = models.TextField()
     closing_date = models.DateField()
 
-
-
-
     @property
     def reconciliation(self):
         url = '/snapshot/glsnapshots/balances/%s/?date=%s' % (self.id, self.closing_date.isoformat())

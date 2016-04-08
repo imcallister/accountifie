@@ -9,7 +9,7 @@ urlpatterns = patterns('',
  
     url(r'snapshot/glsnapshots/$', views.glsnapshots, name='glsnapshots'),
     url(r'snapshot/glsnapshots/balances/(?P<snap_id>[()_a-zA-Z0-9]+)/$', views.glsnapshots_balances),
-    url(r'snapshot/glsnapshots/reconcile/(?P<snap_id>[()_a-zA-Z0-9]+)/(?P<account_id>[()_a-zA-Z0-9]+)$', views.glsnapshots_reconcile),
-    url(r'snapshot/glsnapshots/rechistory/(?P<snap_id>[()_a-zA-Z0-9]+)/(?P<account_id>[()_a-zA-Z0-9]+)$', views.history),
+    #url(r'snapshot/glsnapshots/reconcile/(?P<snap_id>[()_a-zA-Z0-9]+)/(?P<account_id>[()_a-zA-Z0-9]+)$', views.glsnapshots_reconcile),
+    #url(r'snapshot/glsnapshots/rechistory/(?P<snap_id>[()_a-zA-Z0-9]+)/(?P<account_id>[()_a-zA-Z0-9]+)$', views.history),
     
 )

@@ -191,7 +191,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
     @staticmethod
     def __inter_co(row):
         ext_accts = api_func('gl', 'externalaccounts')
-        companies = [cmpy['id'] for cmpy in api_func('gl', 'companies') if cmpy['id']!=company]
+        companies = [cmpy['id'] for cmpy in api_func('gl', 'company') if cmpy['id']!=company]
         if row['account_id'] in ext_accts:
             return False
         if row['counterparty'] in companies:
@@ -201,7 +201,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
 
     @staticmethod
     def get_interco_counterparties_for(company):
-        output = [cmpy['id'] for cmpy in api_func('gl', 'companies') if cmpy['id']!=company and cmpy['cmpy_type']=='ALO']
+        output = [cmpy['id'] for cmpy in api_func('gl', 'company') if cmpy['id']!=company and cmpy['cmpy_type']=='ALO']
         output += [x.lower() for x in output]
         return output
 

@@ -28,7 +28,7 @@ class AccountActivity(Report):
 
         self.path = None
         self.acct_list = None
-        self.works_for = [cmpny['id'] for cmpny in api_func('gl', 'companies')]
+        self.works_for = [cmpny['id'] for cmpny in api_func('gl', 'company')]
         
 
     

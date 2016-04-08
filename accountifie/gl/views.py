@@ -40,7 +40,7 @@ def download_transactions(request):
 
     trans = strategy.get_all_transactions(company_ID)
 
-    all_accts_list = api_func('gl', 'accounts')
+    all_accts_list = api_func('gl', 'account')
     all_accts = dict((r['id'], r) for r in all_accts_list)
     
     response = HttpResponse(content_type='text/csv')
@@ -95,14 +95,14 @@ def download_tranlines(request):
 @login_required
 def accounts_list(request):
     "Show list of each account"
-    accounts = api_func('gl', 'accounts')
+    accounts = api_func('gl', 'account')
     return render_to_response('gl/accounts_list.html', RequestContext(request, dict(accounts=accounts)))
 
 
 @login_required
 def counterparty_list(request):
     "Show list of each account"
-    counterparties = api_func('gl', 'counterparties')
+    counterparties = api_func('gl', 'counterparty')
     AP_acct = api_func('environment', 'variable', 'GL_ACCOUNTS_PAYABLE')
 
     return render_to_response('gl/counterparty_list.html', RequestContext(request, dict(ap_acct=AP_acct, counterparties=counterparties)))

@@ -208,7 +208,7 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
     @staticmethod
     def __inter_co(row):
         ext_accts = api_func('gl', 'externalaccounts')
-        companies = [cmpy['id'] for cmpy in api_func('gl', 'companies')]
+        companies = [cmpy['id'] for cmpy in api_func('gl', 'company')]
         if row['account_id'] in ext_accts:
             return False
         if row['counterparty'] in companies:

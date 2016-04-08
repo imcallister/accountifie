@@ -1,3 +1,5 @@
+from multipledispatch import dispatch
+
 from accountifie.gl.models import Account
 from accountifie.common.api import api_wrapper
 import logging
@@ -7,11 +9,6 @@ logger = logging.getLogger('default')
 
 from django.conf import settings
 import os
-
-
-@api_wrapper
-def accounts(qstring={}):
-    return list(Account.objects.order_by('id').values())
 
 
 def filter_it(x, ex_list):
@@ -35,8 +32,13 @@ def path_accounts(path, qstring={}):
     return acct_list
 
 
-def account(acct_id, qstring={}):
-    # try to find account by id and by path
+@dispatch(dict)
+def account(qstring):
+    return list(Account.objects.order_by('id').values())
+
+
+@dispatch(str, dict)
+def account(acct_id, qstring):
     try:
         acct = (list(Account.objects.filter(pk=acct_id)) + list(Account.objects.filter(path=acct_id)))[0]
         flds = ['display_name', 'role', 'path', 'id']
