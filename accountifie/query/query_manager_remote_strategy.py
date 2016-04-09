@@ -175,8 +175,8 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         client = accountifieSvcClient(company_id)
         client.delete_bmo_transactions(bmo_id)
 
-    def take_snapshot(self, company_id):
-        accountifieSvcClient(company_id).take_snapshot()
+    def take_snapshot(self, company_id, snapshot_time=None):
+        accountifieSvcClient(company_id).take_snapshot(snapshot_time)
 
     def erase(self, company_id):
         accountifieSvcClient(company_id).erase()
@@ -297,8 +297,12 @@ class accountifieSvcClient(object):
     def disable_balance_cache(self):
         self.__post('/disable-balance-cache')
 
-    def take_snapshot(self):
-        self.__post('/take-snapshot')
+    def take_snapshot(self, snapshot_time):
+        logger.info('taking snapshot for %s with snapshot_time=%s' % (self.company_id, snapshot_time))
+        if snapshot_time:
+            self.__post('/snapshot/create?date=%s' % snapshot_time)
+        else:
+            self.__post('/snapshot/create')
 
     @staticmethod
     def __accountifie_svc_url():
