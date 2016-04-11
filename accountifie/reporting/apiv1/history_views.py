@@ -15,8 +15,10 @@ logger = logging.getLogger('default')
 def transaction(trans_id, qstring={}):
     # no way right now to know whether which company it is in
     companies = [cmpy['id'] for cmpy in api_func('gl', 'company') if cmpy['cmpy_type']=='ALO']
+    
     for cmpny in companies:
         info = QM.QueryManager().transaction_info(cmpny, trans_id)
+
         if len(info)>0:
             return info
     

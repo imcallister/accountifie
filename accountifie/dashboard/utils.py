@@ -11,7 +11,7 @@ from decimal import Decimal
 from collections import namedtuple
 from subprocess import Popen, PIPE
 from django.conf import settings
-from django.utils.importlib import import_module
+from importlib import import_module
 
 
 def run_shell_command(command, cwd):
