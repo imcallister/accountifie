@@ -79,7 +79,7 @@ def history(params):
 def balance_trends(params):
     dt = parse(params['date'])
 
-    accounts = api_func('gl', 'accounts')
+    accounts = api_func('gl', 'account')
     if 'accts_path' in params:
         acct_list = [x['id'] for x in accounts if params['accts_path'] in x['path']]
     else:

@@ -16,7 +16,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.db import transaction
-from django.db.models.loading import cache
+from django.apps import apps
 from django.core.serializers.json import DjangoJSONEncoder
 
 from accountifie.tasks.utils import task, utcnow
@@ -155,7 +155,7 @@ def save_data(data, company, model, unique, name_cleaner, value_cleaner, exclude
         value_cleaner = lambda name, value: value
     if unique == None:
         unique = lambda instance: instance
-    model = cache.get_model(*model.split('.'))
+    model = apps.get_model(*model.split('.'))
 
     dups = []
     saved = []

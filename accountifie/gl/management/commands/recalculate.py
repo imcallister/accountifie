@@ -42,7 +42,7 @@ class Command(BaseCommand):
         with transaction.atomic():
             Transaction.objects.all().delete()
             
-            for cmpny in [c['id'] for c in api_func('gl', 'companies')]:
+            for cmpny in [c['id'] for c in api_func('gl', 'company')]:
                 QueryManagerStrategyFactory().erase(cmpny)
             
             print "deleted all transactions"

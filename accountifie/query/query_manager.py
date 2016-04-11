@@ -190,7 +190,7 @@ class QueryManager:
     
 
     def transactions(self, company_id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE):
-        acct_list = [x['id'] for x in api_func('gl', accounts)]
+        acct_list = [x['id'] for x in api_func('gl', 'account')]
         all_entries = self.gl_strategy.transactions(company_id, acct_list, from_date, to_date, 'end-of-month', None, None, None)
 
         return all_entries

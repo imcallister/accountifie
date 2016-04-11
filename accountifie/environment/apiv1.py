@@ -1,4 +1,5 @@
 from .models import Alias, Variable, Config
+from multipledispatch import dispatch
 
 
 def alias(name, qstring):
@@ -8,9 +9,11 @@ def alias(name, qstring):
     except:
         return None
 
-def variables(qstring):
+@dispatch(dict)
+def variable(qstring):
     return list(Variable.objects.order_by('id').values())
 
+@dispatch(str, dict)
 def variable(key, qstring):
     try:
         return Variable.objects.get(key=key).value

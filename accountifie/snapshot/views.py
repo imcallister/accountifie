@@ -36,7 +36,7 @@ def glsnapshots(request):
 
 def glsnapshots_balances(request, snap_id):
     snapshot = models.GLSnapshot.objects.get(id=snap_id)
-    snapshot_time = snapshot.snapped_at
+    snapshot_time = snapshot.snapped_at.isoformat()
     strategy = QueryManagerStrategyFactory().get('snapshot')
     strategy.set_cache(snapshot_time)
 
@@ -76,7 +76,7 @@ def glsnapshots_balances(request, snap_id):
         return render_to_response('404.html', RequestContext(request, {'message': msg})), False
 
 
-
+"""
 def glsnapshots_reconcile(request, snap_id, account_id):
     snapshot = models.GLSnapshot.objects.get(id=snap_id)
     snapshot_time = snapshot.snapped_at
@@ -233,3 +233,4 @@ def history(request, snap_id, account_id):
             to_date=to_date)))
 
 
+"""

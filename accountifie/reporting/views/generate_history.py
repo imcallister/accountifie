@@ -17,7 +17,7 @@ logger = logging.getLogger('default')
 
 
 ACCT_DEF = {
-    'id': {'link': lambda x: "/reporting/api/transaction_info?id=%s" % x},
+    'id': {'link': lambda x: "/api/reporting/transaction/%s" % x},
     'date': {},
     'comment': {},
     'account_id': {'link': lambda x: "/reporting/history/account/%s" % x},
@@ -39,6 +39,7 @@ def create_row(row, col_order, fmtr=ACCT_DEF):
 
 @login_required
 def history(request, type, id):
+
     from_date, to_date = utils.extractDateRange(request)
 
     start_date = settings.DATE_EARLY
