@@ -14,7 +14,6 @@ from accountifie.gl.bmo import  BusinessModelObject
 from accountifie.common.api import api_func
 
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
-import accountifie._utils as utils
 
 
 class Command(BaseCommand):
