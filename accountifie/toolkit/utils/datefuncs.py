@@ -114,11 +114,47 @@ def end_of_prev_month(mth,yr):
 def start_of_month(mth,yr):
     return datetime.date(yr,mth,1)
 
+
+def MTD(dt):
+    return start_of_month(dt.month, dt,year), dt
+
+
+def QTD(dt):
+    mm = dt.month
+    if mm <=3:
+        qtr = 1
+    elif mm <=6:
+        qtr = 2
+    elif mm <=9:
+        qtr = 3
+    else:
+        qtr = 4
+    
+    return start_of_quarter(qtr, dt.year), dt
+
+def HTD(dt):
+    mm = dt.month
+    if mm <=6:
+        half = 1
+    else:
+        half = 2
+    
+    return start_of_half(half), dt
+
+
 def start_of_quarter(qtr, yr):
-    return datetime.date(yr, (qtr-1)*4 + 1, 1)
+    return datetime.date(yr, qtr*3 - 2, 1)
 
 def end_of_quarter(qtr, yr):
-    return end_of_month((qtr-1)*4 + 3, yr)
+    return end_of_month(qtr*3, yr)
+
+
+def start_of_half(half, yr):
+    return datetime.date(yr, half*6 - 5, 1)
+
+def end_of_half(half, yr):
+    return end_of_month(half*6, yr)
+
 
 def month_ends(yr):
     return [end_of_month(m, yr) for m in range(1,13)]
