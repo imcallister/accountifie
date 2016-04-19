@@ -136,14 +136,14 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
         elif calc_type == 'as_of':
             columns = [end_of_month(x[1],x[0]).isoformat() for x in months]
             column_titles = columns  
-    elif col_tag[:3] == '5yr':
+    elif col_tag[:3] == '4yr':
         dt = parse(col_tag[4:]).date()
         start = dt
-        finish = datetime.date(start.year+5,start.month,start.day)
+        finish = datetime.date(start.year+4,start.month,start.day)
 
         months = list(monthrange(start, finish))
 
-        title = '%s from %s -- 5yr view' %(rpt_desc, dt.isoformat())
+        title = '%s from %s -- 4yr view' %(rpt_desc, dt.isoformat())
 
         if calc_type == 'diff':
             columns = ['%sM%s' % (x[0], '%02d' % x[1]) for x in months]
