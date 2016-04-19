@@ -252,7 +252,7 @@ def forecast_run_task(fcast_id, report_id, col_tag, company_ID=utils.get_default
 def forecast_run(request):
     fcast_id = request.GET['forecast']
     report_id = request.GET['report']
-    result, out, err = forecast_run_task(fcast_id, report_id, '3yr_2016-04-01', 
+    result, out, err = forecast_run_task(fcast_id, report_id, '4yr_2016-04-01', 
                                         task_title='Forecast %s %s' % (fcast_id, report_id),
                                         task_success_url=reverse('fcast_finished'))
 
