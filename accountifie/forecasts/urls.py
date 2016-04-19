@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     #url(r'add/$', ForecastCreate.as_view(), name="forecasts_form"),
     url(r'forecasts/delete/(?P<pk>[()_a-zA-Z0-9]+)/$', ForecastDelete.as_view(), name="forecast_delete"),
     
-    url(r'forecasts/run/$', forecast_run, name='run_forecast'),
+    url(r'forecasts/run', forecast_run, name='run_forecast'),
     url(r'forecasts/reportpack/finish/$', FinishedTask.as_view(template_name='forecasts/forecast_finish.html'), name="fcast_finished"),
     url(r'forecasts/upload_gl/$', upload_gl, name='upload_gl'),
 

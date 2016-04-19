@@ -23,6 +23,7 @@ from query_manager_strategy import QueryManagerStrategy
 import query_manager
 from accountifie.common.api import api_func
 from accountifie.forecasts.models import Forecast
+from accountifie.cal import is_period_id
 
 import logging
 
@@ -81,7 +82,47 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
     def set_cache(self, hist_strategy=None, fcast_id=None, proj_gl_entries=None):
         self.hist_strategy = hist_strategy
         self.forecast = Forecast.objects.get(id=fcast_id)
-        self.projections = parse_cache(proj_gl_entries)
+        #self.projections = parse_cache(proj_gl_entries)
+        
+        self.calc_balances()
+        self.shifts = None
+        self.balances = None
+
+
+    def calc_balances(self):
+
+        # limited task is to 
+        # 1) create changes per period... columns = 2016M01, 2016M02 etc
+        # 2) create cumulative changes as of each month end
+
+        # changes per period come direct from the projections
+        entries = pd.DataFrame(self.forecast.projections)
+        drop_cols = ['Counterparty', 'Company', 'Credit', 'Debit']
+        credits = entries.copy()
+        credits['account'] = credits['Credit']
+        credits = credits[[c for c in credits.columns if c not in drop_cols]]
+        debits = entries.copy()
+        debits['account'] = debits['Debit']
+        debits = debits[[c for c in debits.columns if c not in drop_cols]]
+        for col in [c for c in credits.columns if c!='account']:
+            credits[col] = credits[col] * -1
+        self.shifts = pd.concat([credits, debits]).groupby('account').sum().fillna(0)
+
+        
+        
+        balances_columns = dict((utils.end_of_period(col), col) for col in self.shifts.columns)
+        sorted_months = sorted(balances_columns.keys())
+
+        balances = {}
+        for i in range(len(sorted_months)):
+            label = sorted_months[i].isoformat()
+            months_to_date = sorted_months[:i+1]
+            shifts_cols = [balances_columns[l] for l in months_to_date]
+            balances[label] = self.shifts[shifts_cols].sum(axis=1)
+
+        self.balances = pd.DataFrame(balances)
+        
+        return None
 
 
     def get_gl_entries(self, company_id, account_ids, from_date=INCEPTION, to_date=FOREVER):
@@ -108,47 +149,37 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
         return date_indexed_account_balances
 
 
-    def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
+    def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
+        import time
+
+        self.calc_balances()
+        now = time.time()
         date_indexed_account_balances = {}
 
-        # if date['end'] <= self.cut_off then balances from hist_strategy
-        #   query_manager.QueryManager(gl_strategy=hist_strategy).account_balances_for_dates
-        # if date['start'] > self.cut_off then balances is sum of balances from hist_strategy plus balances from self.forecast.projections
-        # if date['start'] <= self.cut_off and date['end'] > self.cut_off then balances is 
-
-        # 1 get a list of historical dates
-        hist_dates = dict((dt, dates[dt]) for dt in [dt for dt in dates if dates[dt]['end'] <= self.forecast.start_date])
-
-        # 2 get a list of spanninh dates
-        straddling = [dt for dt in dates if dates[dt]['start'] <= self.forecast.start_date and dates[dt]['end'] > self.forecast.start_date]
-        hist_straddle_dates = dict((dt, {'start': dates[dt]['start'], 'end': self.forecast.start_date}) for dt in straddling)
-        proj_straddle_dates = dict((dt, {'start': self.forecast.start_date, 'end': dates[dt]['end']}) for dt in straddling)
-
-        # 3 get a list of future dates
-        proj_dates = dict((dt, dates[dt]) for dt in [dt for dt in dates if dates[dt]['start'] > self.forecast.start_date])
-
+        # cutoff should be last day of month eg 2016-3-31
+        # get balances for the cutoff date
+        hist_dates = {'cutoff': {'start': INCEPTION, 'end': self.forecast.start_date }}
         hist_qm = query_manager.QueryManager(gl_strategy=self.hist_strategy)
+        hist_balances = hist_qm.pd_acct_balances(company_id, hist_dates, acct_list=account_ids, excl_contra=excl_contra, excl_interco=excl_interco, with_tags=with_tags, excl_tags=excl_tags)
         
+        
+        # should do some validation... only want end of month dates after cutoff
+        #proj_dates = dict((dt, dates[dt]) for dt in [dt for dt in dates if dates[dt]['start'] > self.forecast.start_date])
+        
+        for dt in dates:
+            if utils.is_period_id(dt):
+                balances = self.shifts[dt].to_dict()
+            else:
+                proj = {}
+                proj['cutoff'] = hist_balances['cutoff']
+                proj['fwd'] = self.balances[dt]
+                proj_df = pd.DataFrame(proj).fillna(0)
+                #proj.fillna(0, inplace=True)
+                balances = proj_df.sum(axis=1).to_dict()
 
-        hist_balances = hist_qm.pd_acct_balances(company_id, hist_dates, acct_list=account_ids, excl_contra=excl_contra, excl_interco=excl_interco)
+            date_indexed_account_balances[dt] = dict((balance, float(balances.get(balance,0))) for balance in balances if balance in account_ids)
         
-        hist_straddle_balances = hist_qm.pd_acct_balances(company_id, hist_straddle_dates, acct_list=account_ids, excl_contra=excl_contra, excl_interco=excl_interco)
-        proj_straddle_balances = pd.DataFrame(self.proj_account_balances_for_dates(company_id, account_ids, proj_straddle_dates, with_counterparties, excl_interco, excl_contra))
-        
-        proj_balances = pd.DataFrame(self.proj_account_balances_for_dates(company_id, account_ids, proj_dates, with_counterparties, excl_interco, excl_contra))
-        
-        hist_balances[hist_balances.columns] = hist_balances[hist_balances.columns].astype(float)
-        hist_straddle_balances[hist_straddle_balances.columns] = hist_straddle_balances[hist_straddle_balances.columns].astype(float)
-        proj_straddle_balances[proj_straddle_balances.columns] = proj_straddle_balances[proj_straddle_balances.columns].astype(float)
-        proj_balances[proj_balances.columns] = proj_balances[proj_balances.columns].astype(float)
-        
-        balances = hist_balances.copy()
-        
-        balances = balances.add(hist_straddle_balances, fill_value=0)
-        balances = balances.add(proj_straddle_balances, fill_value=0)
-        balances = balances.add(proj_balances, fill_value=0)
-
-        return balances.fillna(0)
+        return date_indexed_account_balances
 
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
         msg = "Transactions view not implemented for forecast strategies"

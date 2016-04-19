@@ -26,6 +26,7 @@ logger = logging.getLogger('default')
 
 class QueryManagerRemoteStrategy(QueryManagerStrategy):
     def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
+        
         interco_exempt_accounts = api_func('gl', 'externalaccounts')
 
         if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':

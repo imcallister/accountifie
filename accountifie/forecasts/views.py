@@ -85,7 +85,7 @@ def forecasts_reports(request):
 @login_required
 def upload_gl(request):
     if request.method != "POST":
-        forecast_obj = Forecast.objects.get(id=request.GET.get('forecast')[0])
+        forecast_obj = Forecast.objects.get(id=request.GET.get('forecast'))
         context = {'file_category': 'GL Projections'}
         context['file_type'] = '.json'
         context['obj_label'] = forecast_obj.label
@@ -99,7 +99,7 @@ def upload_gl(request):
             upload = request.FILES.values()[0]
             file_name = upload._name
             data = json.loads(upload.file.read())
-            forecast_obj = Forecast.objects.get(id=request.GET.get('forecast')[0])
+            forecast_obj = Forecast.objects.get(id=request.GET.get('forecast'))
             forecast_obj.projections = data
             forecast_obj.save()
             return HttpResponseRedirect('/forecasts/forecast/%s' % forecast_obj.id)
@@ -123,7 +123,7 @@ def gl_projections(request):
 
     context = {'cols': zip(['Debit','Credit','Counterparty','Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
 
-    context['data_url'] = '/forecasts/api/%s/gl_projections' % fcast_id
+    context['data_url'] = '/api/forecasts/projections/%s/' % fcast_id
 
     return render_to_response('forecasts/bstrap_report.html', context, 
           context_instance = RequestContext(request)
@@ -234,7 +234,6 @@ def forecast_run_task(fcast_id, report_id, col_tag, company_ID=utils.get_default
     report = accountifie.reporting.rptutils.get_report(report_id, company_ID, version=version)
     report.configure(col_tag=col_tag)
     report.set_gl_strategy(strategy)
-
     report_data = report.calcs()
 
     path = os.path.join(settings.PDFOUT, 'forecast_%s_%s.csv' %( fcast_id, report_id))
@@ -253,7 +252,7 @@ def forecast_run_task(fcast_id, report_id, col_tag, company_ID=utils.get_default
 def forecast_run(request):
     fcast_id = request.GET['forecast']
     report_id = request.GET['report']
-    result, out, err = forecast_run_task(fcast_id, report_id, '5yr_2015-01-01', 
+    result, out, err = forecast_run_task(fcast_id, report_id, '3yr_2016-04-01', 
                                         task_title='Forecast %s %s' % (fcast_id, report_id),
                                         task_success_url=reverse('fcast_finished'))
 

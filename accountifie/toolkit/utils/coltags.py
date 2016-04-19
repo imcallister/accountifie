@@ -152,6 +152,23 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
             columns = [end_of_month(x[1],x[0]).isoformat() for x in months]
             column_titles = columns
             # this logic doesn't really work for forecasts ... scratch it for now
+    elif col_tag[:3] == '3yr':
+        dt = parse(col_tag[4:]).date()
+        start = dt
+        finish = datetime.date(start.year+3,start.month,start.day)
+
+        months = list(monthrange(start, finish))
+
+        title = '%s from %s -- 3yr view' %(rpt_desc, dt.isoformat())
+
+        if calc_type == 'diff':
+            columns = ['%sM%s' % (x[0], '%02d' % x[1]) for x in months]
+            column_titles = columns
+        elif calc_type == 'as_of':
+            columns = [end_of_month(x[1],x[0]).isoformat() for x in months]
+            column_titles = columns
+            # this logic doesn't really work for forecasts ... scratch it for now
+    
     else:
         try:
             columns = [col_tag]
