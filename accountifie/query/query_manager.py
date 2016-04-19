@@ -12,6 +12,9 @@ from collections import defaultdict
 import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
 
+import logging
+logger = logging.getLogger('default')
+
 class QueryManager:
 
     def __init__(self, gl_strategy=None):
@@ -254,11 +257,3 @@ class QueryManager:
 
         cp_tbl = cp_tbl.sort_index(by='amount', ascending=False)
         return cp_tbl['amount']
-        
-
-
-    
-
-
-
-
