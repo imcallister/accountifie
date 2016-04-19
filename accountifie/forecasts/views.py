@@ -141,7 +141,7 @@ def report_prep(request, id, version=None, strategy=None):
     format = request.GET.get('format', 'html')
     company_id = request.GET.get('company', utils.get_company(request))
     path = request.GET.get('path', None)
-    report = accountifie.reporting.rptutils.get_report(id, company_ID, version=version)
+    report = accountifie.reporting.rptutils.get_report(id, company_id, version=version)
     
     if (company_id not in report.works_for):
         msg = "This ain't it. Report not available for %s" % report.company_name
@@ -236,7 +236,7 @@ def forecast_run_task(fcast_id, report_id, col_tag, company_ID=utils.get_default
     report.set_gl_strategy(strategy)
     report_data = report.calcs()
 
-    path = os.path.join(settings.PDFOUT, 'forecast_%s_%s.csv' %( fcast_id, report_id))
+    path = os.path.join(settings.DATA_ROOT, 'forecast_%s_%s.csv' %( fcast_id, report_id))
     f = open(path, 'wb')
 
     writer = csv.writer(f)
