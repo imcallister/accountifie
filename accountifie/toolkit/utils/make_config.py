@@ -1,3 +1,5 @@
+import datetime
+
 import datefuncs
 
 MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -36,4 +38,48 @@ def monthly_ends(year):
     columns = [datefuncs.end_of_prev_year(int(year))] + datefuncs.month_ends(int(year))
     columns = [x.isoformat() for x in columns]
     column_titles = ['end of %d' % (int(year)-1)] + MONTHS
+    return columns, column_titles
+
+def trailing_monthly_periods(dt):
+    next_month = datefuncs.start_of_next_month(dt)
+    start = datetime.date(dt.year-1,dt.month,1)
+    finish = dt
+
+    months = list(datefuncs.monthrange(start, finish))
+    columns = ['%sM%s' % (x[0], '%02d' % x[1]) for x in months]
+    column_titles = columns
+    
+    return columns, column_titles
+
+def trailing_monthly_ends(dt):
+    next_month = datefuncs.start_of_next_month(dt)
+    start = datetime.date(dt.year-1,dt.month,1)
+    finish = dt
+
+    months = list(datefuncs.monthrange(start, finish))
+    columns = [datefuncs.end_of_month(x[1],x[0]).isoformat() for x in months]
+    column_titles = columns  
+    
+    return columns, column_titles
+
+def multiyear_periods(dt, years):
+    start = datefuncs.start_of_month(dt.month, dt.year)
+    finish = datetime.date(start.year + years, start.month, start.day)
+
+    months = list(datefuncs.monthrange(start, finish))
+
+    columns = ['%sM%s' % (x[0], '%02d' % x[1]) for x in months]
+    column_titles = columns
+
+    return columns, column_titles
+    
+def multiyear_ends(dt, years):
+    start = datefuncs.start_of_month(dt.month, dt.year)
+    finish = datetime.date(start.year + years, start.month, start.day)
+
+    months = list(datefuncs.monthrange(start, finish))
+
+    columns = [datefuncs.end_of_month(x[1],x[0]).isoformat() for x in months]
+    column_titles = columns
+
     return columns, column_titles

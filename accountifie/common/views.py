@@ -16,7 +16,7 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login as auth_login
-from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.sites.models import get_current_site
 from django.db.models import Q
 from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpResponseServerError, \
         HttpResponseNotFound
@@ -98,7 +98,7 @@ def login(request, template_name='common/login.html',
             # get the contents up to the 3rd slash
             return HttpResponseRedirect(_login_server+request.get_full_path())
 
-    redirect_to = request.GET(redirect_field_name, '')
+    redirect_to = request.REQUEST.get(redirect_field_name, '')
     if _login_indirect:
         authentication_form = MultiCommonAuthenticationForm
 
@@ -182,7 +182,7 @@ def index(request):
 
 def test7491(request):
     # Used by alertra to check servers are working
-    delay = request.GET('delay', None)
+    delay = request.REQUEST.get('delay', None)
     if delay is not None: time.sleep(float(delay))
     return HttpResponse('I am alive!', content_type='text/plain; charset=utf-8')
 
