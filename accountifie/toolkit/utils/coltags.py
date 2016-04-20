@@ -14,7 +14,7 @@ ANNUAL_TAG = re.compile('(\d{4})(Annual)')
 MONTHLY_TAG = re.compile('(\d{4})(Monthly)')
 DAILY_TAG = re.compile('(daily_)(\d{4}-\d{1,2}-\d{1,2})')
 TRAILING12M_TAG = re.compile('(12Mtrailing)(-?)(\d{4}-\d{1,2}-\d{1,2})?')
-MULTIYEAR_TAG = re.compile('(\d{1,2})(yr)(-?)(\d{4}-\d{1,2}-\d{1,2})?')
+MULTIYEAR_TAG = re.compile('(\d{1,2})yr_(\d{4}-\d{1,2}-\d{1,2})?')
 
 
 def extractDateRange(request, inclusive=True):
@@ -58,7 +58,6 @@ def extractDateRange(request, inclusive=True):
 
 def config_fromcoltag(col_tag, rpt_desc, calc_type):
 
-    
     # annual period by quarter... eg 2016Quarterly
     quarterly_match = QUARTERLY_TAG.search(col_tag)
     if quarterly_match:
@@ -119,9 +118,8 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
 
     multiyear_match = MULTIYEAR_TAG.search(col_tag)
     if multiyear_match:
-        print 'multiyear_match'
-        if multiyear_match.groups()[3]:
-            dt = parse(multiyear_match.groups()[3]).date()
+        if multiyear_match.groups()[1]:
+            dt = parse(multiyear_match.groups()[1]).date()
         else:
             dt = datetime.datetime.today().date()
 

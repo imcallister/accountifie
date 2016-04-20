@@ -158,26 +158,39 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
         # cutoff should be last day of month eg 2016-3-31
         # get balances for the cutoff date
-        hist_dates = {'cutoff': {'start': INCEPTION, 'end': self.forecast.start_date }}
+
+        hist_dates = dict((d, dates[d]) for d in dates if dates[d]['end'] <= self.forecast.start_date)
+        proj_dates = dict((d, dates[d]) for d in dates if dates[d]['end'] > self.forecast.start_date)
+        
         hist_qm = query_manager.QueryManager(gl_strategy=self.hist_strategy)
         hist_balances = hist_qm.pd_acct_balances(company_id, hist_dates, acct_list=account_ids, excl_contra=excl_contra, excl_interco=excl_interco, with_tags=with_tags, excl_tags=excl_tags)
         
+        proj_start_dates = {'cutoff': {'start': INCEPTION, 'end': self.forecast.start_date }}
+        proj_start_balances = hist_qm.pd_acct_balances(company_id, proj_start_dates, acct_list=account_ids, excl_contra=excl_contra, excl_interco=excl_interco, with_tags=with_tags, excl_tags=excl_tags)
         
         # should do some validation... only want end of month dates after cutoff
         #proj_dates = dict((dt, dates[dt]) for dt in [dt for dt in dates if dates[dt]['start'] > self.forecast.start_date])
         
-        for dt in dates:
+        for dt in proj_dates:
             if utils.is_period_id(dt):
-                balances = self.shifts[dt].to_dict()
+                if dt in self.shifts.columns:
+                    balances = self.shifts[dt].to_dict()
+                else:
+                    balances = {}
             else:
-                proj = {}
-                proj['cutoff'] = hist_balances['cutoff']
-                proj['fwd'] = self.balances[dt]
-                proj_df = pd.DataFrame(proj).fillna(0)
-                #proj.fillna(0, inplace=True)
-                balances = proj_df.sum(axis=1).to_dict()
+                if dt in self.balances.columns:
+                    proj = {}
+                    proj['cutoff'] = proj_start_balances['cutoff']
+                    proj['fwd'] = self.balances[dt]
+                    proj_df = pd.DataFrame(proj).fillna(0)
+                    balances = proj_df.sum(axis=1).to_dict()
+                else:
+                    balances = {}
 
             date_indexed_account_balances[dt] = dict((balance, float(balances.get(balance,0))) for balance in balances if balance in account_ids)
+        
+        for dt in hist_dates:
+            date_indexed_account_balances[dt] = hist_balances[dt].fillna(0).to_dict()
         
         return date_indexed_account_balances
 
