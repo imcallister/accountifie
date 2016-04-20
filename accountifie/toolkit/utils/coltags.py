@@ -7,8 +7,8 @@ from make_config import *
 
 MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-MONTH_TAG = re.compile("^\d{4}M(0[1-9]{1}|10|11|12)$")
-QUARTER_TAG = re.compile("^\d{4}Q([1-4]{1})$")
+MONTH_TAG = re.compile("^(\d{4})M(0[1-9]{1}|10|11|12)$")
+QUARTER_TAG = re.compile("^(\d{4})Q([1-4]{1})$")
 QUARTERLY_TAG = re.compile('(\d{4})(Quarterly)')
 ANNUAL_TAG = re.compile('(\d{4})(Annual)')
 MONTHLY_TAG = re.compile('(\d{4})(Monthly)')
@@ -58,118 +58,116 @@ def extractDateRange(request, inclusive=True):
 
 def config_fromcoltag(col_tag, rpt_desc, calc_type):
 
-    try:
-        # annual period by quarter... eg 2016Quarterly
-        quarterly_match = QUARTERLY_TAG.search(col_tag)
-        if quarterly_match:
-            yr = quarterly_match.groups()[0]
-            title = yr + ' ' + rpt_desc
+    
+    # annual period by quarter... eg 2016Quarterly
+    quarterly_match = QUARTERLY_TAG.search(col_tag)
+    if quarterly_match:
+        yr = quarterly_match.groups()[0]
+        title = yr + ' ' + rpt_desc
 
-            if calc_type == 'diff':
-                columns, column_titles = quarterly_periods(yr)
-            elif calc_type == 'as_of':
-                columns, column_titles = quarter_ends(yr)
-            return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+        if calc_type == 'diff':
+            columns, column_titles = quarterly_periods(yr)
+        elif calc_type == 'as_of':
+            columns, column_titles = quarter_ends(yr)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
-        annual_match = ANNUAL_TAG.search(col_tag)
-        if annual_match:
-            yr = annual_match.groups()[0]
-            title = yr + ' ' + rpt_desc
+    annual_match = ANNUAL_TAG.search(col_tag)
+    if annual_match:
+        yr = annual_match.groups()[0]
+        title = yr + ' ' + rpt_desc
 
-            if calc_type == 'diff':
-                columns, column_titles = annual_periods(yr)
-            elif calc_type == 'as_of':
-                columns, column_titles = annual_ends(yr)
-            return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+        if calc_type == 'diff':
+            columns, column_titles = annual_periods(yr)
+        elif calc_type == 'as_of':
+            columns, column_titles = annual_ends(yr)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
-        
-        monthly_match = MONTHLY_TAG.search(col_tag)
-        if monthly_match:
-            yr = monthly_match.groups()[0]
-            title = '%s for %s -- Monthly Detail' %(rpt_desc, yr)
+    
+    monthly_match = MONTHLY_TAG.search(col_tag)
+    if monthly_match:
+        yr = monthly_match.groups()[0]
+        title = '%s for %s -- Monthly Detail' %(rpt_desc, yr)
 
-            if calc_type == 'diff':
-                columns, column_titles = monthly_periods(yr)
-            elif calc_type == 'as_of':
-                columns, column_titles = monthly_ends(yr)
-            return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+        if calc_type == 'diff':
+            columns, column_titles = monthly_periods(yr)
+        elif calc_type == 'as_of':
+            columns, column_titles = monthly_ends(yr)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
-        daily_match = DAILY_TAG.search(col_tag)
-        if daily_match:
-            dt = parse(daily_match.groups()[1]).date()
-            title = '%s for %s -- Daily view' %(rpt_desc, dt.isoformat())
-            columns = [prev_busday(dt), 'D%s' % dt.isoformat(), dt]
-            column_titles = ['Yesterday', 'Change', 'Today']
+    daily_match = DAILY_TAG.search(col_tag)
+    if daily_match:
+        dt = parse(daily_match.groups()[1]).date()
+        title = '%s for %s -- Daily view' %(rpt_desc, dt.isoformat())
+        columns = [prev_busday(dt), 'D%s' % dt.isoformat(), dt]
+        column_titles = ['Yesterday', 'Change', 'Today']
 
-            return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
-        trailing12M_match = TRAILING12M_TAG.search(col_tag)
-        if trailing12M_match:
-            if trailing12M_match.groups()[2]:
-                dt = parse(trailing12M_match.groups()[2]).date()
-            else:
-                dt = datetime.datetime.today().date()
+    trailing12M_match = TRAILING12M_TAG.search(col_tag)
+    if trailing12M_match:
+        if trailing12M_match.groups()[2]:
+            dt = parse(trailing12M_match.groups()[2]).date()
+        else:
+            dt = datetime.datetime.today().date()
 
-            title = '%s from %s -- trailing 12mth' %(rpt_desc, dt.isoformat())
-            if calc_type == 'diff':
-                columns, column_titles = trailing_monthly_periods(dt)
-            elif calc_type == 'as_of':
-                columns, column_titles = trailing_monthly_ends(dt)
-            return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+        title = '%s from %s -- trailing 12mth' %(rpt_desc, dt.isoformat())
+        if calc_type == 'diff':
+            columns, column_titles = trailing_monthly_periods(dt)
+        elif calc_type == 'as_of':
+            columns, column_titles = trailing_monthly_ends(dt)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
-        multiyear_match = MULTIYEAR_TAG.search(col_tag)
-        if multiyear_match:
-            print 'multiyear_match'
-            if multiyear_match.groups()[3]:
-                dt = parse(multiyear_match.groups()[3]).date()
-            else:
-                dt = datetime.datetime.today().date()
+    multiyear_match = MULTIYEAR_TAG.search(col_tag)
+    if multiyear_match:
+        print 'multiyear_match'
+        if multiyear_match.groups()[3]:
+            dt = parse(multiyear_match.groups()[3]).date()
+        else:
+            dt = datetime.datetime.today().date()
 
-            years = int(multiyear_match.groups()[0])
+        years = int(multiyear_match.groups()[0])
 
-            title = '%s from %s -- %dyr view' %(rpt_desc, dt.isoformat(), years)
-            if calc_type == 'diff':
-                columns, column_titles = multiyear_periods(dt, years)
-            elif calc_type == 'as_of':
-                columns, column_titles = multiyear_ends(dt, years)
-            return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+        title = '%s from %s -- %dyr view' %(rpt_desc, dt.isoformat(), years)
+        if calc_type == 'diff':
+            columns, column_titles = multiyear_periods(dt, years)
+        elif calc_type == 'as_of':
+            columns, column_titles = multiyear_ends(dt, years)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
+    month_tag = MONTH_TAG.match(col_tag)
+    if month_tag is not None:
+        yr = int(month_tag.groups()[0])
+        mth = int(month_tag.groups()[1])
+        tag_label = '%s %d' % (MONTHS[mth-1], yr)
 
-        if MONTH_TAG.match(col_tag) is not None:
-            yr, month =  int(col_tag.split('M')[0]), int(col_tag.split('M')[1])
-            tag_label = '%s %d' % (MONTHS[month-1], yr)
-            if calc_type == 'as_of':
-                end_of_this_month = end_of_month(month,yr)
-                end_of_prev_month = start_of_month(month, yr) - datetime.timedelta(days=1)
-                columns = [end_of_prev_month.isoformat(), col_tag, end_of_this_month.isoformat()]
-                column_titles = [end_of_prev_month.isoformat(), tag_label, end_of_this_month.isoformat()]
+        if calc_type == 'as_of':
+            columns, column_titles = single_month_end(mth, yr, col_tag)
+            title = '%s for %s' %(rpt_desc, tag_label)
+        elif calc_type == 'diff':
+            columns = [col_tag]
+            column_titles = [tag_label]
+            title ='%s for %s' %(rpt_desc, col_tag)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
-                title = '%s for %s' %(rpt_desc, tag_label)
-            else:
-                columns = [col_tag]
-                column_titles = [tag_label]
-                title_date = datetime.date(yr,month,1).strftime('%B, %Y')
-                title ='%s for %s' %(rpt_desc, title_date)
-            return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+    quarter_tag = QUARTER_TAG.match(col_tag)
+    if quarter_tag is not None:
+        yr = int(quarter_tag.groups()[0])
+        qtr = int(quarter_tag.groups()[1])
 
-        if QUARTER_TAG.match(col_tag) is not None:
-            yr, qtr =  int(col_tag.split('Q')[0]), int(col_tag.split('Q')[1])
-            tag_label = 'Q%s %d' % (qtr, yr)
-            if calc_type == 'as_of':
-                end_of_this_qtr = end_of_quarter(qtr, yr)
-                end_of_prev_qtr = start_of_quarter(qtr, yr) - datetime.timedelta(days=1)
-                columns = [end_of_prev_qtr.isoformat(), col_tag, end_of_this_qtr.isoformat()]
-                column_titles = [end_of_prev_qtr.isoformat(), tag_label, end_of_this_qtr.isoformat()]
-                title = '%s for %s' %(rpt_desc, tag_label)
-            else:
-                columns = [col_tag]
-                column_titles = [tag_label]
-                title_date = datetime.date(yr,month,1).strftime('%B, %Y')
-                title ='%s for %s' %(rpt_desc, title_date)
-            return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
-        
+        tag_label = 'Q%s %d' % (qtr, yr)
+        if calc_type == 'as_of':
+            columns, column_titles = single_quarter_end(qtr, yr, col_tag)
+            title = '%s for %s' %(rpt_desc, tag_label)
+        elif calc_type == 'diff':
+            columns = [col_tag]
+            column_titles = [tag_label]
+            title ='%s for %s' %(rpt_desc, col_tag)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+    
+    """
         # didn't match anything
         raise ValueError('Unexpected col_tag: %s' % repr(col_tag))
     
     except:
         raise ValueError('Unexpected col_tag: %s' % repr(col_tag))
+    """

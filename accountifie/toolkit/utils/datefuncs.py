@@ -148,6 +148,10 @@ def start_of_quarter(qtr, yr):
 def end_of_quarter(qtr, yr):
     return end_of_month(qtr*3, yr)
 
+def end_of_prev_quarter(qtr, yr):
+    start_of_qtr = start_of_quarter(qtr*3, yr)
+    return start_of_qtr + datetime.timedelta(days=-1)
+
 
 def start_of_half(half, yr):
     return datetime.date(yr, half*6 - 5, 1)

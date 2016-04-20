@@ -4,6 +4,27 @@ import datefuncs
 
 MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
+def single_month_end(month, year, col_tag):
+    tag_label = '%s %d' % (MONTHS[month-1], year)
+    
+    end_of_this_month = datefuncs.end_of_month(month,year)
+    end_of_prev_month = datefuncs.end_of_prev_month(month,year)
+    
+    columns = [end_of_prev_month.isoformat(), col_tag, end_of_this_month.isoformat()]
+    column_titles = [end_of_prev_month.isoformat(), tag_label, end_of_this_month.isoformat()]
+    return columns, column_titles
+                
+def single_quarter_end(quarter, year, col_tag):
+    tag_label = 'Q%s %d' % (quarter, year)
+    
+    end_of_this_qtr = datefuncs.end_of_quarter(quarter,year)
+    end_of_prev_qtr = datefuncs.end_of_prev_quarter(quarter,year)
+    
+    columns = [end_of_prev_qtr.isoformat(), col_tag, end_of_this_qtr.isoformat()]
+    column_titles = [end_of_prev_qtr.isoformat(), tag_label, end_of_this_qtr.isoformat()]
+    return columns, column_titles
+    
+
 def quarterly_periods(year):
     columns = ['%sQ%d' % (year, x) for x in range(1,5)]
     column_titles = ['Q1', 'Q2', 'Q3', 'Q4']
