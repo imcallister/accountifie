@@ -113,14 +113,21 @@ def cleanlogs(request):
 def dump_fixtures(request):
     output = StringIO()
 
-    fixture = request.GET.get('fixture', 'No fixture specified')
+    fixture = request.GET.get('fixture', None)
 
     try:
-        call_command('dumpdata', fixture, '--indent=2', stdout=output)
+        if fixture:
+            call_command('dumpdata', fixture, '--indent=2', stdout=output)
+        else:
+            call_command('dumpdata', '--indent=2', stdout=output)
+
         data = output.getvalue()
         output.close()
 
-        file_label = 'fixtures_%s' % datetime.datetime.now().strftime('%d-%b-%Y_%H-%M')
+        if fixture:
+            file_label = 'fixtures_%s_%s' % (fixture, datetime.datetime.now().strftime('%d-%b-%Y_%H-%M'))
+        else:
+            file_label = 'fixtures_all_%s' % datetime.datetime.now().strftime('%d-%b-%Y_%H-%M')
         response = HttpResponse(data, content_type="application/json")
         response['Content-Disposition'] = 'attachment; filename=%s' % file_label
         return response
