@@ -1,14 +1,37 @@
-"""
-Adapted with permission from ReportLab's DocEngine framework
-"""
-
-
-
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
+
+class McModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+
+    def to_json(self, expand=[]):
+        flds = [f.name for f in self._meta.fields]
+        properties = [p for p in getattr(self, 'properties', []) if p in expand]
+
+        data = {}
+        for fld in flds:
+            if isinstance(self._meta.get_field_by_name(fld)[0], models.ForeignKey) and fld in expand:
+                try:
+                    data[fld] = getattr(self, fld).to_json(expand=expand)
+                except:
+                    data[fld] = str(getattr(self, fld))
+            else:
+                data[fld] = str(getattr(self, fld))
+
+        for prop in properties:
+            data[prop] = getattr(self, prop)
+        return data
+
+
+"""
+Adapted with permission from ReportLab's DocEngine framework
+"""
 
 
 class Log(models.Model):

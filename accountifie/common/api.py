@@ -6,6 +6,8 @@ import traceback
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 
 logger = logging.getLogger('default')
@@ -59,9 +61,22 @@ def api_func(*args, **kwargs):
 
 def get_resource(request, group, resource):
     qs = dict((k,v) for k,v in request.GET.iteritems())
-    return HttpResponse(json.dumps(resource_func(group, resource, qstring=qs), cls=DjangoJSONEncoder), content_type="application/json")
+    raw = (qs.get('raw') == 'true')
+    context = {'data': json.dumps(resource_func(group, resource, qstring=qs), cls=DjangoJSONEncoder, indent=2)}
+    context['title'] = 'API call: /%s/%s' % (group, resource)
+    if raw:
+        return HttpResponse(context['data'], content_type="application/json")
+    else:
+        return render_to_response('api_display.html', context, context_instance = RequestContext(request))
 
 
 def get_item(request, group, resource, item):
     qs = request.GET.copy()
-    return HttpResponse(json.dumps(item_func(group, resource, item, qstring=qs), cls=DjangoJSONEncoder), content_type="application/json")
+    raw = (qs.get('raw') == 'true')
+    context = {}
+    context['data'] = json.dumps(item_func(group, resource, item, qstring=qs), cls=DjangoJSONEncoder, indent=2)
+    context['title'] = 'API call: /%s/%s/%s' % (group, resource, item)
+    if raw:
+        return HttpResponse(context['data'], content_type="application/json")
+    else:
+        return render_to_response('api_display.html', context, context_instance = RequestContext(request))
