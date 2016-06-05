@@ -10,10 +10,12 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.core import serializers
+from dal import autocomplete
 
 from accountifie.cal.models import Year
 import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
+from models import Counterparty, Account
 
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
@@ -28,7 +30,32 @@ def index(request):
     d = {}
     return render_to_response('index.html', RequestContext(request, d))
 
-    
+
+class CounterpartyAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated():
+            return Counterparty.objects.none()
+
+        qs = Counterparty.objects.all()
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+
+        return qs
+
+
+class AccountAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated():
+            return Account.objects.none()
+
+        qs = Account.objects.all()
+        if self.q:
+            qs = qs.filter(display_name__icontains=self.q)
+
+        return qs
+
 
 @login_required
 def download_transactions(request):
