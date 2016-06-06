@@ -6,7 +6,7 @@ from models import Counterparty, Account
 
 def counterparty_widget():
     return forms.ModelChoiceField(queryset=Counterparty.objects.all(),
-                                  widget=autocomplete.ModelSelect2(url='counterparty-autocomplete')
+      widget=autocomplete.ModelSelect2(url='counterparty-autocomplete')
                                   )
 
 def account_widget():
