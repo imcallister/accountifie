@@ -3,17 +3,7 @@ from django.conf.urls import *
 import views
 
 
-urlpatterns = patterns('', 
-
-    url(r'^counterparty-autocomplete/$',
-        views.CounterpartyAutocomplete.as_view(),
-        name='counterparty-autocomplete',
-    ),
-
-    url(r'^account-autocomplete/$',
-        views.AccountAutocomplete.as_view(),
-        name='account-autocomplete',
-    ),
+urlpatterns = patterns('',
 
     # admin-type view
     (r'gl/accounts_list/$', views.accounts_list),
