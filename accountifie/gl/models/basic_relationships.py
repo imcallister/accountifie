@@ -7,7 +7,7 @@ from django.db import models
 class Company(models.Model):
     id = models.CharField(max_length=5, primary_key=True)
     name = models.CharField(max_length=50)
-    cmpy_type = models.CharField(max_length=10, choices = [('ALO', 'Standalone'),('CON', 'Consolidation'),])
+    cmpy_type = models.CharField(max_length=10, choices=[('ALO', 'Standalone'),('CON', 'Consolidation'),])
     color_code = RGBColorField(blank=True)
 
     subs = models.ManyToManyField('self', blank=True, related_name="+")
