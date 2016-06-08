@@ -5,12 +5,6 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
-from django.contrib.postgres.fields import ArrayField
-
-import simple_history.models
-from jsonfield import JSONField
-
-from colorful.fields import RGBColorField
 
 
 
