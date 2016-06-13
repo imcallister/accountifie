@@ -16,6 +16,7 @@ import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
 from models import Counterparty, Account
 
+from dal import autocomplete
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 
@@ -29,7 +30,6 @@ def index(request):
     d = {}
     return render_to_response('index.html', RequestContext(request, d))
 
-"""
 class CounterpartyAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         # Don't forget to filter out results depending on the visitor !
@@ -55,7 +55,7 @@ class AccountAutocomplete(autocomplete.Select2QuerySetView):
 
         return qs
 
-"""
+
 @login_required
 def download_transactions(request):
     company_ID = utils.get_company(request)
