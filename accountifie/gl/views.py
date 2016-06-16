@@ -9,6 +9,7 @@ from django.template import RequestContext
 
 import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
+from models import Counterparty, Account
 
 from dal import autocomplete
 from accountifie.query.query_manager import QueryManager
