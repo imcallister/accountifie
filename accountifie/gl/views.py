@@ -1,20 +1,14 @@
 import csv
 import logging
 import datetime
-import json
-from dateutil.parser import parse
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.core import serializers
 
-from accountifie.cal.models import Year
 import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
-from models import Counterparty, Account
 
 from dal import autocomplete
 from accountifie.query.query_manager import QueryManager
@@ -29,6 +23,7 @@ logger = logging.getLogger('default')
 def index(request):
     d = {}
     return render_to_response('index.html', RequestContext(request, d))
+
 
 class CounterpartyAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
