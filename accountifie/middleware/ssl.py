@@ -36,11 +36,13 @@ class SSLRedirect:
             del view_kwargs[SSL]
         else:
             desiredSSL = request.user.is_authenticated()
+        """
         if not settings.DEVELOP:
             existingSSL = self._is_secure(request)
             if existingSSL != desiredSSL and HTTPS_SUPPORT:
                 return self._redirect(request, desiredSSL)
-
+        """
+        
     def _is_secure(self, request):
         if request.is_secure():
             return True
