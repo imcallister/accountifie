@@ -198,7 +198,6 @@ def instance_nonrel_data(row, model, name_cleaner=None, value_cleaner=None):
     return model(**instance_data_no_fk)
     
 def set_foreignkeys(instance, row, model, name_cleaner=None, value_cleaner=None):
-    logger.info('in set_foreignkeys')
     if get_foreignkeys(model): 
         instance_fk = dict((name_cleaner(name), value_cleaner(name, value)) for name, value in row.items() if name_cleaner(name) 
                         and name_cleaner(name) in get_fk_attr(model))
