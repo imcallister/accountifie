@@ -20,6 +20,7 @@ from query_manager_strategy import QueryManagerStrategy
 from accountifie.common.api import api_func
 import logging
 
+import time
 DZERO = Decimal('0')
 logger = logging.getLogger('default')
 
@@ -238,6 +239,7 @@ class accountifieSvcClient(object):
         return json_result
 
     def balances(self, accounts, from_date=None, to_date=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None, with_tags=None, excluding_tags=None):
+        start_time = time.time()
         from_date = None if from_date == '2000-01-01' else from_date
         account_balances = self.__get('/balances', {
             'accounts': ','.join(accounts),
@@ -249,6 +251,11 @@ class accountifieSvcClient(object):
             'withTags': ','.join(with_tags or []),
             'excludingTags': ','.join(excluding_tags or []),
         })
+        logger.info('remote call to /balances, from_date:%s, to_date:%s, accounts:%s. Took %.2f' % (from_date.isoformat(),
+                                                                                                     to_date.isoformat(),
+                                                                                                     ','.join(accounts),
+                                                                                                     time.time() - start_time
+                                                                                                     ))
         return account_balances
 
     def transactions(self, accounts, from_date=None, to_date=None, chunk_frequency=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None):
