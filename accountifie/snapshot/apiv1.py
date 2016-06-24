@@ -8,11 +8,20 @@ import logging
 
 logger = logging.getLogger('default')
 
+def get_fld(record, fld):
+    return getattr(record, fld)
+
+def get_record_data(record, flds):
+    data = dict((fld, get_fld(record, fld)) for fld in flds)
+    return data
+
 
 
 @dispatch(dict)
 def glsnapshot(qstring):
-    return list(GLSnapshot.objects.order_by('id').values())
+    records = GLSnapshot.objects.order_by('id')
+    flds = ['id', 'desc_link','short_desc', 'snapped_at', 'closing_date', 'comment']
+    return [get_record_data(rec, flds) for rec in records]
 
 
 @dispatch(str, dict)

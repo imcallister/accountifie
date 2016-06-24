@@ -48,12 +48,11 @@ def external_bals_history(dt, company_id='EFIE', acct=''):
 
 
 def snapshots():
-    data_url = 'api/snapshot/glsnapshot/'
+    data_url = '/api/snapshot/glsnapshot/'
     row_defs = [{'data_field': 'id', 'value': 'ID', 'formatter': 'nameFormatter'},
-                {'data_field': 'short_desc', 'value': 'Description', 'formatter': 'nameFormatter'},
+                {'data_field': 'desc_link', 'value': 'Description', 'formatter': 'nameFormatter'},
                 {'data_field': 'closing_date', 'value': 'Closing Date', 'formatter': 'nameFormatter'},
                 {'data_field': 'snapped_at', 'value': 'Snapped At', 'formatter': 'nameFormatter'},
-                {'data_field': 'reconciliation', 'value': 'Reconciliation', 'formatter': 'nameFormatter'},
             ]
     return get_bstrap_table(data_url, row_defs)
 

@@ -19,9 +19,8 @@ from pprint import pprint
 from django.db import models
 from django.conf import settings
 
-
-
 from accountifie.cal import is_period_id, is_iso_date, start_of_period, end_of_period
+import datefuncs
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -55,10 +54,12 @@ def entry(x, link='', ccy_fmt=''):
     return {'text': fmt(x, values_fmt=ccy_fmt), 'link': link}
 
 def acct_history_link(id):
-    return ('/reporting/history/account/%s/?from=2013-01-01' % id)
+    from_dt = datefuncs.start_of_year(datetime.datetime.now().year).isoformat()
+    return ('/reporting/history/account/%s/?from=%s' % (id, from_dt))
 
 def path_history_link(path):
-    return ('/reporting/history/path/%s/?from=2013-01-01' % path.replace('.','_'))
+    from_dt = datefuncs.start_of_year(datetime.datetime.now().year).isoformat()
+    return ('/reporting/history/path/%s/?from=%s' % (path.replace('.', '_'), from_dt))
 
 def path_balances_link(path, date='today'):
     return ('/gl/path/%s/balances/?date=date' % path.replace('.','_'))

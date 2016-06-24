@@ -31,6 +31,11 @@ class GLSnapshot(models.Model):
         
 
     @property
+    def desc_link(self):
+      return mark_safe('<a href="/snapshot/glsnapshots/balances/%s/">%s' %( self.id, self.short_desc))
+
+
+    @property
     def reconciliation(self):
         url = '/snapshot/glsnapshots/balances/%s/?date=%s' % (self.id, self.closing_date.isoformat())
 
