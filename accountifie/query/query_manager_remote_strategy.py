@@ -224,7 +224,6 @@ class accountifieSvcClient(object):
             logger.info('Accountifie svc post failed on %s with params %s', url, str(params))
             return None
 
-        
     def __get(self, path, params=None):
         if params:
             params = urllib.urlencode(params)
@@ -232,9 +231,13 @@ class accountifieSvcClient(object):
         else:
             url = '%s%s' % (self.url_base, path)
 
+        start_time = time.time()
+
         request = urllib2.Request(url)
         response = urllib2.urlopen(request)
         json_result = json.load(response)
+
+        logger.info('Called %s. Took %.2f seconds' % (url, time.time() - start_time))
 
         return json_result
 
@@ -251,11 +254,7 @@ class accountifieSvcClient(object):
             'withTags': ','.join(with_tags or []),
             'excludingTags': ','.join(excluding_tags or []),
         })
-        logger.info('remote call to /balances, from_date:%s, to_date:%s, accounts:%s. Took %.2f' % (from_date.isoformat(),
-                                                                                                     to_date.isoformat(),
-                                                                                                     ','.join(accounts),
-                                                                                                     time.time() - start_time
-                                                                                                     ))
+
         return account_balances
 
     def transactions(self, accounts, from_date=None, to_date=None, chunk_frequency=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None):

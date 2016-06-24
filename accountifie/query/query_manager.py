@@ -12,6 +12,7 @@ from collections import defaultdict
 import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
 
+import time
 import logging
 logger = logging.getLogger('default')
 
@@ -125,14 +126,16 @@ class QueryManager:
 
         path_accts = dict((p, [x['id'] for x in api_func('gl', 'path_accounts', p)]) for p in paths)
         acct_list = list(itertools.chain(*[path_accts[p] for p in paths]))
-    
+
         dates_dict = dict((dt, utils.get_dates_dict(dates[dt])) for dt in dates)
         date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, None, excl_interco, excl_contra, with_tags, excl_tags)
-    
+
+        start_time = time.time()
+
         data = {}
         for dt in date_indexed_account_balances:
             account_balances = date_indexed_account_balances[dt]
-    
+
             tuples = []
             for path in paths:
                 path_sum = 0
@@ -140,23 +143,23 @@ class QueryManager:
                     if account_id in account_balances:
                         path_sum -= account_balances[account_id]
                 tuples.append((path, path_sum))
-    
+
             data[dt] = dict(tuples)
-    
+
         output = pd.DataFrame(data)
-    
+
         if filter_zeros:
             output['empty'] = output.apply(lambda row: np.all(row.values == 0.0), axis=1)
             output = output[output['empty']==False]
             output.drop('empty', axis=1, inplace=True)
-    
+
         # adjust assets sign
         if assets:
             asset_factor = output.index.map(lambda x: -1.0 if x[:6] == 'assets' else 1.0)
             for col in output.columns:
-              output[col] = output[col] * asset_factor
+                output[col] = output[col] * asset_factor
         return output
-    
+
     def pd_acct_balances(self, company_id, dates, paths=None, acct_list=None, excl_contra=None, excl_interco=False, cp=None, with_tags=None, excl_tags=None):
 
         if not acct_list:

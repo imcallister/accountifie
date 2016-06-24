@@ -7,7 +7,7 @@ import accountifie.toolkit.utils as utils
 import accountifie.query.query_manager
 
 def externalaccounts(qstring={}):
-    return [x.gl_account.id for x in ExternalAccount.objects.all()]
+    return [x.gl_account.id for x in ExternalAccount.objects.all().select_related('gl_account')]
 
 
 def external_bals_history(qstring={}):
