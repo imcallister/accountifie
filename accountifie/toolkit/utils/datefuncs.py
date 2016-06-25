@@ -108,6 +108,10 @@ def end_of_month(mth,yr):
     else:
         return datetime.date(yr,mth+1,1) - datetime.timedelta(days=1)
 
+def end_of_months(yr):
+    return [end_of_month(mth, yr) for mth in range(1,13)]
+
+
 def end_of_prev_month(mth,yr):
     return datetime.date(yr,mth,1) - datetime.timedelta(days=1)
 

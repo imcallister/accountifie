@@ -121,7 +121,7 @@ class QueryManager:
             col = sub_entries[['account_id','amount']].groupby('account_id').sum()['amount']
             data[dt] = col[col!=0.0]
         return pd.DataFrame(data).fillna(0.0).T
-    
+
     def pd_path_balances(self, company_id, dates, paths, filter_zeros=True, assets=False, excl_contra=None, excl_interco=False, with_tags=None, excl_tags=None):
 
         path_accts = dict((p, [x['id'] for x in api_func('gl', 'path_accounts', p)]) for p in paths)
@@ -129,8 +129,6 @@ class QueryManager:
 
         dates_dict = dict((dt, utils.get_dates_dict(dates[dt])) for dt in dates)
         date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, None, excl_interco, excl_contra, with_tags, excl_tags)
-
-        start_time = time.time()
 
         data = {}
         for dt in date_indexed_account_balances:
@@ -170,17 +168,17 @@ class QueryManager:
                 acct_list = [x['id'] for x in api_func('gl', 'path_accounts', '')]
 
         dates_dict = dict((dt, utils.get_dates_dict(dates[dt])) for dt in dates)
-        
+
         with_counterparties = [cp.id] if cp else None
         date_indexed_account_balances = self.gl_strategy.account_balances_for_dates(company_id, acct_list, dates_dict, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags)
-        
+
         # filter empties
         for dt in date_indexed_account_balances:
             d = date_indexed_account_balances[dt]
             date_indexed_account_balances[dt] = {k:d[k] for k in d if d[k] != 0.0}
-    
+
         output = pd.DataFrame(date_indexed_account_balances)
-        
+
         if paths:
             a = [[x['id'] for x in api_func('gl', 'path_accounts', path)] for path in paths]
             accts_list = list(itertools.chain(*a))
@@ -190,10 +188,10 @@ class QueryManager:
             return filtered_output
 
         return output
-    
+
     def transaction_info(self, company_id, trans_id):
         return self.gl_strategy.get_transaction(company_id, trans_id)
-    
+
 
     def transactions(self, company_id, from_date=settings.DATE_EARLY, to_date=settings.DATE_LATE):
         acct_list = [x['id'] for x in api_func('gl', 'account')]

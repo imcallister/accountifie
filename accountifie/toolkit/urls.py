@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^upload/complete/$', accountifie.tasks.views.FinishedTask.as_view(), name='upload_complete'),
     url(r'^cleanlogs/$', views.cleanlogs, name='cleanlogs'),
     url(r'^recalculate/$', views.recalculate, name='recalculate'),
+    url(r'^primecache/$', views.primecache, name='primecache'),
     url(r'^dump_fixtures/$', views.dump_fixtures),
     
 
