@@ -237,7 +237,9 @@ class accountifieSvcClient(object):
         response = urllib2.urlopen(request)
         json_result = json.load(response)
 
-        logger.info('Called %s. Took %.2f seconds' % (url, time.time() - start_time))
+        resp_time = time.time() - start_time
+        if resp_time > 2:
+            logger.info('Long response time. %s. Took %.2f seconds' % (url, resp_time))
 
         return json_result
 
@@ -270,8 +272,10 @@ class accountifieSvcClient(object):
         })
         return transaction_history
 
+
     def get_transaction(self, transaction_id):
         return self.__get('/transaction/%s' % transaction_id)
+
 
     def upsert_transaction(self, transaction):
         self.__post('/transaction/%s/upsert' % transaction['id'], {
@@ -281,12 +285,13 @@ class accountifieSvcClient(object):
             'dateEnd': transaction['date_end'],
             'comment': transaction['comment'],
             'type': transaction['type'],
-            'lines': [{
-            'accountId': line['account'],
-            'amount': line['amount'],
-            'counterpartyId': line['counterparty'],
-            'tags': line['tags']
-            } for line in transaction['lines']]
+            'lines': [{'accountId': line['account'],
+                       'amount': line['amount'],
+                       'counterpartyId': line['counterparty'],
+                       'tags': line['tags']
+                       }
+                      for line in transaction['lines']
+                      ]
         })
 
     def delete_transaction(self, transaction_id):

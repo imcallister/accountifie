@@ -28,7 +28,7 @@ class Command(BaseCommand):
         #faster and less likely to mess stuff up.
 
         klasses = []
-        kl_paths = api_func('environment', 'variable_list', 'BMO_MODULES').split(',')
+        kl_paths = api_func('environment', 'variable_list', 'BMO_MODULES')
 
         # find all the BMO classes
         for path in kl_paths:

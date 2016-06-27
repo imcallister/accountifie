@@ -18,21 +18,19 @@ class Forecast(models.Model):
     label = models.CharField(max_length=50, blank=True)
     start_date = models.DateField()
     color_code = RGBColorField(blank=True)
-
     projections = JSONField(blank=True)
-
     comment = models.TextField()
 
     class Meta:
         app_label = 'forecasts'
         db_table = 'forecasts_forecast'
-        
+
     def __str__(self):
         return self.label
 
     @property
     def id_link(self):
-      return mark_safe('<a href="/forecasts/forecast/%s/">%s' %( self.id, self.label))
+        return mark_safe('<a href="/forecasts/forecast/%s/">%s' %( self.id, self.label))
 
 
     def get_gl_entries(self):
