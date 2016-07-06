@@ -4,11 +4,26 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
 
+class Address(models.Model):
+    label = models.CharField(max_length=20)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    company = models.CharField(max_length=100, blank=True, null=True)
+    address1 = models.CharField(max_length=100, blank=True, null=True)
+    address2 = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    province = models.CharField(max_length=30, blank=True, null=True)
+    country = models.CharField(max_length=30, blank=True, null=True)
+    phone = models.CharField(max_length=30, blank=True, null=True)
+    email = models.EmailField(max_length=254, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.label
+
 class McModel(models.Model):
 
     class Meta:
         abstract = True
-
 
     def to_json(self, expand=[]):
         flds = [f.name for f in self._meta.fields]
