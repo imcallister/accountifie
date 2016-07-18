@@ -1,8 +1,11 @@
 import json
+import csv
+import itertools
 import logging
 import importlib
 import sys
 import traceback
+import flatdict
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -62,13 +65,38 @@ def api_func(*args, **kwargs):
 def get_resource(request, group, resource):
     qs = dict((k,v) for k,v in request.GET.iteritems())
     raw = (qs.get('raw') == 'true')
+    as_csv = (qs.get('as_csv') == 'true')
 
     if raw:
         return HttpResponse(json.dumps(resource_func(group, resource, qstring=qs), cls=DjangoJSONEncoder), content_type="application/json")
+    elif as_csv:
+        data = resource_func(group, resource, qstring=qs)
+        return output_as_csv(data, label=resource)
     else:
         context = {'data': json.dumps(resource_func(group, resource, qstring=qs), cls=DjangoJSONEncoder, indent=2)}
         context['title'] = 'API call: /%s/%s' % (group, resource)
         return render_to_response('api_display.html', context, context_instance = RequestContext(request))
+
+
+def output_as_csv(data, label='output'):
+    if type(data)==list:
+        flat_data = [flatdict.FlatDict(x) for x in data]
+    else:
+        flat_data = [flatfict.FlatDict(data)]
+
+    response = HttpResponse(content_type='text/csv')
+    file_name = '%s.csv' % label
+    response['Content-Disposition'] = 'attachment; filename=%s' % file_name
+    writer = csv.writer(response)
+
+    cols = list(set(itertools.chain.from_iterable([x.keys() for x in data])))
+
+    writer.writerow(cols)
+    for r in flat_data:
+        line = [r.get(c, '') for c in cols]
+        writer.writerow(line)
+    return response
+
 
 
 def get_item(request, group, resource, item):
