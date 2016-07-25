@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 
 class Metric(models.Model):
@@ -10,4 +11,5 @@ class Metric(models.Model):
 class MetricEntry(models.Model):
     metric = models.ForeignKey(Metric, null=True, blank=True)
     date = models.DateField(db_index=True)
+    as_of = models.DateField(db_index=True)
     balance = models.DecimalField(max_digits=20, decimal_places=2)
