@@ -89,7 +89,7 @@ def history(request, type, id):
     years = Year.objects.all()
     entries = []
 
-    if history is not None:
+    if (history is not None) and (history.empty is False):
         unused_history = history[history['date']<from_date]
         used_history = history[history['date']>=from_date]
 

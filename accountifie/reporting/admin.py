@@ -6,7 +6,7 @@ class MetricAdmin(admin.ModelAdmin):
     list_display=('name',)
 
 class MetricEntryAdmin(admin.ModelAdmin):
-    list_display=('metric','date','balance',)
+    list_display=('metric','date','balance','as_of')
 
 class ReportDefAdmin(admin.ModelAdmin):
     list_display=('name','path',)
