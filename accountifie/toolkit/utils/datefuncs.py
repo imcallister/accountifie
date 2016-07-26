@@ -163,6 +163,10 @@ def start_of_half(half, yr):
 def end_of_half(half, yr):
     return end_of_month(half*6, yr)
 
+def end_of_prev_half(half, yr):
+    start_of_half = start_of_half(half, yr)
+    return start_of_half + datetime.timedelta(days=-1)
+
 
 def month_ends(yr):
     return [end_of_month(m, yr) for m in range(1,13)]

@@ -9,6 +9,7 @@ MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec
 
 MONTH_TAG = re.compile("^(\d{4})M(0[1-9]{1}|10|11|12)$")
 QUARTER_TAG = re.compile("^(\d{4})Q([1-4]{1})$")
+HALF_TAG = re.compile("^(\d{4})H([1-2]{1})$")
 QUARTERLY_TAG = re.compile('(\d{4})(Quarterly)')
 ANNUAL_TAG = re.compile('(\d{4})(Annual)')
 MONTHLY_TAG = re.compile('(\d{4})(Monthly)')
@@ -82,17 +83,6 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
     
-    monthly_match = MONTHLY_TAG.search(col_tag)
-    if monthly_match:
-        yr = monthly_match.groups()[0]
-        title = '%s for %s -- Monthly Detail' %(rpt_desc, yr)
-
-        if calc_type == 'diff':
-            columns, column_titles = monthly_periods(yr)
-        elif calc_type == 'as_of':
-            columns, column_titles = monthly_ends(yr)
-        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
-
     daily_match = DAILY_TAG.search(col_tag)
     if daily_match:
         dt = parse(daily_match.groups()[1]).date()
@@ -162,6 +152,22 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
             title ='%s for %s' %(rpt_desc, col_tag)
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
     
+
+    half_tag = HALF_TAG.search(col_tag)
+    if half_tag:
+        yr = int(half_tag.groups()[0])
+        half = int(half_tag.groups()[1])
+        tag_label = 'H%d %d' % (half, yr)
+
+        if calc_type == 'as_of':
+            columns, column_titles = single_half_end(half, yr, col_tag)
+            title = '%s for %s' %(rpt_desc, tag_label)
+        elif calc_type == 'diff':
+            columns = [col_tag]
+            column_titles = [tag_label]
+            title ='%s for %s' %(rpt_desc, col_tag)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+
     """
         # didn't match anything
         raise ValueError('Unexpected col_tag: %s' % repr(col_tag))

@@ -24,6 +24,15 @@ def single_quarter_end(quarter, year, col_tag):
     column_titles = [end_of_prev_qtr.isoformat(), tag_label, end_of_this_qtr.isoformat()]
     return columns, column_titles
     
+def single_half_end(half, year, col_tag):
+    tag_label = 'H%s %d' % (half, year)
+    
+    end_of_this_half = datefuncs.end_of_half(half,year)
+    end_of_prev_half = datefuncs.end_of_prev_half(half,year)
+    
+    columns = [end_of_prev_half.isoformat(), col_tag, end_of_this_half.isoformat()]
+    column_titles = [end_of_prev_half.isoformat(), tag_label, end_of_this_half.isoformat()]
+    return columns, column_titles
 
 def quarterly_periods(year):
     columns = ['%sQ%d' % (year, x) for x in range(1,5)]
