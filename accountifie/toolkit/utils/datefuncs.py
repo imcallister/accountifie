@@ -53,9 +53,9 @@ def end_of_period(period_id):
     elif sep == 'M':
         return end_of_month(part2, year)
     elif sep == 'Q':
-        return end_of_quarter(part2*3, year)
+        return end_of_quarter(part2, year)
     elif sep == 'H':
-        return end_of_half(part2*6, year)
+        return end_of_half(part2, year)
     elif sep == 'Y':
         return datetime.date(year, 12, 31)
     else:
