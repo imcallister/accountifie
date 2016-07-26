@@ -31,7 +31,7 @@ def start_of_period(period_id):
         month_id = (part2 - 1) * 3 + 1
         return datetime.date(year, month_id, 1)
     elif sep == 'H':
-        return start_of_half(date(year, (part2*6), 1))
+        return start_of_half(part2, year)
     elif sep == 'Y':
         return datetime.date(year, 1, 1)
     else:
@@ -162,6 +162,9 @@ def start_of_half(half, yr):
 
 def end_of_half(half, yr):
     return end_of_month(half*6, yr)
+
+def end_of_prev_half(half, yr):
+    return start_of_half(half, yr) + datetime.timedelta(days=-1)
 
 
 def month_ends(yr):
