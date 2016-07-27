@@ -32,8 +32,25 @@
 {% endblock %}
 
 {% block sidebar %}
-<a class="btn btn-primary" href="/admin/forecasts/forecast/add/" role="button">Add Forecast</a>
 
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Actions</h3>
+    </div>
+
+    <div class="panel-body">
+        <div class="col-md-12">
+            <ul class="nav nav-pills nav-stacked">
+                <li>
+                  <a class="btn btn-primary" href="/admin/forecasts/forecast/add/" role="button">Add Forecast</a>
+                </li>
+                <li>
+                    <a class="btn btn-primary" href="/reporting/upload/metrics/" role="button">Upload Metrics</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 
