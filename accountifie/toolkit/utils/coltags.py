@@ -82,7 +82,17 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
             columns, column_titles = annual_ends(yr)
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
-    
+    monthly_match = MONTHLY_TAG.search(col_tag)
+    if monthly_match:
+        yr = monthly_match.groups()[0]
+        title = '%s for %s -- Monthly Detail' %(rpt_desc, yr)
+
+        if calc_type == 'diff':
+            columns, column_titles = monthly_periods(yr)
+        elif calc_type == 'as_of':
+            columns, column_titles = monthly_ends(yr)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+
     daily_match = DAILY_TAG.search(col_tag)
     if daily_match:
         dt = parse(daily_match.groups()[1]).date()
