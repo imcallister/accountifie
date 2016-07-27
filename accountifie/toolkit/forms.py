@@ -24,9 +24,10 @@ logger = logging.getLogger('default')
 
 class FileForm(forms.Form):
     file = forms.FileField(required=True)
+
+class LabelledFileForm(forms.Form):
+    file = forms.FileField(required=True)
     label = forms.CharField()
-    #Hidden by Andy, suggest to strip out all code.
-    #check = forms.BooleanField(help_text='first check contents of the file', required=False)
 
 
 class SplashForm(SearchForm):
