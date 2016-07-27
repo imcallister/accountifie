@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 
     url(r'', include('accountifie.gl.urls')),
     url(r'', include('accountifie.snapshot.urls')),
-    url(r'', include('accountifie.reporting.urls')),
+    url(r'reporting/', include('accountifie.reporting.urls')),
     url(r'', include('accountifie.forecasts.urls')),
     
 )

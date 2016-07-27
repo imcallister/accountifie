@@ -1,0 +1,60 @@
+{% extends base_template %}
+
+{% block breadcrumb %}
+<li><a href="/">Home</a></li>
+<li class="active">Upload CSV</li>
+{% endblock %}
+
+
+{% block content %}
+
+{% if file_name%}
+<p>checked contents of {{file_name}}</p>
+
+<p>found {{data_count}} objects</p>
+
+
+<p>sample object:</p>
+
+ <div class="table-responsive">
+   <table class="table">
+        
+       <thead>
+      <tr>
+         <th>Key</th>
+         <th>Value</th>
+       </tr>
+     </thead>
+     <tbody>
+        {% for key, value in sample_data %}
+        
+        <tr>
+         <th>{{key}}</th>
+         <th>{{value}}</th>    
+        </tr>
+        
+        {% endfor %}
+        
+      </tbody>
+   </table>
+ </div>
+ 
+
+{% endif %}
+
+
+<h3>Please choose a {{file_type}} file</h3>
+
+<form role='form' enctype="multipart/form-data" method="post" action="">{% csrf_token %}
+    <div class="form-group">    
+        {{form.as_p}}
+    </div>
+        
+        <button type="submit" class="btn btn-primary">Submit</button>
+       
+        <a href='/' class="btn btn-default">Cancel</a>
+</form>
+
+
+
+{% endblock %}
