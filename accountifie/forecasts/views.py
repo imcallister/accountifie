@@ -23,12 +23,15 @@ from accountifie.tasks.utils import task
 
 from .models import Forecast
 from .forms import ForecastBetterForm, ForecastForm
+from .importers import modelparams_upload
 import accountifie.forecasts.api
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 import accountifie.toolkit.utils as utils
 import accountifie.reporting.rptutils
 from accountifie.common.table import get_table
+from accountifie.toolkit.forms import LabelledFileForm
+
 
 
 logger = logging.getLogger('default')
@@ -80,6 +83,22 @@ def forecasts_reports(request):
     context = {}
     context['fcasts'] = fcast_choices
     return render_to_response('forecasts/forecast_reports.html', context, RequestContext(request))
+
+
+@login_required
+def upload_file(request, file_type, check=False):
+
+    if request.method == 'POST':
+        if file_type == 'modelparams':
+            return modelparams_upload(request)
+        else:
+            raise ValueError("Unexpected file type; know about metrics")
+    else:
+        form = LabelledFileForm()
+        context = {'form': form, 'file_type': file_type}
+        return render_to_response('common/upload_csv.html',
+                                  context,
+                                  context_instance=RequestContext(request))
 
 
 @login_required
