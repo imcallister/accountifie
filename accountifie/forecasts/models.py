@@ -75,7 +75,8 @@ SCALING_CHOICES = (('PROP', 'Proportional'),
 class ProjModelv1Param(models.Model):
     proj_model = models.ForeignKey(ProjectionModel)
     label = models.CharField(max_length=20)
-    account = models.ForeignKey('gl.Account')
+    account = models.ForeignKey('gl.Account', related_name='param_account')
+    contra = models.ForeignKey('gl.Account', related_name='param_contra')
     counterparty = models.ForeignKey('gl.Counterparty')
     frequency = models.CharField(max_length=20, choices=FREQ_CHOICES)
     window = models.CharField(max_length=20, choices=WINDOW_CHOICES)

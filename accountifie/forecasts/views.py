@@ -89,10 +89,10 @@ def forecasts_reports(request):
 def upload_file(request, file_type, check=False):
 
     if request.method == 'POST':
-        if file_type == 'modelparams':
+        if file_type == 'model_params':
             return modelparams_upload(request)
         else:
-            raise ValueError("Unexpected file type; know about metrics")
+            raise ValueError("Unexpected file type; know about model_params")
     else:
         form = LabelledFileForm()
         context = {'form': form, 'file_type': file_type}
