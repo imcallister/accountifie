@@ -11,7 +11,7 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 
 
-from accountifie.toolkit.forms import FileForm
+from accountifie.toolkit.forms import LabelledFileForm
 import accountifie.toolkit
 from .models import Metric, MetricEntry
 
@@ -22,7 +22,7 @@ PROCESSED_ROOT = os.path.join(DATA_ROOT, 'processed')
 
 
 def order_upload(request):
-    form = FileForm(request.POST, request.FILES)
+    form = LabelledFileForm(request.POST, request.FILES)
 
     if form.is_valid():
         label = form.cleaned_data['label']
