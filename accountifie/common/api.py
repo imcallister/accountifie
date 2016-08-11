@@ -82,14 +82,14 @@ def output_as_csv(data, label='output'):
     if type(data)==list:
         flat_data = [flatdict.FlatDict(x) for x in data]
     else:
-        flat_data = [flatfict.FlatDict(data)]
+        flat_data = [flatdict.FlatDict(data)]
 
     response = HttpResponse(content_type='text/csv')
     file_name = '%s.csv' % label
     response['Content-Disposition'] = 'attachment; filename=%s' % file_name
     writer = csv.writer(response)
 
-    cols = list(set(itertools.chain.from_iterable([x.keys() for x in data])))
+    cols = list(set(itertools.chain.from_iterable([x.keys() for x in flat_data])))
 
     writer.writerow(cols)
     for r in flat_data:
