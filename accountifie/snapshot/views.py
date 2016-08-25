@@ -23,6 +23,8 @@ from accountifie.reporting.views import report_prep
 import accountifie.toolkit.utils as utils
 from accountifie.common.table import get_table
 
+import logging
+logger = logging.getLogger('default')
 
 @login_required
 def glsnapshots(request):
@@ -37,6 +39,7 @@ def glsnapshots(request):
 def glsnapshots_balances(request, snap_id):
     snapshot = models.GLSnapshot.objects.get(id=snap_id)
     snapshot_time = snapshot.snapped_at.isoformat()
+    logger.info('in glsnapshots_balances with snapshot_time %s' % snapshot_time)
     strategy = QueryManagerStrategyFactory().get('snapshot')
     strategy.set_cache(snapshot_time)
 
@@ -44,6 +47,7 @@ def glsnapshots_balances(request, snap_id):
     if not is_report:
         return report
 
+    report.date = snapshot.closing_date
     report.qm_strategy = strategy
     report.snapshot = snapshot
     report.columns = {'snapshot': 'snapshot', 'current': 'current', 'diff': 'diff'}
