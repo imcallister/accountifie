@@ -186,6 +186,8 @@ class accountifieSvcSnapshotClient(object):
         params = urllib.urlencode(params)
         url = '%s%s?%s' % (self.url_base, path, params)
 
+        logger.info('Calling snapshot with url %s', url)
+        
         request = urllib2.Request(url)
         response = urllib2.urlopen(request)
         json_result = json.load(response)
@@ -194,6 +196,7 @@ class accountifieSvcSnapshotClient(object):
 
     def balances(self, accounts, from_date=None, to_date=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None, with_tags=None, excluding_tags=None):
         from_date = None if from_date == '2000-01-01' else from_date
+        logger.info('snapshot balances from:%s to:%s' % (str(from_date), str(to_date)))
         account_balances = self.__get('/balances', {
             'accounts': ','.join(accounts),
             'from': from_date,

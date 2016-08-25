@@ -29,21 +29,6 @@ import utils
 logger = logging.getLogger('default')
 
 
-def model_as_json(obj, expand=False):
-    flds = [f.name for f in obj._meta.fields] + getattr(obj, 'properties', [])
-
-    if expand:
-        data = {}
-        for fld in flds:
-            if isinstance(obj._meta.get_field_by_name(fld)[0], ForeignKey):
-                data[fld] = getattr(obj, fld).to_json(expand=True)
-            else:
-                data[fld] = str(getattr(obj, fld))
-        return data
-    else:
-        return dict((fld, str(getattr(obj, fld))) for fld in flds)
-
-
 def company_context(request):
     """Context processor referenced in settings.
     This puts the current company ID into any request context, 
