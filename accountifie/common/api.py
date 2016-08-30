@@ -30,14 +30,14 @@ def resource_func(group, resource, qstring={}):
     api_module = get_module('%s.%s' % (group, 'apiv1'))
     api_method = getattr(api_module, resource)
     api_call = api_wrapper(api_method)
-    return api_call(qstring)
+    return api_call(qstring=qstring)
 
 
 def item_func(group, resource, item, qstring={}):
     api_module = get_module('%s.%s' % (group, 'apiv1'))
     api_method = getattr(api_module, resource)
     api_call = api_wrapper(api_method)
-    return api_call(str(item), dict(qstring))
+    return api_call(str(item), qstring=dict(qstring))
 
 
 def get_module(group):
