@@ -1,0 +1,66 @@
+{% extends base_template %}
+{% block extrahead %}
+{{block.super}}
+{{form.media.css}}
+<style type="text/css">
+body {
+    background-color: #f5f5f5;
+}
+</style>
+{% endblock %}
+
+{% block title %}{{site_title}}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <p class="text-info lead">{% block lead %}<img src="{{STATIC_URL}}/{{logo}}" height="100"/>{% endblock %}</p>
+
+
+    <div class="row">
+        <div class="col-md-6 col-sm-8 col-md-offset-3 col-sm-offset-2">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h3>Please log in</h3></div>
+                
+
+                <div class="panel-body">
+                    {{form.non_field_errors.as_div}}
+                    {{form.errors.as_div}}
+                {% if form.non_field_errors or form.errors %}
+                    <a href="{% url 'password_reset' %}" class="small pull-right">Forgot password?</a><br>
+                {% endif %}
+                    <form class="container-fluid form" role="form" method="post">
+                        {% csrf_token %}
+                        {{ form.as_div}}
+                        <input type="hidden" name="next" value="{{next}}" />
+                        <button class="btn btn-large btn-primary" type="submit">Log in</button>
+                {% if REGISTRATION_OPEN %}
+                        <div class="pull-right">
+                            or <a href="{% url 'registration_register' %}" class="btn btn-default">Sign Up</a>
+                        </div>
+                {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--[if lt IE 9]>
+<div class="container-fluid">
+    <div class="alert alert-warning">
+    This website requires Internet Explorer 9 or another modern browser
+    </div>
+</div>
+<![endif]-->
+{% endblock %}
+
+{% block extrajs %}
+<!--[if lt IE 9]>
+    <script src="{{STATIC_URL}}common/js/ajax_setup.js"></script>
+    <script>
+    $(document).ready(function(){
+        showalert('Some features of this website may not be made available in your browser. Please consider upgrading to a newer version or try a different browser', 'danger');
+    });
+    </script>
+<![endif]-->
+{% endblock %}

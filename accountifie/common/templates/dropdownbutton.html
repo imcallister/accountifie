@@ -1,0 +1,17 @@
+<form id="update-status-form2" action="/trades/post/clearing_status" method="post" type="submit">
+  
+  <div class="btn-group">
+    {% csrf_token %}
+    
+    <button type="button" class="btn btn-xs btn-{{status}} dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+      {{current}}
+    </button>
+    <ul class="dropdown-menu" role="menu">
+      {% for k,v in others.items %}
+        <li onclick="$('.hidden-id').val('{{v}}_{{id}}'); $('#update-status-form2').submit()">{{k}}</li>
+      {% endfor %}  
+      <input class="hidden-id" type="hidden" id="status" name="status">
+      
+    </ul>
+  </div>
+</form>
