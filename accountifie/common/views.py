@@ -78,7 +78,6 @@ def login(request, template_name='common/login.html',
     """
     Displays the login form and handles the login action.
     """
-
     if 'accountifie.middleware.ssl.SSLRedirect' not in settings.MIDDLEWARE_CLASSES and\
        'docengine.common.ssl.SecureRequiredMiddleware' not in \
                             settings.MIDDLEWARE_CLASSES and not getattr(settings,
