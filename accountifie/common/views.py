@@ -38,14 +38,6 @@ from .forms import CommonAuthenticationForm, MultiCommonAuthenticationForm
 #this doesn't sound right but it's a start.
 logger = logging.getLogger('default')
 
-def custom_500(request):
-    t = loader.get_template('500.html')
-    type, value, tb = sys.exc_info(),
-    return HttpResponseServerError(t.render(Context({
-                                    'exception_value': value,
-                                    })))
-
-
 
 def base_templates(request):
     ''' 
@@ -86,11 +78,6 @@ def login(request, template_name='common/login.html',
     """
     Displays the login form and handles the login action.
     """
-    print
-    print 'login'
-    print template_name
-    print
-
     if 'accountifie.middleware.ssl.SSLRedirect' not in settings.MIDDLEWARE_CLASSES and\
        'docengine.common.ssl.SecureRequiredMiddleware' not in \
                             settings.MIDDLEWARE_CLASSES and not getattr(settings,
