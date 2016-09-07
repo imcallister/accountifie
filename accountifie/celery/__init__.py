@@ -8,7 +8,9 @@ def background_task(*args, **kwargs):
 
 def background_status(request, task_id):
     task = celery_app.AsyncResult(id=task_id)
-    return JsonResponse(task.result)
+    rslt = task.result
+    rslt.update({'task_id': task_id})
+    return JsonResponse(rslt)
 
 
 @celery_app.task(bind=True)
