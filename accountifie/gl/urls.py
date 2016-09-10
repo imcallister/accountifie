@@ -1,6 +1,7 @@
 from django.conf.urls import *
 
 import views
+import jobs
 
 
 urlpatterns = patterns('',
@@ -23,4 +24,5 @@ urlpatterns = patterns('',
     (r'gl/get_transactions/', views.download_transactions),
     (r'gl/get_tranlines/', views.download_tranlines),
 
+    (r'celery/recalculate/', jobs.recalculate),
 )

@@ -32,14 +32,11 @@
 </div>
 
 
-
-
-
-
 <script>
 
     function start_long_task(event) {
         task_url = event.data.task;
+
         // send ajax POST request to start background job
         $.ajax({
             type: 'GET',
@@ -47,6 +44,7 @@
             success: function(data, status, request) {
                 status_url = data.status_url;
                 $('#startTask').modal('show');
+                $('#task_results').text('');
                 update_progress(status_url, data.task_id);
             },
             error: function() {
@@ -57,10 +55,11 @@
 
     function update_progress(status_url, task_id) {
         $('#task_id').text(task_id);
+        
         $.getJSON(status_url, function(data) {
+            console.log(data);
             $('#task_progress').text(data['status']);
-
-            if (data['status'] != 'COMPLETED') {
+            if (['COMPLETED', 'FAILED'].indexOf(data['status']) == -1) {
                 setTimeout(function() {
                     update_progress(status_url, task_id);
                 }, 2000);
