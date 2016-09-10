@@ -503,21 +503,20 @@ class CsvImporter(object):
             reader.next()
             line_number = 1
         for line in reader:
+            line_number += 1
             try:
                 success, ret_val = self.process_line(data, line, lines, line_number, self.csvModel)
             except ImproperlyConfigured as e:
                 return [], [e.message]
 
-            if success:
-                line_number += 1
-            else:
+            if not success:
                 errors.append(ret_val)
+            
         return lines, errors
 
 
     def process_line(self, data, line, lines, line_number, model):
         self.process_extra_fields(data, line)
-        line_label = line_number + (1 if self.csvModel.has_header() else 0)
         value = None
         try:
             value = self.layout.process_line(lines, line, model, delimiter=self.delimiter)
@@ -525,12 +524,12 @@ class CsvImporter(object):
         except SkipRow:
             pass
         except ForeignKeyFieldError as e:
-            return False, 'Line # %d. Foreign Key error: %s' % (line_label, e.message)
+            return False, 'Line # %d. Foreign Key error: %s' % (line_number, e.message)
         except ValueError as e:
             if line_number == 0 and self.csvModel.has_header():
                 pass
             else:
-                return False, 'Line # %d. Data error: %s %s %s' % (line_label, e.message)
+                return False, 'Line # %d. Data error: %s' % (line_number, e.message)
         except IndexError as e:
             return False, "Number of fields invalid. Check file."
         return value

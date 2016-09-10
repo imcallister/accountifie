@@ -165,7 +165,7 @@ class DjangoModelField(Field):
         try:
             return self.model.objects.get(**{self.pk: value})
         except ObjectDoesNotExist:
-            raise exceptions.ForeignKeyFieldError("No match found for %s" % self.model.__name__, self.model.__name__, value)
+            raise exceptions.ForeignKeyFieldError("No match found for %s, %s:%s" % (self.model.__name__, self.pk, value), self.model.__name__, value)
         except MultipleObjectsReturned:
             raise exceptions.ForeignKeyFieldError("Multiple match found for %s" % self.model.__name__, self.model.__name__, value)
 
