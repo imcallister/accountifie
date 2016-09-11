@@ -5,8 +5,6 @@ Adapted with permission from ReportLab's DocEngine framework
 import os
 import json
 from StringIO import StringIO
-import datetime
-from ast import literal_eval
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -20,7 +18,7 @@ from django.apps import apps
 from django.core.serializers.json import DjangoJSONEncoder
 
 from accountifie.tasks.utils import task, utcnow
-from utils import get_default_company, csv_to_modelattr, files_for_dir, create_instance, dirty_key
+from utils import get_default_company, csv_to_modelattr, create_instance, dirty_key
 
 
 from forms import FileForm
@@ -51,10 +49,12 @@ def upload_file(request, **config):
 
         model = config.pop('model')
         unique = config.pop('unique')
-        name_cleaner = config.pop('name_cleaner')
-        value_cleaner = config.pop('value_cleaner')
-        exclude = config.pop('exclude')
-        post_process = config.pop('post_process')
+        name_cleaner_path = config.pop('name_cleaner')
+        value_cleaner_path = config.pop('value_cleaner')
+        exclude_path = config.pop('exclude')
+        post_process_path = config.pop('post_process')
+
+
 
         #result is zero if it was able to start the background task successfully.
         result, out, err = process_incoming_file(model, unique, name_cleaner, value_cleaner, exclude, post_process,
@@ -100,6 +100,7 @@ def process_incoming_file(model, unique, name_cleaner, value_cleaner, exclude, p
     incoming_name = os.path.join(INCOMING_ROOT, file_name)
     
     with open(incoming_name, 'U') as f:
+
         data = json.loads(load_file(file=f, stdout=out, model=model, unique=unique, name_cleaner=name_cleaner,
                                     value_cleaner=value_cleaner, exclude=exclude, post_process=post_process, **config))
 
