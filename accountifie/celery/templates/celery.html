@@ -1,0 +1,74 @@
+<div class="modal fade" id="startTask" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        </br>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="jumbotron text-center">
+                    <h1 class="panel-title">Running</h1>
+                    <p id="task_id"></p>
+                    <p></p>
+                    <p class="btn btn-lg btn-success" id="task_progress"></p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">Results</h2>
+                    </div>
+
+                    <div class="panel-body" style="min-height: 40;">
+                        <p id="task_results"><p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+    function start_long_task(event) {
+        task_url = event.data.task;
+
+        // send ajax POST request to start background job
+        $.ajax({
+            type: 'GET',
+            url: task_url,
+            success: function(data, status, request) {
+                status_url = data.status_url;
+                $('#startTask').modal('show');
+                $('#task_results').text('');
+                update_progress(status_url, data.task_id);
+            },
+            error: function() {
+                alert('Unexpected error');
+            }
+        });
+    }
+
+    function update_progress(status_url, task_id) {
+        $('#task_id').text(task_id);
+        
+        $.getJSON(status_url, function(data) {
+            console.log(data);
+            $('#task_progress').text(data['status']);
+            if (['COMPLETED', 'FAILED'].indexOf(data['status']) == -1) {
+                setTimeout(function() {
+                    update_progress(status_url, task_id);
+                }, 2000);
+            }
+            else {
+               $('#task_results').text(JSON.stringify(data)); 
+            }
+            
+        });
+    }
+</script>
+
