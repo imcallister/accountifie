@@ -44,7 +44,7 @@ class Field(BaseField):
         self.prepare = kwargs.pop('prepare', lambda val:val)
         if 'keys' in kwargs and isinstance(self, ComposedKeyField):
             self.keys = kwargs.pop('keys')
-        self.choices= kwargs.pop('choices', AllChoices())
+        self.choices = kwargs.pop('choices', AllChoices())
         if len(kwargs) > 0:
             raise ValueError("Arguments %s unexpected" % kwargs.keys())
 

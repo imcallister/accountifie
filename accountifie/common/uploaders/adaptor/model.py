@@ -192,9 +192,13 @@ class BaseModel(object):
         return cls.Meta.silent_failure
 
     @classmethod
-    def import_data(cls, data, extra_fields=[]):
+    def import_data(cls, data, extra_fields=[], as_values=True):
         importer = cls.get_importer(extra_fields)
-        return importer.import_data(data)
+        rows, errors = importer.import_data(data)
+        if as_values:
+            flds = cls.get_data_fields()
+            rows = [dict((f, getattr(r, f)) for f in flds) for r in rows]
+        return rows, errors
 
     @classmethod
     def import_from_filename(cls, filename, extra_fields=[]):
