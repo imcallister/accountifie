@@ -39,6 +39,18 @@ from .forms import CommonAuthenticationForm, MultiCommonAuthenticationForm
 logger = logging.getLogger('default')
 
 
+# HTTP Error 500
+def custom_500(request):
+    type, value, tb = sys.exc_info(),
+
+    response = render_to_response(
+        '500.html',
+        RequestContext(request, {'message': value})
+    )
+    response.status_code = 200
+    return response
+
+
 def base_templates(request):
     ''' 
     To be used as a context_processor so as to provide a fallback if the hosting

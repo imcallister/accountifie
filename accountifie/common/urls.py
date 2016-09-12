@@ -6,7 +6,7 @@ Adapted with permission from ReportLab's DocEngine framework
 
 
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, include, url, handler500
 from django.core.urlresolvers import reverse_lazy
 from django.template.loader import select_template
 from django.views.generic.base import RedirectView, TemplateView
@@ -22,7 +22,7 @@ else:
     _ACCOUNT_URLS = 'accountifie.common.auth_urls'
 
 
-
+handler500 = 'accountifie.common.views.custom_500'
 
 urlpatterns = patterns('',
     url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/(?P<item>(.+))/$', 'accountifie.common.api.get_item'),
