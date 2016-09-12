@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+
+{% block breadcrumb %}
+<li class="active">Home</li>
+{% endblock %}
+
+
+{% block content %}
+
+
+<!--
+This is where bootstrap starts to get a bit demented.   Surely not all
+these divs are needed.
+
+
+-->
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">500 Server Error</h3>
+                </div>
+                <div class="panel-body">
+                    {{message}}
+                
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
