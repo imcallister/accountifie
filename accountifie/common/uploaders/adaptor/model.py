@@ -192,9 +192,9 @@ class BaseModel(object):
         return cls.Meta.silent_failure
 
     @classmethod
-    def import_data(cls, data, extra_fields=[], as_values=True):
+    def import_data(cls, data, extra_fields=[], as_values=True, skip_rows=0):
         importer = cls.get_importer(extra_fields)
-        rows, errors = importer.import_data(data)
+        rows, errors = importer.import_data(data, skip_rows=skip_rows)
         if as_values:
             flds = cls.get_data_fields()
             rows = [dict((f, getattr(r, f)) for f in flds) for r in rows]
@@ -496,12 +496,17 @@ class CsvImporter(object):
                 else:
                     raise ImproperlyConfigured("Extra field should be a string or a list")
 
-    def import_data(self, data):
+
+    def import_data(self, data, skip_rows=0):
         lines = []
         errors = []
         line_number = 0
         self.get_class_delimiter()
         reader = csv.reader(data, delimiter=self.delimiter)
+
+        if skip_rows > 0:
+            for i in range(skip_rows):
+                reader.next()
 
         if self.csvModel.has_header():
             reader.next()

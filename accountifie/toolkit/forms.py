@@ -17,7 +17,6 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from betterforms.forms import Fieldset, BetterForm, BetterModelForm
 from betterforms.changelist import SearchForm
-from json_field.forms import JSONFormField
 
 
 logger = logging.getLogger('default')
