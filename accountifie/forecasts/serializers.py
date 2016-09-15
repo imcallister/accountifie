@@ -9,9 +9,17 @@ class ProjModelv1ParamSerializer(serializers.ModelSerializer):
     contra = serializers.StringRelatedField()
     counterparty = serializers.StringRelatedField()
     metric = serializers.StringRelatedField()
+    account_id = serializers.SerializerMethodField()
+    contra_id = serializers.SerializerMethodField()
+
+    def get_account_id(self, obj):
+        return obj.account.id
+
+    def get_contra_id(self, obj):
+        return obj.contra.id
 
     class Meta:
         model = ProjModelv1Param
         fields = ('label', 'proj_model', 'account', 'contra',
                   'counterparty', 'frequency', 'window',
-                  'metric', 'scaling')
+                  'metric', 'scaling', 'account_id', 'contra_id')

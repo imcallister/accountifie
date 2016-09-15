@@ -7,7 +7,9 @@ from accountifie.reporting.serializers import *
 
 
 def metric(name, qstring):
-    label = qstring.get('label', None)[0]
+    label = qstring.get('label', None)
+    if type(label) == list:
+        label = label[0]
     if label:
         qs = MetricEntry.objects.filter(metric__name=name) \
                                 .filter(label=label)
