@@ -61,6 +61,33 @@
         return Number(Math.round(value)).toLocaleString('us');
     }
 
+    function percentFormatter(value, row) {
+        return Number(Math.round(value*100)).toLocaleString('us')+'%';
+    }
+
+    function decimalFormatter(value, row) {
+        return Number(value.toFixed(2)).toLocaleString('us');
+    }
+
+    function dateFormatter(value, row) {
+        if (value === undefined) {
+            return '-';
+        }
+        else {
+            return moment.utc(value).local().format('D MMM YYYY');
+        }
+    }
+
+    function timeFormatter(value, row) {
+        if (value === undefined || value == null) {
+            return '-';
+        }
+        else {
+            return moment.utc(value).local().format('MMMM Do, h:mm a');
+        }
+    }
+
+
     function drillFormatter(value, row) {
         if (value.text == 0) {
             return '-';
