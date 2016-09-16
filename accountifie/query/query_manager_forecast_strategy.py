@@ -82,8 +82,7 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
     def set_cache(self, hist_strategy=None, fcast_id=None, proj_gl_entries=None):
         self.hist_strategy = hist_strategy
         self.forecast = Forecast.objects.get(id=fcast_id)
-        #self.projections = parse_cache(proj_gl_entries)
-        
+        self.cached_projections = self.forecast.get_projections()
         self.calc_balances()
         self.shifts = None
         self.balances = None
@@ -96,7 +95,7 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
         # 2) create cumulative changes as of each month end
 
         # changes per period come direct from the projections
-        entries = pd.DataFrame(self.forecast.projections)
+        entries = pd.DataFrame(self.cached_projections)
         drop_cols = ['Counterparty', 'Company', 'Credit', 'Debit']
         credits = entries.copy()
         credits['account'] = credits['Credit']
@@ -108,8 +107,6 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
             credits[col] = credits[col] * -1
         self.shifts = pd.concat([credits, debits]).groupby('account').sum().fillna(0)
 
-        
-        
         balances_columns = dict((utils.end_of_period(col), col) for col in self.shifts.columns)
         sorted_months = sorted(balances_columns.keys())
 
@@ -121,12 +118,12 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
             balances[label] = self.shifts[shifts_cols].sum(axis=1)
 
         self.balances = pd.DataFrame(balances)
-        
+
         return None
 
 
     def get_gl_entries(self, company_id, account_ids, from_date=INCEPTION, to_date=FOREVER):
-        return self.projections
+        return self.cached_projections
 
     def proj_account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
         """

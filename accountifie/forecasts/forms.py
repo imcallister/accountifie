@@ -37,8 +37,7 @@ class ForecastBetterForm(BootstrapMixin, Html5Mixin, BetterModelForm):
             Fieldset('', (
                 Fieldset('', (
                 ('label',),
-                ('start_date',), 
-                ('color_code',),
+                ('start_date',),
                 ('comment',),
             )),
             )),
@@ -50,8 +49,6 @@ class ForecastBetterForm(BootstrapMixin, Html5Mixin, BetterModelForm):
         model = instance.__class__
         num = model.objects.count()
 
-        
-        self.fields['color_code'].initial = random_color() 
 
 """
 class ForecastBaseForm(BootstrapMixin, Html5ModelForm):

@@ -142,7 +142,7 @@ def gl_projections(request):
 
     context = {'cols': zip(['Debit','Credit','Counterparty','Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
 
-    context['data_url'] = '/api/forecasts/projections/%s/' % fcast_id
+    context['data_url'] = '/api/forecasts/projections/%s?raw=true' % fcast_id
 
     return render_to_response('forecasts/bstrap_report.html', context, 
           context_instance = RequestContext(request)
@@ -161,7 +161,7 @@ def report_prep(request, id, version=None, strategy=None):
     company_id = request.GET.get('company', utils.get_company(request))
     path = request.GET.get('path', None)
     report = accountifie.reporting.rptutils.get_report(id, company_id, version=version)
-    
+
     if (company_id not in report.works_for):
         msg = "This ain't it. Report not available for %s" % report.company_name
         return render_to_response('404.html', RequestContext(request, {'message': msg})), False
