@@ -33,17 +33,7 @@ from accountifie.common.table import get_table
 from accountifie.toolkit.forms import LabelledFileForm
 
 
-
 logger = logging.getLogger('default')
-
-
-def api(request, api_view):
-    return globals()[api_view](request)
-
-
-@login_required
-def forecasts_list(request):
-    return HttpResponse(json.dumps(accountifie.forecasts.api.forecasts_list(), cls=DjangoJSONEncoder), content_type="application/json")
 
 
 @login_required
@@ -53,15 +43,6 @@ def forecast_index(request):
     context['content'] = get_table('forecasts')()
     return render_to_response('forecasts/base_forecasts.html', context, context_instance=RequestContext(request))
 
-
-"""
-class ForecastCreate(CreateView):
-
-    model = Forecast
-    form_class = ForecastBetterForm
-    template_name = 'forecasts/forecast_form.html'
-    success_url = reverse_lazy('forecasts_index')
-"""
 
 class ForecastDelete(DeleteView):
 
@@ -129,7 +110,7 @@ def gl_projections(request):
     fcast_id = request.GET.get('fcast_id')
     fcast = Forecast.objects.get(id=fcast_id)
 
-    cols = [x for x in fcast.projections[0].keys() if x not in ['Debit','Credit','Counterparty','Company']]
+    cols = [x for x in fcast.hardcode_projections[0].keys() if x not in ['Debit','Credit','Counterparty','Company']]
 
     def idxer(label):
         lbls = label.split('M')

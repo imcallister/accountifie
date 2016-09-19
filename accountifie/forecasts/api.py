@@ -11,12 +11,6 @@ def get_record_data(record, flds):
     return data
 
 
-def forecasts_list():
-    records = Forecast.objects.all()
-    flds = ['id_link', 'label', 'start_date', 'comment']
-    return [get_record_data(rec, flds) for rec in records]
-
-
-def projections(fcast_id):
+def __projections(fcast_id):
     data = Forecast.objects.get(id=fcast_id).projections
     return data

@@ -73,7 +73,7 @@ class Forecast(models.Model):
     def get_gl_entries(self):
         proj_df = pd.DataFrame(self.get_projections())
 
-        trans_series = proj_df.groupby(['Debit','Credit','Counterparty']).sum().stack()
+        trans_series = proj_df.groupby(['Debit', 'Credit', 'Counterparty']).sum().stack() 
         trans_df = pd.DataFrame({'amount': trans_series}).reset_index()
         trans_df['date'] = trans_df['level_3'].map(parse_date)
         trans_df['dateEnd'] = trans_df['date']

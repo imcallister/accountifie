@@ -38,8 +38,9 @@ def glsnapshots(request):
 
 def glsnapshots_balances(request, snap_id):
     snapshot = models.GLSnapshot.objects.get(id=snap_id)
-    snapshot_time = snapshot.snapped_at.isoformat()
+    snapshot_time = snapshot.snapped_at.strftime('%Y-%m-%dT%H:%M:%S.0000ZZ')
     logger.info('in glsnapshots_balances with snapshot_time %s' % snapshot_time)
+
     strategy = QueryManagerStrategyFactory().get('snapshot')
     strategy.set_cache(snapshot_time)
 

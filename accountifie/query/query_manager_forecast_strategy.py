@@ -4,26 +4,18 @@ Strategy that performs transaction querying from in memory snapshots.
 See query_manager_strategy.py for interface docs.
 Use query_manager_strategy_factory.py to get an instance of this class.
 """
-import json
-import os
-import urllib2
 import itertools
-from collections import Counter
 from functools import partial
 
 import dateutil.parser
 import pandas as pd
 import datetime
 
-from django.conf import settings
-
 import accountifie.toolkit.utils as utils
-
 from query_manager_strategy import QueryManagerStrategy
 import query_manager
 from accountifie.common.api import api_func
 from accountifie.forecasts.models import Forecast
-from accountifie.cal import is_period_id
 
 import logging
 
@@ -60,22 +52,8 @@ def parse_cache(data, company_id='INC'):
     else:
         cache['company'] = company_id
 
-    return cache   
+    return cache
 
-
-"""
-# new setup
-self.cut_off
-self.hist_strategy    dflts to remote
-self.forecast
-
-
-all balances as sum of:
- -- hist_strategy (via query_manager.QueryManager(gl_strategy=hist_strategy))
- -- balances from self.forecast.projections
-
-
-"""
 
 class QueryManagerForecastStrategy(QueryManagerStrategy):
     
@@ -86,7 +64,6 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
         self.calc_balances()
         self.shifts = None
         self.balances = None
-
 
     def calc_balances(self):
 
@@ -120,7 +97,6 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
         self.balances = pd.DataFrame(balances)
 
         return None
-
 
     def get_gl_entries(self, company_id, account_ids, from_date=INCEPTION, to_date=FOREVER):
         return self.cached_projections
