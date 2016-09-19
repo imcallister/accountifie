@@ -1,6 +1,15 @@
 
-from .models import ProjModelv1Param
+from .models import ProjModelv1Param, Forecast
 from rest_framework import serializers
+
+
+class ForecastSerializer(serializers.ModelSerializer):
+    #id_link = serializers.Field()
+
+    class Meta:
+        model = Forecast
+        fields = ('id_link', 'label', 'start_date', 'comment')
+
 
 
 class ProjModelv1ParamSerializer(serializers.ModelSerializer):

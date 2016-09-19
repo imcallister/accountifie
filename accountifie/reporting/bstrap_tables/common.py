@@ -14,6 +14,16 @@ def daily_activity(dt):
     return get_bstrap_table(data_url, row_defs)
 
 
+def metrics(label):
+    data_url = "/api/reporting/metric/?label=%s" % label
+    row_defs = [{'data_field': 'metric', 'value': 'Metric', 'formatter': 'nameFormatter'},
+                {'data_field': 'label', 'value': 'Label', 'formatter': 'nameFormatter'},
+                {'data_field': 'date', 'value': 'Date', 'formatter': 'dateFormatter'},
+                {'data_field': 'balance', 'value': 'Value', 'formatter': 'nameFormatter'},
+            ]
+    return get_bstrap_table(data_url, row_defs)
+
+
 def balance_trends(dt, acct_list=None, accts_path=None, company_id='EFIE'):
     if acct_list:
         data_url = "/reporting/api/balance_trends/?date=%s&acct_list=%s&company_id=%s" %( dt, '.'.join(acct_list), company_id)
