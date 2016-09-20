@@ -75,11 +75,12 @@ class Forecast(models.Model):
         projs = self.get_projections()
         if len(projs) == 0:
             return []
-        
+
         proj_df = pd.DataFrame(projs)
+        del proj_df['Company']
+
         trans_series = proj_df.groupby(['Debit', 'Credit', 'Counterparty']).sum().stack() 
         trans_df = pd.DataFrame({'amount': trans_series}).reset_index()
-        
         trans_df['date'] = trans_df['level_3'].map(parse_date)
         trans_df['dateEnd'] = trans_df['date']
         trans_df['id'] = trans_df.index.map(lambda x: 'fcast_1_%s' %x)
