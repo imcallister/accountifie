@@ -5,6 +5,7 @@ import json
 import operator
 import csv
 import os
+import io
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -87,7 +88,7 @@ def upload_gl(request):
     if request.method != "POST":
         forecast_obj = Forecast.objects.get(id=request.GET.get('forecast'))
         context = {'file_category': 'GL Projections'}
-        context['file_type'] = '.json'
+        context['file_type'] = '.csv'
         context['obj_label'] = forecast_obj.label
         form = FileForm()
         context['form'] = form
@@ -96,11 +97,11 @@ def upload_gl(request):
     else:
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
-            upload = request.FILES.values()[0]
-            file_name = upload._name
-            data = json.loads(upload.file.read())
+            upload = io.StringIO(unicode(request.FILES.values()[0].read()), newline=None)
+            
+            data = [row for row in csv.DictReader(upload)]
             forecast_obj = Forecast.objects.get(id=request.GET.get('forecast'))
-            forecast_obj.projections = data
+            forecast_obj.hardcode_projections = data
             forecast_obj.save()
             return HttpResponseRedirect('/forecasts/forecast/%s' % forecast_obj.id)
         
