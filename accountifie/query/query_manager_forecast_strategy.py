@@ -80,14 +80,16 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
         drop_cols = ['Counterparty', 'Company', 'Credit', 'Debit']
         credits = entries.copy()
         credits['account'] = credits['Credit']
+
         credits = credits[[c for c in credits.columns if c not in drop_cols]]
+        credits = credits.astype(float)
         debits = entries.copy()
         debits['account'] = debits['Debit']
         debits = debits[[c for c in debits.columns if c not in drop_cols]]
+
         for col in [c for c in credits.columns if c!='account']:
             credits[col] = credits[col] * -1
         self.shifts = pd.concat([credits, debits]).groupby('account').sum().fillna(0)
-
         balances_columns = dict((utils.end_of_period(col), col) for col in self.shifts.columns)
         sorted_months = sorted(balances_columns.keys())
 
@@ -127,10 +129,7 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
 
     def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
-        import time
-
         self.calc_balances()
-        now = time.time()
         date_indexed_account_balances = {}
 
         # cutoff should be last day of month eg 2016-3-31
@@ -138,17 +137,17 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
         hist_dates = dict((d, dates[d]) for d in dates if dates[d]['end'] <= self.forecast.start_date)
         proj_dates = dict((d, dates[d]) for d in dates if dates[d]['end'] > self.forecast.start_date)
-        
+
         hist_qm = query_manager.QueryManager(gl_strategy=self.hist_strategy)
         hist_balances = hist_qm.pd_acct_balances(company_id, hist_dates, acct_list=account_ids, excl_contra=excl_contra, excl_interco=excl_interco, with_tags=with_tags, excl_tags=excl_tags)
-        
+
         proj_start_dates = {'cutoff': {'start': INCEPTION, 'end': self.forecast.start_date }}
         proj_start_balances = hist_qm.pd_acct_balances(company_id, proj_start_dates, acct_list=account_ids, excl_contra=excl_contra, excl_interco=excl_interco, with_tags=with_tags, excl_tags=excl_tags)
 
         for dt in proj_dates:
             if utils.is_period_id(dt):
-                if self.shifts and dt in self.shifts.columns:
-                    balances = self.shifts[dt].to_dict()
+                if self.shifts is not None and dt in self.shifts.columns:
+                    balances = self.shifts[dt].fillna(0).to_dict()
                 else:
                     balances = {}
             else:
@@ -160,12 +159,11 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
                     balances = proj_df.sum(axis=1).to_dict()
                 else:
                     balances = {}
-
             date_indexed_account_balances[dt] = dict((balance, float(balances.get(balance,0))) for balance in balances if balance in account_ids)
-        
+
         for dt in hist_dates:
             date_indexed_account_balances[dt] = hist_balances[dt].fillna(0).to_dict()
-        
+
         return date_indexed_account_balances
 
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
@@ -178,7 +176,6 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
             excl_interco = True
 
         entries = self.get_gl_entries(company_id, account_ids)
-        
         if entries is None or entries.empty:
             return None
 
