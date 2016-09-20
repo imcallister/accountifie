@@ -2,6 +2,7 @@ import logging
 from urlparse import urlparse
 import datetime
 import pandas as pd
+from decimal import Decimal
 
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -75,6 +76,7 @@ class Forecast(models.Model):
 
         trans_series = proj_df.groupby(['Debit', 'Credit', 'Counterparty']).sum().stack() 
         trans_df = pd.DataFrame({'amount': trans_series}).reset_index()
+        
         trans_df['date'] = trans_df['level_3'].map(parse_date)
         trans_df['dateEnd'] = trans_df['date']
         trans_df['id'] = trans_df.index.map(lambda x: 'fcast_1_%s' %x)
@@ -131,8 +133,8 @@ def parse_date(label):
     return datetime.date(yr,mth,1).isoformat()
 
 def get_lines(trans):
-    debit = {'accountId': trans['Debit'], 'counterpartyId': trans['Counterparty'], 'amount': trans['amount']}
-    credit = {'accountId': trans['Credit'], 'counterpartyId': trans['Counterparty'], 'amount': -trans['amount']}
+    debit = {'accountId': trans['Debit'], 'counterpartyId': trans['Counterparty'], 'amount': Decimal(trans['amount'])}
+    credit = {'accountId': trans['Credit'], 'counterpartyId': trans['Counterparty'], 'amount': -Decimal(trans['amount'])}
     return [debit, credit]
 
 
