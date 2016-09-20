@@ -17,7 +17,7 @@ logger = logging.getLogger("default")
 def _get_model_call(url):
     purl = urlparse(url)
     path = [x for x in purl.path.split('/') if x!='']
-    if path[0] != 'api':
+    if url == '' or path[0] != 'api':
         return 'BAD_PATH_URL', ''
 
     _qs = purl.query
@@ -72,8 +72,11 @@ class Forecast(models.Model):
         return projs
 
     def get_gl_entries(self):
-        proj_df = pd.DataFrame(self.get_projections())
-
+        projs = self.get_projections()
+        if len(projs) == 0:
+            return []
+        
+        proj_df = pd.DataFrame(projs)
         trans_series = proj_df.groupby(['Debit', 'Credit', 'Counterparty']).sum().stack() 
         trans_df = pd.DataFrame({'amount': trans_series}).reset_index()
         

@@ -73,6 +73,10 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
         # changes per period come direct from the projections
         entries = pd.DataFrame(self.cached_projections)
+        if entries.empty:
+            self.balances = None
+            return
+
         drop_cols = ['Counterparty', 'Company', 'Credit', 'Debit']
         credits = entries.copy()
         credits['account'] = credits['Credit']
@@ -140,13 +144,10 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
         
         proj_start_dates = {'cutoff': {'start': INCEPTION, 'end': self.forecast.start_date }}
         proj_start_balances = hist_qm.pd_acct_balances(company_id, proj_start_dates, acct_list=account_ids, excl_contra=excl_contra, excl_interco=excl_interco, with_tags=with_tags, excl_tags=excl_tags)
-        
-        # should do some validation... only want end of month dates after cutoff
-        #proj_dates = dict((dt, dates[dt]) for dt in [dt for dt in dates if dates[dt]['start'] > self.forecast.start_date])
-        
+
         for dt in proj_dates:
             if utils.is_period_id(dt):
-                if dt in self.shifts.columns:
+                if self.shifts and dt in self.shifts.columns:
                     balances = self.shifts[dt].to_dict()
                 else:
                     balances = {}

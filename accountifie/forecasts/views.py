@@ -111,24 +111,27 @@ def gl_projections(request):
     fcast_id = request.GET.get('fcast_id')
     fcast = Forecast.objects.get(id=fcast_id)
 
-    cols = [x for x in fcast.hardcode_projections[0].keys() if x not in ['Debit','Credit','Counterparty','Company']]
+    hcode_projs = fcast.hardcode_projections
+    if len(hcode_projs) > 0:
+        cols = [x for x in fcast.hardcode_projections[0].keys() if x not in ['Debit','Credit','Counterparty','Company']]
+        def idxer(label):
+            lbls = label.split('M')
+            yr = int(lbls[0])
+            mth = int(lbls[1])
+            return 2015 * yr + mth
 
-    def idxer(label):
-        lbls = label.split('M')
-        yr = int(lbls[0])
-        mth = int(lbls[1])
-        return 2015 * yr + mth
+        col_indexer = dict((x, idxer(x)) for x in cols)
+        col_order = [x[0] for x in sorted(col_indexer.items(), key=operator.itemgetter(1))]
 
-    col_indexer = dict((x, idxer(x)) for x in cols)
-    col_order = [x[0] for x in sorted(col_indexer.items(), key=operator.itemgetter(1))]
+        context = {'cols': zip(['Debit', 'Credit', 'Counterparty', 'Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
 
-    context = {'cols': zip(['Debit','Credit','Counterparty','Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
-
-    context['data_url'] = '/api/forecasts/projections/%s?raw=true' % fcast_id
+        context['data_url'] = '/api/forecasts/projections/%s?raw=true' % fcast_id
+    else:
+        context = {}
 
     return render_to_response('forecasts/bstrap_report.html', context, 
-          context_instance = RequestContext(request)
-          )
+                              context_instance=RequestContext(request)
+                              )
 
 def get_gl_projections(request, fcast_id):
     data = accountifie.forecasts.api.projections(fcast_id)
@@ -278,7 +281,6 @@ def forecast_run(request):
 
 @login_required
 def forecast_detail(request, id):
-	
     try:
         forecast = Forecast.objects.get(id=id)
     except Forecast.DoesNotExist:

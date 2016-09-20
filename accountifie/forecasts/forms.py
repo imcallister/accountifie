@@ -19,6 +19,7 @@ class ForecastForm(BootstrapMixin, JEditableMixin, Html5Mixin, BetterModelForm):
             Fieldset('', (
                 ('label',),
                 ('start_date',),
+                ('model',),
                 ('comment',),
             )),
         )
