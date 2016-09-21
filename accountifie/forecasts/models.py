@@ -62,9 +62,22 @@ class Forecast(models.Model):
 
 
     def get_projections(self):
-        hardcoded_projs = self.hardcode_projections
+        def _clean_field(k, v):
+            if k not in ['Debit', 'Credit', 'Counterparty', 'Company']:
+                return float(v)
+            else:
+                return v
+
+        def _clean_proj(p):
+            return dict((k, _clean_field(k, v)) for k, v in p.iteritems())
+
+        hardcoded_projs = [_clean_proj(p) for p in self.hardcode_projections]
         calcd_projs = _get_calcs(self.model)
+        if calcd_projs is None or calcd_projs == []:
+            logger.info('Projections calc failed')
+
         projs = []
+
         if hardcoded_projs:
             projs += hardcoded_projs
         if calcd_projs:
@@ -78,7 +91,6 @@ class Forecast(models.Model):
 
         proj_df = pd.DataFrame(projs)
         del proj_df['Company']
-
         trans_series = proj_df.groupby(['Debit', 'Credit', 'Counterparty']).sum().stack() 
         trans_df = pd.DataFrame({'amount': trans_series}).reset_index()
         trans_df['date'] = trans_df['level_3'].map(parse_date)

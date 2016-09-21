@@ -56,7 +56,6 @@ def parse_cache(data, company_id='INC'):
 
 
 class QueryManagerForecastStrategy(QueryManagerStrategy):
-    
     def set_cache(self, hist_strategy=None, fcast_id=None, proj_gl_entries=None):
         self.hist_strategy = hist_strategy
         self.forecast = Forecast.objects.get(id=fcast_id)
@@ -66,7 +65,6 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
         self.balances = None
 
     def calc_balances(self):
-
         # limited task is to 
         # 1) create changes per period... columns = 2016M01, 2016M02 etc
         # 2) create cumulative changes as of each month end
@@ -82,13 +80,13 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
         credits['account'] = credits['Credit']
 
         credits = credits[[c for c in credits.columns if c not in drop_cols]]
-        credits = credits.astype(float)
         debits = entries.copy()
         debits['account'] = debits['Debit']
         debits = debits[[c for c in debits.columns if c not in drop_cols]]
 
         for col in [c for c in credits.columns if c!='account']:
             credits[col] = credits[col] * -1
+
         self.shifts = pd.concat([credits, debits]).groupby('account').sum().fillna(0)
         balances_columns = dict((utils.end_of_period(col), col) for col in self.shifts.columns)
         sorted_months = sorted(balances_columns.keys())
@@ -104,29 +102,6 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
         return None
 
-    def get_gl_entries(self, company_id, account_ids, from_date=INCEPTION, to_date=FOREVER):
-        return self.cached_projections
-
-    def proj_account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
-        """
-
-        """
-        date_indexed_account_balances = {}
-        entries = self.__pd_balances_prep(company_id, account_ids, excl_interco=excl_interco, excl_contra=excl_contra, with_counterparties=with_counterparties)
-        if entries is None:
-            return {dt: { account: 0.0 for account in account_ids } for dt in dates}
-
-        for dt in dates:
-            start = dates[dt]['start']
-            end = dates[dt]['end']
-
-            sub_entries = self.__depreciation_calcs(start, end, entries)
-
-            col = sub_entries[['account_id', 'amount']].groupby('account_id').sum()['amount']
-            date_indexed_account_balances[dt] = col.to_dict()
-
-        return date_indexed_account_balances
-
 
     def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
         self.calc_balances()
@@ -134,7 +109,6 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
         # cutoff should be last day of month eg 2016-3-31
         # get balances for the cutoff date
-
         hist_dates = dict((d, dates[d]) for d in dates if dates[d]['end'] <= self.forecast.start_date)
         proj_dates = dict((d, dates[d]) for d in dates if dates[d]['end'] > self.forecast.start_date)
 
@@ -169,6 +143,40 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
         msg = "Transactions view not implemented for forecast strategies"
         return render_to_response('404.html', RequestContext(request, {'message': msg})), False
+
+
+
+
+
+
+
+
+
+    def proj_account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
+        """
+
+        """
+        date_indexed_account_balances = {}
+        entries = self.__pd_balances_prep(company_id, account_ids, excl_interco=excl_interco, excl_contra=excl_contra, with_counterparties=with_counterparties)
+        if entries is None:
+            return {dt: { account: 0.0 for account in account_ids } for dt in dates}
+
+        for dt in dates:
+            start = dates[dt]['start']
+            end = dates[dt]['end']
+
+            sub_entries = self.__depreciation_calcs(start, end, entries)
+
+            col = sub_entries[['account_id', 'amount']].groupby('account_id').sum()['amount']
+            date_indexed_account_balances[dt] = col.to_dict()
+
+        return date_indexed_account_balances
+
+
+
+
+    def get_gl_entries(self, company_id, account_ids, from_date=INCEPTION, to_date=FOREVER):
+        return self.cached_projections
 
 
     def __pd_balances_prep(self, company_id, account_ids, excl_contra=None, excl_interco=False, with_counterparties=None):
