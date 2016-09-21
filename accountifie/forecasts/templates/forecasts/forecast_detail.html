@@ -24,67 +24,11 @@
 <li class="active">{{ f.name }}</li>
 {% endblock %}
 
-{% block sidebar %}
-<!--
-<form class="form" method="post" action="{% url 'run_forecast' %}" name="run_forecast">
-	{% csrf_token %}
-	<input type="hidden" name="forecast" value="{{f.id}}">
-	<button type="submit" class="btn btn-info">Run Forecast</button>
-</form>
-</br>
-
-<form class="form" method="post" action="{% url 'run_forecast' %}" name="run_forecast">
-	{% csrf_token %}
-	<input type="hidden" name="forecast" value="{{f.id}}">
-	<button type="submit" class="btn btn-info">Add Assumptions</button>
-</form>
-</br>
--->
-<form class="form" method="get" action="{% url 'upload_gl' %}">
-	{% csrf_token %}
-	<input type="hidden" name="forecast" value="{{f.id}}">
-	<button type="submit" class="btn btn-info">Load GL Projections</button>
-</form>
-
-</br>
-
-<form class="form" method="get" action="{% url 'fcast_projections' %}">
-	{% csrf_token %}
-	<input type="hidden" name="fcast_id" value="{{f.id}}">
-	<button type="submit" class="btn btn-info">View GL Projections</button>
-</form>
-
-</br>
-</br>
-
-<h3>Get 5 year projections from start of 2015</h3>
-
-<a href="/forecasts/reports/{{f.id}}/IncBalanceSheet/?col_tag=5yr_2014-12-31" class="btn btn-success">Balance Sheet</a>
-</br>
-</br>
-
-<a href="/forecasts/reports/{{f.id}}/IncomeStatement/?col_tag=5yr_2015-1-1" class="btn btn-success">Income Statement</a>
-</br>
-</br>
-
-<a href="/forecasts/reports/{{f.id}}/Cashflow/?col_tag=5yr_2015-1-1" class="btn btn-success">Cashflow Statement</a>
-</br>
-
-
-
-
-{{block.super}}
-
-
-{% endblock %}
-
-
 {% block content %}
 	
-	<div class="row">
-    <div class="col-md-6">
+<div class="row">
+    <div class="col-md-8">
 		<h2>{{ f.id }} - {{ f.label }}</h2>
-
 		{% if form.non_field_errors %}
 		<ul class="errors">
 		    {% for error in form.non_field_errors %}
@@ -95,16 +39,67 @@
 		<form role="form" class="form-horizontal">
 			{{ form.as_div }}
 		</form>
-		<a href="{% url 'forecast_delete' pk=f.id %}" class="btn btn-danger">Delete</a>
 	</div>
+
 	<div class="col-md-4">
-	
+
+		<h3>Get Historical/Projected Financials for 2015--2016</h3>
+
+			<a href="/forecasts/reports/{{f.id}}/IncBalanceSheet/?col_tag=6yr_2014-12-31" class="btn btn-success">Balance Sheet</a>
+			</br>
+			</br>
+
+			<a href="/forecasts/reports/{{f.id}}/IncomeStatement/?col_tag=6yr_2015-1-1" class="btn btn-success">Income Statement</a>
+			</br>
+			</br>
+
+			<a href="/forecasts/reports/{{f.id}}/Cashflow/?col_tag=6yr_2015-1-1" class="btn btn-success">Cashflow Statement</a>
+			</br>
 	</div>
+
+
+
+	
 </div>
 
 	
 
 {% endblock %}
+
+
+{% block sidebar %}
+
+<form class="form" method="get" action="{% url 'upload_gl' %}">
+	{% csrf_token %}
+	<input type="hidden" name="forecast" value="{{f.id}}">
+	<button type="submit" class="btn btn-info">Load Hard-Coded Projections</button>
+</form>
+
+</br>
+
+<form class="form" method="get" action="{% url 'hardcode_projections' %}">
+	{% csrf_token %}
+	<input type="hidden" name="fcast_id" value="{{f.id}}">
+	<button type="submit" class="btn btn-info">View Hard-Coded Projections</button>
+</form>
+
+
+</br>
+<form class="form" method="get" action="{% url 'full_projections' %}">
+	{% csrf_token %}
+	<input type="hidden" name="fcast_id" value="{{f.id}}">
+	<button type="submit" class="btn btn-info">Download Full Projections</button>
+</form>
+
+</br>
+
+
+{{block.super}}
+
+
+{% endblock %}
+
+
 
 {% block extrajs %}
 	{{ form.media.js }}

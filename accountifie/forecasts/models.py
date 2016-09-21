@@ -91,44 +91,6 @@ class Forecast(models.Model):
         return gl_entries
 
 
-class ProjectionModel(models.Model):
-    name = models.CharField(max_length=30)
-    description = models.TextField()
-    as_of = models.DateTimeField()
-
-    def __str__(self):
-        return self.name
-
-FREQ_CHOICES = (('MONTHLY', 'Monthly'),
-                ('QUARTERLY', 'Quarterly'),
-                ('ANNUAL', 'Annual'),
-                ('ONE-OFF', 'One-off')
-                )
-
-
-WINDOW_CHOICES = (('M1', 'Previous Month'),
-                  ('M3', 'Rolling 3-month'),
-                  ('M12', 'Rolling 12-month'),
-                  ('A1', '12 Month Lag')
-                  )
-
-SCALING_CHOICES = (('PROP', 'Proportional'),
-                   )
-
-
-class ProjModelv1Param(models.Model):
-    proj_model = models.ForeignKey(ProjectionModel)
-    label = models.CharField(max_length=20)
-    account = models.ForeignKey('gl.Account', related_name='param_account')
-    contra = models.ForeignKey('gl.Account', related_name='param_contra')
-    counterparty = models.ForeignKey('gl.Counterparty')
-    frequency = models.CharField(max_length=20, choices=FREQ_CHOICES)
-    window = models.CharField(max_length=20, choices=WINDOW_CHOICES)
-    metric = models.ForeignKey('reporting.Metric')
-    scaling = models.CharField(max_length=20, choices=SCALING_CHOICES)
-
-
-
 # utility functions for creating GL entries for Forecast
 def parse_date(label):
     lbls = label.split('M')

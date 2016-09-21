@@ -11,15 +11,4 @@ class ForecastAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, post_url_continue=None):
         return HttpResponseRedirect(reverse('forecasts_index'))
 
-
-class ProjectionModelAdmin(admin.ModelAdmin):
-    list_display = ('name', 'as_of')
-
-
-class ProjModelv1ParamAdmin(admin.ModelAdmin):
-    list_display = ('account', 'counterparty', 'frequency',
-                    'window', 'metric', 'scaling')
-
 admin.site.register(Forecast, ForecastAdmin)
-admin.site.register(ProjectionModel, ProjectionModelAdmin)
-admin.site.register(ProjModelv1Param, ProjModelv1ParamAdmin)
