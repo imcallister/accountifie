@@ -20,6 +20,6 @@ def forecast(label,qstring):
     return ForecastSerializer(qs).data
 
 
-def projections(fcast_id, qstring):
+def hardcode_projections(fcast_id, qstring):
     data = Forecast.objects.get(id=fcast_id).hardcode_projections
     return data

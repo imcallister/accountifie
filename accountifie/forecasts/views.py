@@ -18,20 +18,17 @@ from django.utils.html import mark_safe
 from django.views.generic.edit import CreateView, DeleteView
 from django.conf import settings
 
-from forms import FileForm
-
 from accountifie.tasks.utils import task
 
 from .models import Forecast
-from .forms import ForecastBetterForm, ForecastForm
-from .importers import modelparams_upload
+from .forms import ForecastForm
 import accountifie.forecasts.api
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 import accountifie.toolkit.utils as utils
 import accountifie.reporting.rptutils
 from accountifie.common.table import get_table
-from accountifie.toolkit.forms import LabelledFileForm
+from accountifie.toolkit.forms import LabelledFileForm, FileForm
 
 
 logger = logging.getLogger('default')
@@ -42,21 +39,7 @@ def forecast_index(request):
     context = {}
     context['title'] = 'Forecasts'
     context['content'] = get_table('forecasts')()
-    return render_to_response('forecasts/base_forecasts.html', context, context_instance=RequestContext(request))
-
-
-class ForecastDelete(DeleteView):
-
-    model = Forecast
-    success_url = reverse_lazy('forecasts_index')
-
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        success_url = self.get_success_url()
-        self.object.delete()
-        messages.info(request, 'Successfully deleted forecast %s' % \
-                      self.object.id)
-        return HttpResponseRedirect(success_url)
+    return render_to_response('forecasts/forecast_list.html', context, context_instance=RequestContext(request))
 
 
 @login_required
@@ -65,22 +48,6 @@ def forecasts_reports(request):
     context = {}
     context['fcasts'] = fcast_choices
     return render_to_response('forecasts/forecast_reports.html', context, RequestContext(request))
-
-
-@login_required
-def upload_file(request, file_type, check=False):
-
-    if request.method == 'POST':
-        if file_type == 'model_params':
-            return modelparams_upload(request)
-        else:
-            raise ValueError("Unexpected file type; know about model_params")
-    else:
-        form = LabelledFileForm()
-        context = {'form': form, 'file_type': file_type}
-        return render_to_response('common/upload_csv.html',
-                                  context,
-                                  context_instance=RequestContext(request))
 
 
 @login_required
@@ -98,13 +65,11 @@ def upload_gl(request):
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             upload = io.StringIO(unicode(request.FILES.values()[0].read()), newline=None)
-            
             data = [row for row in csv.DictReader(upload)]
             forecast_obj = Forecast.objects.get(id=request.GET.get('forecast'))
             forecast_obj.hardcode_projections = data
             forecast_obj.save()
             return HttpResponseRedirect('/forecasts/forecast/%s' % forecast_obj.id)
-        
 
 @login_required
 def gl_projections(request):
@@ -125,7 +90,7 @@ def gl_projections(request):
 
         context = {'cols': zip(['Debit', 'Credit', 'Counterparty', 'Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
 
-        context['data_url'] = '/api/forecasts/projections/%s?raw=true' % fcast_id
+        context['data_url'] = '/api/forecasts/hardcode_projections/%s?raw=true' % fcast_id
     else:
         context = {}
 
@@ -134,7 +99,7 @@ def gl_projections(request):
                               )
 
 def get_gl_projections(request, fcast_id):
-    data = accountifie.forecasts.api.projections(fcast_id)
+    data = accountifie.forecasts.api.hardcode_projections(fcast_id)
     return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type="application/json")
 
 def report_prep(request, id, version=None, strategy=None):
