@@ -7,11 +7,11 @@
 {% for log in logs.object_list %}
     {% if forloop.first%}
     <tr>
-        <th>LVL</th><th>time</th><th>request</th><th>message</th><th>traceback</th>
+        <th>LVL</th><th>time</th><th>message</th><th>traceback</th>
     </tr>
     {% endif %}
     <tr>
-        <td>{{log.level}}</td><td>{{log.time|date:"SHORT_DATETIME_FORMAT" }}</td><td>{{log.request}}</td><td>{{log.message}}</td><td>{{log.traceback}}</td>
+        <td>{{log.level}}</td><td>{{log.time|date:"d/m/y H:i:s" }}</td><td>{{log.message}}</td><td>{{log.traceback}}</td>
     </tr>
 {% endfor %}
 </table>
