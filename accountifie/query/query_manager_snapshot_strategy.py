@@ -6,7 +6,7 @@ See query_manager_strategy.py for interface docs.
 Use query_manager_strategy_factory.py to get an instance of this class.
 """
 
-import pandas as pd
+import time
 import json
 import urllib
 import urllib2
@@ -36,7 +36,6 @@ class QueryManagerSnapshotStrategy(QueryManagerStrategy):
             balances = [self.account_balances_for_dates(cmpny, account_ids, dates, with_counterparties, True, excl_contra, with_tags, excl_tags) for cmpny in company_list]
             return self.__merge_account_balances_for_dates_results(balances)
 
-        
         client = accountifieSvcSnapshotClient(self.snapshot_time, company_id=company_id)
         date_indexed_account_balances = {}
 
@@ -176,27 +175,26 @@ class accountifieSvcSnapshotClient(object):
         self.url_base = "%s/gl/%s/snapshot" % (self.__accountifie_svc_url(), company_id)
         self.snapshot_time = snapshot_time
 
-        
     def __get(self, path, params=None):
         if params:
             params.update({'snapshotDate': self.snapshot_time})
         else:
             params = {'snapshotDate': self.snapshot_time}
-        
+
         params = urllib.urlencode(params)
         url = '%s%s?%s' % (self.url_base, path, params)
 
-        logger.info('Calling snapshot with url %s', url)
-        
+        start_time = time.time()
         request = urllib2.Request(url)
         response = urllib2.urlopen(request)
         json_result = json.load(response)
+
+        logger.info('Ran snapshots. %d seconds. URL=%s' % (time.time() - start_time, url))
 
         return json_result
 
     def balances(self, accounts, from_date=None, to_date=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None, with_tags=None, excluding_tags=None):
         from_date = None if from_date == '2000-01-01' else from_date
-        logger.info('snapshot balances from:%s to:%s' % (str(from_date), str(to_date)))
         account_balances = self.__get('/balances', {
             'accounts': ','.join(accounts),
             'from': from_date,

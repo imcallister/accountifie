@@ -232,14 +232,13 @@ class accountifieSvcClient(object):
             url = '%s%s' % (self.url_base, path)
 
         start_time = time.time()
-
         request = urllib2.Request(url)
         response = urllib2.urlopen(request)
         json_result = json.load(response)
 
         resp_time = time.time() - start_time
         if resp_time > 2:
-            logger.info('Long response time. %s. Took %.2f seconds' % (url, resp_time))
+            logger.info('Accountifie-svc. Long response time. %.2f seconds. URL=%s' % (resp_time, url))
 
         return json_result
 
