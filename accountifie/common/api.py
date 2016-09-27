@@ -66,7 +66,6 @@ def get_resource(request, group, resource):
     qs = dict((k,v) for k,v in request.GET.iteritems())
     raw = (qs.get('raw') == 'true')
     as_csv = (qs.get('as_csv') == 'true')
-
     if raw:
         return HttpResponse(json.dumps(resource_func(group, resource, qstring=qs), cls=DjangoJSONEncoder), content_type="application/json")
     elif as_csv:
@@ -102,8 +101,12 @@ def output_as_csv(data, label='output'):
 def get_item(request, group, resource, item):
     qs = request.GET.copy()
     raw = (qs.get('raw') == 'true')
+    as_csv = (qs.get('as_csv') == 'true')
     if raw:
         return HttpResponse(json.dumps(item_func(group, resource, item, qstring=qs), cls=DjangoJSONEncoder), content_type="application/json")
+    elif as_csv:
+        data = item_func(group, resource, item, qstring=qs)
+        return output_as_csv(list(data), label='%s:%s' % (resource, item))
     else:
         context = {}
         context['data'] = json.dumps(item_func(group, resource, item, qstring=qs), cls=DjangoJSONEncoder, indent=2)

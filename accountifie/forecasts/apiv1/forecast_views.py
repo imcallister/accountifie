@@ -21,5 +21,8 @@ def forecast(label,qstring):
 
 
 def hardcode_projections(fcast_id, qstring):
-    data = Forecast.objects.get(id=fcast_id).hardcode_projections
-    return data
+    return Forecast.objects.get(id=fcast_id).hardcode_projections
+
+
+def all_projections(fcast_id, qstring):
+    return Forecast.objects.get(id=fcast_id).get_projections()

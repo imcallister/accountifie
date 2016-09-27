@@ -22,7 +22,7 @@ from accountifie.tasks.utils import task
 
 from .models import Forecast
 from .forms import ForecastForm
-import accountifie.forecasts.api
+import apiv1 as fcst_api
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 import accountifie.toolkit.utils as utils
@@ -71,36 +71,49 @@ def upload_gl(request):
             forecast_obj.save()
             return HttpResponseRedirect('/forecasts/forecast/%s' % forecast_obj.id)
 
+
+def _order_projections(projs):
+    cols = [x for x in projs[0].keys() if x not in ['Debit','Credit','Counterparty','Company']]
+
+    def _idxer(label):
+        lbls = label.split('M')
+        yr = int(lbls[0])
+        mth = int(lbls[1])
+        return 2015 * yr + mth
+
+    col_indexer = dict((x, _idxer(x)) for x in cols)
+    return [x[0] for x in sorted(col_indexer.items(), key=operator.itemgetter(1))]
+
+
 @login_required
-def gl_projections(request):
+def hardcode_projections(request):
     fcast_id = request.GET.get('fcast_id')
-    fcast = Forecast.objects.get(id=fcast_id)
-
-    hcode_projs = fcast.hardcode_projections
+    hcode_projs = fcst_api.hardcode_projections(fcast_id, {})
     if len(hcode_projs) > 0:
-        cols = [x for x in fcast.hardcode_projections[0].keys() if x not in ['Debit','Credit','Counterparty','Company']]
-        def idxer(label):
-            lbls = label.split('M')
-            yr = int(lbls[0])
-            mth = int(lbls[1])
-            return 2015 * yr + mth
-
-        col_indexer = dict((x, idxer(x)) for x in cols)
-        col_order = [x[0] for x in sorted(col_indexer.items(), key=operator.itemgetter(1))]
-
+        col_order = _order_projections(hcode_projs)
         context = {'cols': zip(['Debit', 'Credit', 'Counterparty', 'Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
-
         context['data_url'] = '/api/forecasts/hardcode_projections/%s?raw=true' % fcast_id
+    else:
+        context = {}
+    return render_to_response('forecasts/bstrap_report.html', context, 
+                              context_instance=RequestContext(request)
+                              )
+
+
+@login_required
+def all_projections(request):
+    fcast_id = request.GET.get('fcast_id')
+    projs = fcst_api.all_projections(fcast_id, {})
+    if len(projs) > 0:
+        col_order = _order_projections(projs)
+        context = {'cols': zip(['Debit', 'Credit', 'Counterparty', 'Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
+        context['data_url'] = '/api/forecasts/all_projections/%s?raw=true' % fcast_id
     else:
         context = {}
 
     return render_to_response('forecasts/bstrap_report.html', context, 
                               context_instance=RequestContext(request)
                               )
-
-def get_gl_projections(request, fcast_id):
-    data = accountifie.forecasts.api.hardcode_projections(fcast_id)
-    return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type="application/json")
 
 def report_prep(request, id, version=None, strategy=None):
 
