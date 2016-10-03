@@ -12,7 +12,6 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import get_app # ?
 from django.db import connection
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -100,9 +99,11 @@ def index(request):
         context['machine']['Media Folder'] = utils.sizeof_fmt(utils.folder_size(settings.MEDIA_ROOT))
 
     context['stats'] = utils.get_available_stats()
-    context['apps'] = [(app.__name__, ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
+
+    gan = (lambda app: app.__name__) if settings.DJANGO_18 else (lambda app: app)
+    context['apps'] = [(gan(app), ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
     context['relations'] = [[(model.__name__, ', '.join(['%s (%s) through %s' % (relation.__name__, relation.__module__, field.__class__.__name__)
-                                                        for field, relation in relations]), app.__name__) 
+                                                        for field, relation in relations]), gan(app)) 
                                                             for model, relations in rel_info] 
                                                                 for app, rel_info in all_relations()]
     #context['rel_graph'] = 
@@ -161,9 +162,10 @@ def logs(request):
         context['machine']['Media Folder'] = utils.sizeof_fmt(utils.folder_size(settings.MEDIA_ROOT))
 
     context['stats'] = utils.get_available_stats()
-    context['apps'] = [(app.__name__, ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
+    gan = (lambda app: app.__name__) if settings.DJANGO_18 else (lambda app: app)
+    context['apps'] = [(gan(app), ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
     context['relations'] = [[(model.__name__, ', '.join(['%s (%s) through %s' % (relation.__name__, relation.__module__, field.__class__.__name__)
-                                                        for field, relation in relations]), app.__name__) 
+                                                        for field, relation in relations]), gan(app)) 
                                                             for model, relations in rel_info] 
                                                                 for app, rel_info in all_relations()]
     #context['rel_graph'] = 
