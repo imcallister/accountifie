@@ -99,9 +99,11 @@ def index(request):
         context['machine']['Media Folder'] = utils.sizeof_fmt(utils.folder_size(settings.MEDIA_ROOT))
 
     context['stats'] = utils.get_available_stats()
-    context['apps'] = [(app, ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
+
+    gan = (lambda app: app.__name__) if settings.DJANGO_18 else (lambda app: app)
+    context['apps'] = [(gan(app), ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
     context['relations'] = [[(model.__name__, ', '.join(['%s (%s) through %s' % (relation.__name__, relation.__module__, field.__class__.__name__)
-                                                        for field, relation in relations]), app) 
+                                                        for field, relation in relations]), gan(app)) 
                                                             for model, relations in rel_info] 
                                                                 for app, rel_info in all_relations()]
     #context['rel_graph'] = 
@@ -160,9 +162,10 @@ def logs(request):
         context['machine']['Media Folder'] = utils.sizeof_fmt(utils.folder_size(settings.MEDIA_ROOT))
 
     context['stats'] = utils.get_available_stats()
-    context['apps'] = [(app, ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
+    gan = (lambda app: app.__name__) if settings.DJANGO_18 else (lambda app: app)
+    context['apps'] = [(gan(app), ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
     context['relations'] = [[(model.__name__, ', '.join(['%s (%s) through %s' % (relation.__name__, relation.__module__, field.__class__.__name__)
-                                                        for field, relation in relations]), app) 
+                                                        for field, relation in relations]), gan(app)) 
                                                             for model, relations in rel_info] 
                                                                 for app, rel_info in all_relations()]
     #context['rel_graph'] = 
