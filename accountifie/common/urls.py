@@ -6,7 +6,7 @@ Adapted with permission from ReportLab's DocEngine framework
 
 
 from django.conf import settings
-from django.conf.urls import patterns, include, url, handler500
+from django.conf.urls import include, url, handler500
 from django.core.urlresolvers import reverse_lazy
 from django.template.loader import select_template
 from django.views.generic.base import RedirectView, TemplateView
@@ -24,7 +24,7 @@ else:
 
 handler500 = 'accountifie.common.views.custom_500'
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/(?P<item>(.+))/$', 'accountifie.common.api.get_item'),
     url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/$', 'accountifie.common.api.get_resource'),
 
@@ -40,10 +40,7 @@ urlpatterns = patterns('',
     # shortcuts
     #url(r'^login/', RedirectView.as_view(url=reverse_lazy("accounts_login"))),
     #url(r'^logout/', RedirectView.as_view(url=reverse_lazy("accounts_logout"))),
+]
 
-
-)
 if "accountifie.tasks" in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-            url(r'^tasks/', include('accountifie.tasks.urls'), name="docengine_tasks"),
-            )
+    urlpatterns.append(url(r'^tasks/', include('accountifie.tasks.urls'), name="docengine_tasks"))

@@ -12,7 +12,6 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import get_app # ?
 from django.db import connection
 from django.shortcuts import render_to_response
 from django.template import RequestContext
