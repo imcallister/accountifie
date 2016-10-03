@@ -7,8 +7,15 @@ from django.apps import apps
 from django.db import models
 
 
+from django.apps import apps
 def all_concrete_models():
-    return [(app, [model for model in apps.get_models(app) if not model._meta.abstract]) for app in apps.get_apps() if apps.get_models(app)]
+    R = [].append
+    M = apps.get_models()
+    for app_label, models in apps.all_models.iteritems():
+        models = [model for name,model in models.iteritems() if model in M and not model._meta.abstract]
+        if models:
+            R((app_label,models))
+    return R.__self__
 
 def field_is_relational(field):
     relational_fields = [models.ForeignKey, models.ManyToManyField, models.OneToOneField]
