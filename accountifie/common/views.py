@@ -25,7 +25,7 @@ else:
 from django.db.models import Q
 from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpResponseServerError, \
         HttpResponseNotFound
-from django.shortcuts import render, render_to_response, get_object_or_404, resolve_url
+from django.shortcuts import render, get_object_or_404, resolve_url
 from django.template import RequestContext, loader
 from django.template.response import TemplateResponse
 from django.views.decorators.debug import sensitive_post_parameters
@@ -48,10 +48,7 @@ logger = logging.getLogger('default')
 def custom_500(request):
     type, value, tb = sys.exc_info(),
 
-    response = render_to_response(
-        '500.html',
-        RequestContext(request, {'message': value})
-    )
+    response = render(request, '500.html', {'message': value})
     response.status_code = 200
     return response
 
@@ -147,9 +144,9 @@ def login(request, template_name='common/login.html',
     }
     if extra_context is not None:
         context.update(extra_context)
-
-    return TemplateResponse(request, template_name, context,
-                            current_app=current_app)
+    if current_app:
+        request.current_app = current_app
+    return TemplateResponse(request, template_name, context)
 
 
 def processes(request):
@@ -190,12 +187,12 @@ def processes(request):
               'parent': parent,
               'message': message,
               'sortField': sortField}
-    return render_to_response('common/processes.html', params)
+    return render(request, 'common/processes.html', params)
 
 def index(request):
     # Used on first setup, until you define a project-specific one which overrides it
     context = RequestContext(request)
-    return render_to_response('common/index.html', context)
+    return render(request, 'common/index.html', context)
 
 
 def test7491(request):

@@ -142,7 +142,7 @@ class QueryManagerForecastStrategy(QueryManagerStrategy):
 
     def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
         msg = "Transactions view not implemented for forecast strategies"
-        return render_to_response('404.html', RequestContext(request, {'message': msg})), False
+        return render(request, '404.html', {'message': msg}), False
 
 
 

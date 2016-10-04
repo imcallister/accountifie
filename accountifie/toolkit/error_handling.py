@@ -1,7 +1,7 @@
 from django.conf import settings
 from django import http
 from django.core.mail import mail_admins
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 import traceback
 
@@ -34,7 +34,7 @@ class StandardExceptionMiddleware(object):
         context = {}
         context['exception_detail'] = sys.exc_info()[1]
         context['traceback'] = traceback.format_exc().split('\n')
-        return render_to_response('exception.html', RequestContext(request,context))
+        return render(request, 'exception.html', context)
 
     def handle_404(self, request, exception):
         if settings.DEBUG:

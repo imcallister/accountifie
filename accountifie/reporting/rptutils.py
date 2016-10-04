@@ -1,7 +1,7 @@
 import pkgutil
 import inspect
 
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 
 import accountifie.toolkit.utils as utils
@@ -52,11 +52,11 @@ def report_prep(request, id):
 
     if report is None:
         msg = "Report %s does not exist" % id
-        return render_to_response('rpt_doesnt_exist.html', RequestContext(request, {'message': msg})), False, None
+        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False, None
 
     if company_ID not in report.works_for:
         msg = "This ain't it. Report not available for %s" % report.company_name
-        return render_to_response('rpt_doesnt_exist.html', RequestContext(request, {'message': msg})), False
+        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False
 
     report.configure(as_of=as_of, col_tag=col_tag, path=path)
     report.set_gl_strategy(gl_strategy)

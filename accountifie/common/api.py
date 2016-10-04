@@ -9,7 +9,7 @@ import flatdict
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 
 
@@ -74,7 +74,7 @@ def get_resource(request, group, resource):
     else:
         context = {'data': json.dumps(resource_func(group, resource, qstring=qs), cls=DjangoJSONEncoder, indent=2)}
         context['title'] = 'API call: /%s/%s' % (group, resource)
-        return render_to_response('api_display.html', context, context_instance = RequestContext(request))
+        return render(request, 'api_display.html', context)
 
 
 def output_as_csv(data, label='output'):
@@ -111,4 +111,4 @@ def get_item(request, group, resource, item):
         context = {}
         context['data'] = json.dumps(item_func(group, resource, item, qstring=qs), cls=DjangoJSONEncoder, indent=2)
         context['title'] = 'API call: /%s/%s/%s' % (group, resource, item)
-        return render_to_response('api_display.html', context, context_instance = RequestContext(request))
+        return render(request, 'api_display.html', context)
