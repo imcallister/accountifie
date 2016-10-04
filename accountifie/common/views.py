@@ -17,9 +17,9 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login as auth_login
 
-try:
+if settings.DJANGO_18:
     from django.contrib.sites.models import get_current_site
-except ImportError:
+else:
     from django.contrib.sites.shortcuts import get_current_site
 
 from django.db.models import Q
