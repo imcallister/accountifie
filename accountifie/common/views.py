@@ -16,7 +16,12 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login as auth_login
-from django.contrib.sites.models import get_current_site
+
+if settings.DJANGO_18:
+    from django.contrib.sites.models import get_current_site
+else:
+    from django.contrib.sites.shortcuts import get_current_site
+
 from django.db.models import Q
 from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpResponseServerError, \
         HttpResponseNotFound
@@ -109,11 +114,12 @@ def login(request, template_name='common/login.html',
             # get the contents up to the 3rd slash
             return HttpResponseRedirect(_login_server+request.get_full_path())
 
-    redirect_to = request.REQUEST.get(redirect_field_name, '')
     if _login_indirect:
         authentication_form = MultiCommonAuthenticationForm
 
     if request.method == "POST":
+        redirect_to = request.POST.get(redirect_field_name, '')
+        
         form = authentication_form(request, data=request.POST)
         if form.is_valid():
 
@@ -127,6 +133,7 @@ def login(request, template_name='common/login.html',
                 request.session['subdomain'] = form.cleaned_data['subdomain']
             return HttpResponseRedirect(redirect_to)
     else:
+        redirect_to = request.GET.get(redirect_field_name, '')
         request.session.set_test_cookie()
         form = authentication_form(request)
 
