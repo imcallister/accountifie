@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import connection
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseServerError
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
@@ -110,7 +110,7 @@ def index(request):
     
     context['config_warnings'] = utils.get_configuration_warnings()
 
-    return render_to_response('dashboard/index.html', context)
+    return render(request, 'dashboard/index.html', context)
 
 @staff_member_required
 def logs(request):
@@ -172,7 +172,7 @@ def logs(request):
     
     context['config_warnings'] = utils.get_configuration_warnings()
 
-    return render_to_response('dashboard/logs.html', context)
+    return render(request, 'dashboard/logs.html', context)
 
 @login_required
 def db_logs_modal(request):
@@ -188,7 +188,7 @@ def db_logs_modal(request):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         logs = paginator.page(paginator.num_pages)
-    return render_to_response('dashboard/logs_excerpt.html', {"logs": logs})
+    return render(request, 'dashboard/logs_excerpt.html', {"logs": logs})
 
 
 @login_required
@@ -198,7 +198,7 @@ def app_index(request, app_name):
     '''
     try:
         app_utils = __import__('project.%s.utils' % app_name)
-        return render_to_response('dashboard/app.html', RequestContext(request, {'assets': app_utils.media(),}) )
+        return render(request, 'dashboard/app.html', {'assets': app_utils.media()})
     except:
         pass
         # no app builtin mode of retrieving user media
@@ -210,7 +210,7 @@ def app_index(request, app_name):
             'fonts': get_media('fonts', app_name)
         }
     })
-    return render_to_response('dashboard/app.html', context)
+    return render(request, 'dashboard/app.html', context)
 
 @login_required
 def stat(request, app_name, stat_name):
@@ -249,7 +249,7 @@ def stat(request, app_name, stat_name):
         'colnames': colnames,
         'data': data
         })
-    return render_to_response('dashboard/stat.html', context)
+    return render(request, 'dashboard/stat.html', context)
 
 
 
@@ -276,7 +276,7 @@ def load_test(request):
 
 @login_required
 def load_test_ui(request):
-    return render_to_response('dashboard/load_tester_ui.html', RequestContext(request))
+    return render(request, 'dashboard/load_tester_ui.html')
 
 @login_required
 def show_request(request):
@@ -290,4 +290,4 @@ def show_request(request):
             request=request,
             env='\n'.join(['%s=%r' % (k,v) for k,v in os.environ.iteritems()]),
             )
-    return render_to_response('dashboard/show_request.html',RequestContext(request,params))
+    return render(request, 'dashboard/show_request.html', params)

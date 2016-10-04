@@ -7,7 +7,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect,\
         HttpResponseNotFound
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.views.generic.detail import DetailView
 from django.core.urlresolvers import reverse
 
@@ -19,7 +19,7 @@ from .utils import utcnow, timedelta, pid2cmdline, initialCmdStr
 def dashboard_list(request):
     someTimeAgo = utcnow() - timedelta(seconds=getattr(settings,'DOCENGINE_TASKS_RECENT_SECONDS',24*3600))
     dtasks = list(DeferredTask.objects.filter(Q(start__gt=someTimeAgo)|Q(finished=False)).order_by('finished','-start'))
-    return render_to_response('dashboard/dashboard_deferreds.html', {"dtasks": dtasks})
+    return render(request, 'dashboard/dashboard_deferreds.html', {"dtasks": dtasks})
 
 
 @staff_member_required

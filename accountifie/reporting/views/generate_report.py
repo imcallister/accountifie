@@ -3,7 +3,7 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext, Context
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -28,11 +28,11 @@ def report_prep(request, id):
 
     if report is None:
         msg = "Report %s does not exist" % id
-        return render_to_response('rpt_doesnt_exist.html', RequestContext(request, {'message': msg})), False, None
+        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False, None
 
     if company_ID not in report.works_for:
         msg = "This ain't it. Report not available for %s" % report.company_name
-        return render_to_response('rpt_doesnt_exist.html', RequestContext(request, {'message': msg})), False
+        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False
 
     report.configure(as_of=as_of, col_tag=col_tag, path=path)
     report.set_gl_strategy(gl_strategy)
@@ -71,7 +71,7 @@ def report(request, id):
         for rec in report_data:
             context['rows'] += report.get_row(rec)
 
-        return render_to_response('report.html', RequestContext(request, context))
+        return render(request, 'report.html', context)
     else:
         msg = "Sorry. This format is not recognised : %s" % format
-        return render_to_response('404.html', RequestContext(request, {'message': msg})), False
+        return render(request, '404.html', {'message': msg}), False

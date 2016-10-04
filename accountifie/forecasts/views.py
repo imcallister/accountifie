@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from django.utils.html import mark_safe
 from django.views.generic.edit import CreateView, DeleteView
@@ -39,7 +39,7 @@ def forecast_index(request):
     context = {}
     context['title'] = 'Forecasts'
     context['content'] = get_table('forecasts')()
-    return render_to_response('forecasts/forecast_list.html', context, context_instance=RequestContext(request))
+    return render(request, 'forecasts/forecast_list.html', context)
 
 
 @login_required
@@ -47,7 +47,7 @@ def forecasts_reports(request):
     fcast_choices = [(f.id, f.label) for f in Forecast.objects.all()]
     context = {}
     context['fcasts'] = fcast_choices
-    return render_to_response('forecasts/forecast_reports.html', context, RequestContext(request))
+    return render(request, 'forecasts/forecast_reports.html', context)
 
 
 @login_required
@@ -60,7 +60,7 @@ def upload_gl(request):
         form = FileForm()
         context['form'] = form
 
-        return render_to_response('forecasts/upload_gl.html', RequestContext(request, context))
+        return render(request, 'forecasts/upload_gl.html', context)
     else:
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -95,9 +95,7 @@ def hardcode_projections(request):
         context['data_url'] = '/api/forecasts/hardcode_projections/%s?raw=true' % fcast_id
     else:
         context = {}
-    return render_to_response('forecasts/bstrap_report.html', context, 
-                              context_instance=RequestContext(request)
-                              )
+    return render(request, 'forecasts/bstrap_report.html', context)
 
 
 @login_required
@@ -111,9 +109,7 @@ def all_projections(request):
     else:
         context = {}
 
-    return render_to_response('forecasts/bstrap_report.html', context, 
-                              context_instance=RequestContext(request)
-                              )
+    return render(request, 'forecasts/bstrap_report.html', context)
 
 def report_prep(request, id, version=None, strategy=None):
 
@@ -127,7 +123,7 @@ def report_prep(request, id, version=None, strategy=None):
 
     if (company_id not in report.works_for):
         msg = "This ain't it. Report not available for %s" % report.company_name
-        return render_to_response('404.html', RequestContext(request, {'message': msg})), False
+        return render(request, '404.html', {'message': msg}), False
 
     report.configure(as_of=as_of, col_tag=col_tag, path=path)
 
@@ -200,10 +196,10 @@ def fcast_report(request, fcast_id, rpt_id):
         for rec in report_data:
             context['rows'] += report.get_row(rec)
 
-        return render_to_response('report.html', RequestContext(request, context))
+        return render(request, 'report.html', context)
     else:
         msg = "Sorry. This format is not recognised : %s" % format
-        return render_to_response('404.html', RequestContext(request, {'message': msg})), False
+        return render(request, '404.html', {'message': msg}), False
 
 
 # Run full 5 year monthly projections for 3 main reports
@@ -270,7 +266,7 @@ def forecast_detail(request, id):
         f=forecast,
         form=form
         )
-    return render_to_response('forecasts/forecast_detail.html', context, RequestContext(request))
+    return render(request, 'forecasts/forecast_detail.html', context)
 
 
 

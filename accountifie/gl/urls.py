@@ -4,7 +4,7 @@ import views
 import jobs
 
 
-urlpatterns = patterns('',
+urlpatterns = [
 
     url(r'^counterparty-autocomplete/$',
          views.CounterpartyAutocomplete.as_view(),
@@ -17,12 +17,11 @@ urlpatterns = patterns('',
     ),
 
     # admin-type view
-    (r'gl/accounts_list/$', views.accounts_list),
-    (r'gl/counterparty_list/$', views.counterparty_list),
+    url(r'gl/accounts_list/$', views.accounts_list),
+    url(r'gl/counterparty_list/$', views.counterparty_list),
 
     # utilities
-    (r'gl/get_transactions/', views.download_transactions),
-    (r'gl/get_tranlines/', views.download_tranlines),
-
-    (r'celery/recalculate/', jobs.recalculate),
-)
+    url(r'gl/get_transactions/', views.download_transactions),
+    url(r'gl/get_tranlines/', views.download_tranlines),
+    url(r'celery/recalculate/', jobs.recalculate),
+]

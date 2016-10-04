@@ -6,7 +6,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 
@@ -42,7 +42,7 @@ def order_upload(request):
     else:
         context.update({'file_name': request.FILES.values()[0]._name, 'success': False, 'out': None, 'err': None})
         messages.error(request, 'Could not process the Metrics file provided, please see below')
-        return render_to_response('uploaded.html', context, context_instance=RequestContext(request))
+        return render(request, 'uploaded.html', context)
 
 
 def process_metrics(file_name, label):

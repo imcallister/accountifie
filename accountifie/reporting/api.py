@@ -5,7 +5,7 @@ import datetime
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 
 import accountifie.toolkit.utils as utils
@@ -136,7 +136,7 @@ def html_report_snippet(rpt_id, company_id, as_of=None, col_tag=None, path=None,
 
     if company_id not in report.works_for:
         msg = "This ain't it. Report not available for %s" % company_ID
-        return render_to_response('404.html', RequestContext(request, {'message': report}))
+        return render(request, '404.html', {'message': report})
 
     report.configure(as_of=as_of, col_tag=col_tag, path=path)
     report.set_gl_strategy(gl_strategy)

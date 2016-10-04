@@ -5,7 +5,7 @@ import json
 import csv
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
 from django.views.generic.edit import CreateView
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -32,7 +32,7 @@ def glsnapshots(request):
     context = {}
     context['title'] = 'Snapshots'
     context['content'] = get_table('snapshots')()
-    return render_to_response('snapshot/base_snapshot.html', context, context_instance=RequestContext(request))
+    return render(request, 'snapshot/base_snapshot.html', context)
 
 
 
@@ -74,7 +74,7 @@ def glsnapshots_balances(request, snap_id):
         for rec in report_data:
             context['rows'] += report.get_row(rec)
 
-        return render_to_response('report.html', RequestContext(request, context))
+        return render(request, 'report.html', context)
     else:
         msg = "Sorry. This format is not recognised : %s" % format
-        return render_to_response('404.html', RequestContext(request, {'message': msg})), False
+        return render(request, '404.html', {'message': msg}), False

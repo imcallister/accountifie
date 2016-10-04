@@ -4,7 +4,7 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 
 import accountifie.toolkit.utils as utils
@@ -23,7 +23,7 @@ logger = logging.getLogger('default')
 @login_required
 def index(request):
     d = {}
-    return render_to_response('index.html', RequestContext(request, d))
+    return render(request, 'index.html', d)
 
 
 class CounterpartyAutocomplete(autocomplete.Select2QuerySetView):
@@ -118,7 +118,7 @@ def download_tranlines(request):
 def accounts_list(request):
     "Show list of each account"
     accounts = api_func('gl', 'account')
-    return render_to_response('gl/accounts_list.html', RequestContext(request, dict(accounts=accounts)))
+    return render(request, 'gl/accounts_list.html', dict(accounts=accounts))
 
 
 @login_required
@@ -127,4 +127,4 @@ def counterparty_list(request):
     counterparties = api_func('gl', 'counterparty')
     AP_acct = api_func('environment', 'variable', 'GL_ACCOUNTS_PAYABLE')
 
-    return render_to_response('gl/counterparty_list.html', RequestContext(request, dict(ap_acct=AP_acct, counterparties=counterparties)))
+    return render(request, 'gl/counterparty_list.html', dict(ap_acct=AP_acct, counterparties=counterparties))
