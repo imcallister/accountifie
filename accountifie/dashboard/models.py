@@ -6,12 +6,13 @@ Adapted with permission from ReportLab's DocEngine framework
 
 # as this is in a models.py, it will get loaded at django server start
 # it intends to fail 
+"""
 import os, sys
 from django.conf import settings
 
 tcp = settings.TEMPLATE_CONTEXT_PROCESSORS
 
-"""
+
 if 'accountifie.common.views.base_templates' not in tcp:
     sys.stderr.write('''!!!
     You have upgrade DocEngine

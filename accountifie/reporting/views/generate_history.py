@@ -1,7 +1,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext, Context
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -115,7 +115,7 @@ def history(request, type, id):
     context['from_date'] = from_date
     context['to_date'] = to_date
 
-    return render_to_response('history.html', RequestContext(request, context))
+    return render(request, 'history.html', context)
 
 @login_required
 def balance_history(request, type, id):
@@ -175,4 +175,4 @@ def balance_history(request, type, id):
     context['from_date'] = from_date
     context['to_date'] = to_date
 
-    return render_to_response('bal_history.html', RequestContext(request, context))
+    return render(request, 'bal_history.html', context)

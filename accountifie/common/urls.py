@@ -12,6 +12,7 @@ from django.template.loader import select_template
 from django.views.generic.base import RedirectView, TemplateView
 
 import accountifie.common.views
+import accountifie.common.api
 
 if 'docengine.register' in settings.INSTALLED_APPS:
     if getattr(settings, 'REGISTER_ONE_STEP', False):
@@ -25,8 +26,8 @@ else:
 handler500 = 'accountifie.common.views.custom_500'
 
 urlpatterns = [
-    url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/(?P<item>(.+))/$', 'accountifie.common.api.get_item'),
-    url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/$', 'accountifie.common.api.get_resource'),
+    url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/(?P<item>(.+))/$', accountifie.common.api.get_item),
+    url(r'api/(?P<group>[_a-zA-Z0-9]+)/(?P<resource>[_a-zA-Z0-9]+)/$', accountifie.common.api.get_resource),
 
     url(r'^test-7491/$', accountifie.common.views.test7491, name='health-check'),
     url(r'^tests/error/$', accountifie.common.views.deliberateError, name='deliberate error'),

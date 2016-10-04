@@ -11,7 +11,7 @@ from ast import literal_eval
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.views.generic.detail import DetailView
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -68,13 +68,13 @@ def upload_file(request, **config):
         if result != 0:
             context.update({'file_name': file_name, 'success': False, 'out': out, 'err': err})
             messages.error(request, 'Could not process the file provided, please see below')
-            return render_to_response('uploaded.html', context, context_instance=RequestContext(request))
+            return render(request, 'uploaded.html', context)
         else:
             return HttpResponseRedirect(reverse('task_result', kwargs={'pid':out,}))
     else:
         context.update({'file_name': file_name, 'success': False, 'out': out, 'err': err})
         messages.error(request, 'Could not process the file provided, please see below')
-        return render_to_response('uploaded.html', context, context_instance=RequestContext(request))
+        return render(request, 'uploaded.html', context)
 
 
 def save_file(f):

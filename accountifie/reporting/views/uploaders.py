@@ -1,6 +1,6 @@
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 
 from accountifie.reporting.importers import order_upload
@@ -18,4 +18,4 @@ def upload_file(request, file_type, check=False):
     else:
         form = LabelledFileForm()
         context = {'form': form, 'file_type': file_type}
-        return render_to_response('common/upload_csv.html', context, context_instance=RequestContext(request))
+        return render(request, 'common/upload_csv.html', context)

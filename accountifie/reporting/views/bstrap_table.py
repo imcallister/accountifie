@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 
 from accountifie.reporting.rptutils import get_report_cols
@@ -24,4 +24,4 @@ def bstrap_report(request, rpt_id):
     
     context['data_url'] = data_url
 
-    return render_to_response('bstrap_report.html', context, context_instance = RequestContext(request))
+    return render(request, 'bstrap_report.html', context)
