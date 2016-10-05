@@ -17,12 +17,14 @@ from accountifie.query.query_manager_strategy_factory import QueryManagerStrateg
 
 
 class Command(BaseCommand):
+
+    """
     option_list = BaseCommand.option_list + (
         make_option('--all',
                 action='store_true', 
                 help='Full recalc of GL'),
         )
-        
+    """ 
     
     def handle(self, *args, **options):
         #faster and less likely to mess stuff up.
