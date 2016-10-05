@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 class Command(BaseCommand):
 
+    """
     option_list = BaseCommand.option_list + (
         make_option('--from', default=None, dest='from_date',
             help='Earliest date you want in your calendar (YYYYMMDD, defaults to 1st of this year)'),
@@ -16,6 +17,7 @@ class Command(BaseCommand):
             help='empty the entire calendar'),
 
     )
+    """
     help = 'Ensure calendar tables are populated between two dates'
     args = ''
 
