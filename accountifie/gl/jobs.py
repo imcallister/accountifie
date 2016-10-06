@@ -2,6 +2,7 @@
 import inspect
 import importlib
 import logging
+import datetime
 
 from django.db import transaction
 from django.http import JsonResponse
@@ -16,7 +17,7 @@ logger = logging.getLogger('default')
 
 
 def recalculate(request):
-    task_name = 'recalculate'
+    task_name = 'ledger-recalculate-%s' % datetime.datetime.now().isoformat()
     task_id = background_task(task=task_name, calc=_recalculate).id
     status_url = 'background_task/status/%s' % task_id
     return JsonResponse({'task_id': task_id, 'task_name': task_name, 'status_url': status_url})

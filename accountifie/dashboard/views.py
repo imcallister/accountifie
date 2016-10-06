@@ -2,8 +2,6 @@
 Adapted with permission from ReportLab's DocEngine framework
 """
 
-
-
 import re, os, sys
 from collections import OrderedDict
 import json
@@ -39,7 +37,7 @@ def localsets():
 
 def settings_list():
     res = []
-    omit_list = ('SECRET_KEY',)
+    omit_list = ('SECRET_KEY', 'DB_PASSWORD',)
     for ke, va in [ (k, v) for k, v in settings._wrapped.__dict__.items() if not k.startswith('_') and k not in omit_list]:
         if ke=='DATABASES':
             for name, props in settings.DATABASES.items():
