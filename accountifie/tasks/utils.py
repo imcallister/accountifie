@@ -212,6 +212,8 @@ def task(f=None,errorOnDuplicate=False):
             except:
                 err = StringIO()
                 traceback.print_exc(file=err)
+                logger.info(err)
+                logger.info(traceback.format_exc())
                 # FIXME: next line looks buggy as error_taks wont take None as
                 # stdout
                 error_task(None,err.getvalue(),'subprocess call to run_task failed with traceback')

@@ -2,8 +2,6 @@
 Adapted with permission from ReportLab's DocEngine framework
 """
 
-
-
 import re, os, sys
 from collections import OrderedDict
 import json
@@ -39,7 +37,7 @@ def localsets():
 
 def settings_list():
     res = []
-    omit_list = ('SECRET_KEY',)
+    omit_list = ('SECRET_KEY', 'DB_PASSWORD',)
     for ke, va in [ (k, v) for k, v in settings._wrapped.__dict__.items() if not k.startswith('_') and k not in omit_list]:
         if ke=='DATABASES':
             for name, props in settings.DATABASES.items():
@@ -129,11 +127,11 @@ def logs(request):
     SD = OrderedDict()
     for k,v in sorted(settings_list(), key=lambda x: x[0]):
         SD[k] = v
-    context = RequestContext(request, {
+    context = {
         'args': sys.argv,
         'exe': sys.executable,
         'settings': SD,
-        })
+        }
 
     context['versions'] = OrderedDict()
     # get versions
@@ -188,6 +186,7 @@ def db_logs_modal(request):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         logs = paginator.page(paginator.num_pages)
+
     return render(request, 'dashboard/logs_excerpt.html', {"logs": logs})
 
 
