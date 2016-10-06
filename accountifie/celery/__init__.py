@@ -22,7 +22,6 @@ def background_status(request, task_id):
 @celery_app.task(bind=True)
 def run_task(self, *args, **kwargs):
     task_name = kwargs['task']
-    logger.info('RIGHT HERE: %s' % task_name)
     self.update_state(state='PROGRESS', meta={'status': 'IN_PROGRESS', 'task_name': task_name})
     try:
         rslts = kwargs['calc']()
