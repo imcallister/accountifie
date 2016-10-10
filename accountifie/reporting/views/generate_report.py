@@ -19,6 +19,7 @@ logger = logging.getLogger('default')
 def report_prep(request, id):
     as_of = request.GET.get('date', None)
     col_tag = request.GET.get('col_tag', None)
+    from_file = request.GET.get('from_file', None)
 
     format = request.GET.get('format', 'html')
     company_ID = request.GET.get('company', utils.get_company(request))
@@ -28,26 +29,31 @@ def report_prep(request, id):
 
     if report is None:
         msg = "Report %s does not exist" % id
-        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False, None
+        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False, None, None
 
     if company_ID not in report.works_for:
         msg = "This ain't it. Report not available for %s" % report.company_name
-        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False
+        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False, None, None
 
     report.configure(as_of=as_of, col_tag=col_tag, path=path)
     report.set_gl_strategy(gl_strategy)
-    return report, True, format
+    return report, True, format, from_file
 
 
 @login_required
 def report(request, id):
 
-    report, is_report, format = report_prep(request, id)
-
-    if not is_report:
-        return report
-
-    report_data = report.calcs()
+    report, is_report, format, from_file = report_prep(request, id)
+    if from_file:
+        try:
+            report_data = json.loads(from_file)
+        except:
+            msg = "Sorry. file source is not recognised : %s" % from_file
+            return render(request, 'rpt_doesnt_exist.html', {'message': msg})
+    else:
+        if not is_report:
+            return report
+        report_data = report.calcs()
 
     if format == 'json':
         return HttpResponse(json.dumps(report_data, cls=DjangoJSONEncoder), content_type="application/json")
