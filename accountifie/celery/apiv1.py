@@ -8,8 +8,8 @@ def _get_info(t):
 	data['task_id'] = t['task_id']
 	data['date_done'] = t['date_done']
 	data['task_status'] = t['result']['status']
-	data['result'] = t['result']['result']
-	data['task_name'] = t['result']['task_name']
+	data['result'] = t.get('result', {}).get('result')
+	data['task_name'] = t.get('result', {}).get('task_name')
 	return data
 
 def tasks_in_progress(qstring={}):
