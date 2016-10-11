@@ -23,7 +23,23 @@ def month_tags(offset):
     eom = datetime.datetime.now().date()
     for i in range(abs(offset)):
         eom = end_of_prev_month(eom.month, eom.year)
-    return '%dM%s' %(eom.year, '{num:02d}'.format(num=eom.month))
+
+    lbl = eom.strftime("%b '%y")
+    coltag = '%dM%s' %(eom.year, '{num:02d}'.format(num=eom.month))
+    return {'label': lbl, 'coltag': coltag}
+
+
+def year_tags(offset, freq):
+    yr = datetime.datetime.now().date().year - abs(offset)
+    
+    if freq == 'Annual':
+        return {'label': str(yr), 'coltag': '%dAnnual' % yr}
+    elif freq == 'Quarterly':
+        return {'label': '%d Quarterly' % (yr), 'coltag': '%dQuarterly' % yr}
+    elif freq == 'Monthly':
+        return {'label': '%d Monthly' % (yr), 'coltag': '%dMonthly' % yr}
+    else:
+        return None
 
 
 def extractDateRange(request, inclusive=True):
