@@ -1,6 +1,7 @@
 import re
 
 from django.conf import settings
+import datetime
 from dateutil.parser import parse
 from datefuncs import *
 from make_config import *
@@ -16,6 +17,13 @@ MONTHLY_TAG = re.compile('(\d{4})(Monthly)')
 DAILY_TAG = re.compile('(daily_)(\d{4}-\d{1,2}-\d{1,2})')
 TRAILING12M_TAG = re.compile('(12Mtrailing)(-?)(\d{4}-\d{1,2}-\d{1,2})?')
 MULTIYEAR_TAG = re.compile('(\d{1,2})yr_(\d{4}-\d{1,2}-\d{1,2})?')
+
+
+def month_tags(offset):
+    eom = datetime.datetime.now().date()
+    for i in range(abs(offset)):
+        eom = end_of_prev_month(eom.month, eom.year)
+    return '%dM%s' %(eom.year, '{num:02d}'.format(num=eom.month))
 
 
 def extractDateRange(request, inclusive=True):
