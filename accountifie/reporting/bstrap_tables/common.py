@@ -18,8 +18,10 @@ def tasks_list():
     data_url = "/api/celery/tasks_just_finished"
     row_defs = [{'data_field': 'task_name', 'value': 'Task Name', 'formatter': 'nameFormatter'},
                 {'data_field': 'task_status', 'value': 'Status', 'formatter': 'nameFormatter'},
-                {'data_field': 'date_done', 'value': 'Started', 'formatter': 'nameFormatter'},
+                {'data_field': 'date_done', 'value': 'Started', 'formatter': 'timeFormatter'},
                 {'data_field': 'task_id', 'value': 'id', 'formatter': 'nameFormatter'},
+                {'data_field': 'result', 'value': 'Result', 'formatter': 'nameFormatter'},
+                {'data_field': 'download', 'value': 'Download', 'formatter': 'nameFormatter'},
             ]
     return get_bstrap_table(data_url, row_defs)
 
