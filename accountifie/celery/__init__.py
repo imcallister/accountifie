@@ -8,7 +8,6 @@ logger = logging.getLogger('default')
 
 
 def background_task(*args, **kwargs):
-    print 'background task', str(args), str(kwargs)
     return run_task.delay(*args, **kwargs)
 
 
@@ -22,10 +21,11 @@ def background_status(request, task_id):
 @celery_app.task(bind=True)
 def run_task(self, *args, **kwargs):
     task_name = kwargs['task']
-
     self.update_state(state='PROGRESS', meta={'status': 'IN_PROGRESS', 'task_name': task_name})
+
     try:
-        rslts = kwargs['calc']()
-        return {'status': 'COMPLETED', 'task_name': task_name, 'result': rslts}
+        rslts = kwargs['calc'](*args, **kwargs)
+        return {'status': 'COMPLETED', 'task_name': task_name, 'output': rslts}
     except Exception, e:
-        return {'status': 'FAILED', 'task_name': task_name, 'result': {'error': str(e)}}
+        return {'status': 'FAILED', 'task_name': task_name, 'output': {'error': str(e)}}
+    

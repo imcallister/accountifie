@@ -119,7 +119,6 @@ class Report(object):
             self.title = self.description
 
     def get_row(self, df_row):
-        
         if 'fmt_tag' in df_row:
             if df_row['fmt_tag'] == 'header':
                 return TextBand(df_row['label'], css_class='normal').get_rows(self)

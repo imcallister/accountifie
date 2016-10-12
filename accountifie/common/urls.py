@@ -42,6 +42,3 @@ urlpatterns = [
     #url(r'^login/', RedirectView.as_view(url=reverse_lazy("accounts_login"))),
     #url(r'^logout/', RedirectView.as_view(url=reverse_lazy("accounts_logout"))),
 ]
-
-if "accountifie.tasks" in settings.INSTALLED_APPS:
-    urlpatterns.append(url(r'^tasks/', include('accountifie.tasks.urls'), name="docengine_tasks"))

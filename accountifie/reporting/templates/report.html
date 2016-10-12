@@ -79,7 +79,7 @@ table.table tr td {
 span.padder {
     display: inline-block;
     width: 100%;
-    overflow-x: hidden;
+    overflow-x: scroll;
     border-bottom: 1px #999 dotted;
     margin-left:.6em;
 }
@@ -126,7 +126,7 @@ span.padder {
 
 
 
-    <table class="table table-condensed">
+    <table class="table table-condensed table-striped">
         <thead>
             <th></th>
             <th></th>
@@ -143,7 +143,7 @@ span.padder {
                 {% if "text" in row.type %}
                     <td colspan="{{columns|length|add:'1'}}">{{row.text}}</td>
                 {% else %}
-                    <td>{{row.text}}{% if row.values.0 %}<span class="padder"></span>{% endif %}</td>
+                    <td>{{row.text}}{% if row.values.0 %}{% endif %}</td>
                     {% for value in row.values %}
                         {% if value.link %}
                             <td onclick="document.location='{{value.link}}'">{{value.text}}</td>

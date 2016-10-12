@@ -17,13 +17,22 @@ def status_tag(status):
 
 
 def _get_info(t):
+	rslt = t.get('result', {})
+	output = rslt.get('output')
+
 	data = {}
 	data['task_id'] = t['task_id']
 	data['date_done'] = t['date_done']
-	data['task_status'] = status_tag(t.get('result', {}).get('status', 'UNKNOWN'))
-	data['result'] = t.get('result', {}).get('result')
-	data['download'] = t.get('result', {}).get('download')
-	data['task_name'] = t.get('result', {}).get('task_name')
+	
+	if rslt:
+		data['task_status'] = status_tag(rslt.get('status', 'UNKNOWN'))
+		data['task_name'] = rslt.get('task_name')
+
+		if output:
+			data['return_value'] = output.get('return_value')
+			data['download'] = output.get('download')
+			data['error'] = output.get('error')
+		
 	return data
 
 def tasks_in_progress(qstring={}):
