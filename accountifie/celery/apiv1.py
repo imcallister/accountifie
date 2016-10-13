@@ -15,6 +15,9 @@ def status_tag(status):
                 colorise(status), status)
     )
 
+def download_link(url):
+	return mark_safe('<a href="%s">Download results</a>' % url
+    )
 
 def _get_info(t):
 	rslt = t.get('result', {})
@@ -30,7 +33,9 @@ def _get_info(t):
 
 		if output:
 			data['return_value'] = output.get('return_value')
-			data['download'] = output.get('download')
+			download = output.get('download')
+			if download:
+				data['download'] = download_link(output.get('download'))
 			data['error'] = output.get('error')
 		
 	return data
