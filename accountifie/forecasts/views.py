@@ -18,7 +18,7 @@ from django.utils.html import mark_safe
 from django.views.generic.edit import CreateView, DeleteView
 from django.conf import settings
 
-from accountifie.tasks.utils import task
+import djcelery.models
 
 from .models import Forecast
 from .forms import ForecastForm
@@ -184,14 +184,14 @@ def fcast_report(request, fcast_id, rpt_id):
 
         writer = csv.writer(response)
         writer.writerow([''] + report.column_order)
-        map_values = lambda x: '' if x=='' else str(x['text'])
+        map_values = lambda x: '' if x == '' else str(x['text'])
         for row in report_data:
             writer.writerow([row['label']] + [map_values(row[col]) for col in [x for x in report.column_order if x in row]])
         return response
     elif format == 'html':
         # not bootstrap ... the more custom style for more complex reports
         context = report.html_report_context()
-        context['query_string']=request.META['QUERY_STRING']
+        context['query_string'] = request.META['QUERY_STRING']
         context['rows'] = []
         for rec in report_data:
             context['rows'] += report.get_row(rec)
@@ -200,57 +200,6 @@ def fcast_report(request, fcast_id, rpt_id):
     else:
         msg = "Sorry. This format is not recognised : %s" % format
         return render(request, '404.html', {'message': msg}), False
-
-
-# Run full 5 year monthly projections for 3 main reports
-
-@task
-def forecast_run_task(fcast_id, report_id, col_tag, company_ID=utils.get_default_company(), version='v1'):
-    fcast = Forecast.objects.get(id=fcast_id)
-    strategy = QueryManagerStrategyFactory().get('forecast')
-    strategy.set_cache(fcast_id=fcast_id, proj_gl_entries=fcast.get_gl_entries())
-
-    report = accountifie.reporting.rptutils.get_report(report_id, company_ID, version=version)
-    report.configure(col_tag=col_tag)
-    report.set_gl_strategy(strategy)
-    report_data = report.calcs()
-
-    path = os.path.join(settings.DATA_ROOT, 'forecast_%s_%s.csv' %( fcast_id, report_id))
-    f = open(path, 'wb')
-
-    writer = csv.writer(f)
-    writer.writerow([''] + report.column_order)
-    map_values = lambda x: '' if x=='' else str(x['text'])
-    for row in report_data:
-        writer.writerow([row['label']] + [map_values(row[col]) for col in [x for x in report.column_order if x in row]])
-    f.close()
-    
-    
-
-@login_required
-def forecast_run(request):
-    fcast_id = request.GET['forecast']
-    report_id = request.GET['report']
-    col_tag = request.GET['col_tag']
-    result, out, err = forecast_run_task(fcast_id, report_id, col_tag, 
-                                        task_title='Forecast %s %s' % (fcast_id, report_id),
-                                        task_success_url=reverse('fcast_finished'))
-
-    if result != 0:
-        #error starting task, warn the user
-        context = {'file_name': file_name, 'success': False, 
-                        'out': out, 'err': err}
-        messages.error(request, 'Could not run the forecast, please\
-                       see below')
-        if (len(err)):
-            messages.warning(request, err)
-        if (len(out)):
-            messages.info(request, mark_safe('<pre>%s</pre>' % out))
-        return forecast_detail(request, fid)
-    else:
-        return HttpResponseRedirect(reverse('task_result', kwargs={'pid':
-                                                                   out}))
-    return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
 @login_required

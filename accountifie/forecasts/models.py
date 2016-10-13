@@ -40,7 +40,6 @@ def _get_calcs(url):
         return api_func(path[1], path[2], path[3], qstring=qs)
 
 
-
 class Forecast(models.Model):
     label = models.CharField(max_length=50, blank=True)
     company = models.ForeignKey('gl.Company', default=utils.get_default_company)

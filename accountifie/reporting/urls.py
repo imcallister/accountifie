@@ -1,6 +1,5 @@
 from django.conf.urls import *
 
-from accountifie.tasks.views import FinishedTask
 
 import views
 
