@@ -20,17 +20,16 @@
     {% endfor %}
 
     {% if user.is_superuser %}
-    <li class="btn-group">
-        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-wrench"></span> POWER USERS <span class="caret"></span></a>
-      <ul class="dropdown-menu" role="menu">
-        <li><a class="btn-sm" type="button" href="/admin/">Admin</a></li>
-        <li><a class="btn-sm" type="button" href="/maintenance/">Maintenance</a></li>
-        <li><a class="btn-sm" type="button" href="/dashboard/">Dashboard</a></li>
-        <li><a class="btn-sm" type="button" href="/dashboard/logs">Logs</a></li>
-      </ul>
-    </li>
-
+      <li class="btn-group">
+          <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-wrench"></span> POWER USERS <span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+          {% for key, value in power_menu_items.items %} 
+            <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
+          {% endfor %}
+        </ul>
+      </li>
     {% endif %}
+    
     <li class="btn-group">
         <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> {{ company_id }} <span class="caret"></span></a>
       <ul class="dropdown-menu" role="menu">
