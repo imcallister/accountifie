@@ -23,7 +23,7 @@ def recalculate(request):
     return JsonResponse({'task_id': task_id, 'task_name': task_name, 'status_url': status_url})
 
 
-def _recalculate():
+def _recalculate(*args, **kwargs):
     klasses = []
     kl_paths = api_func('environment', 'variable_list', 'BMO_MODULES')
 
