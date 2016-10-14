@@ -3,7 +3,6 @@ from django.conf.urls import url, static
 #from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from . import views
-from . import uploader
 import accountifie.tasks.views
 import django.views.static
 
