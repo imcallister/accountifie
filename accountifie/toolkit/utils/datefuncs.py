@@ -1,6 +1,24 @@
 from accountifie.cal import is_period_id
 import datetime
+from datetime import tzinfo
 from dateutil.parser import parse
+
+ZERO = datetime.timedelta(0)
+
+# A UTC class.
+class utc(tzinfo):
+    """UTC"""
+    def utcoffset(self, dt):
+        return ZERO
+    def tzname(self, dt):
+        return "UTC"
+    def dst(self, dt):
+        return ZERO
+utc = utc()
+
+def utcnow():
+    u = datetime.datetime.utcnow()
+    return u.replace(tzinfo=utc)
 
 
 def daterange(start, end, bus_days_only=True):

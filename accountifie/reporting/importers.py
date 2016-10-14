@@ -12,7 +12,7 @@ from django.http import HttpResponseRedirect
 
 
 from accountifie.toolkit.forms import LabelledFileForm
-import accountifie.toolkit
+from accountifie.common.uploaders.csv import save_file
 from .models import Metric, MetricEntry
 
 DATA_ROOT = getattr(settings, 'DATA_DIR', os.path.join(settings.ENVIRON_DIR, 'data'))
@@ -28,7 +28,7 @@ def order_upload(request):
         label = form.cleaned_data['label']
 
         upload = request.FILES.values()[0]
-        file_name_with_timestamp = accountifie.toolkit.uploader.save_file(upload)
+        file_name_with_timestamp = save_file(upload)
         rslts = process_metrics(file_name_with_timestamp, label)
         if 'error' in rslts:
             messages.error(request, 'Failed: %s' % rslts['error'])

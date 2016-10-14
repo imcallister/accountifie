@@ -17,12 +17,11 @@ from django.db import transaction
 from django.apps import apps
 from django.core.serializers.json import DjangoJSONEncoder
 
-from accountifie.tasks.utils import task, utcnow
-from utils import get_default_company, csv_to_modelattr, create_instance, dirty_key
+from accountifie.toolkit.utils import get_default_company, csv_to_modelattr, create_instance, \
+                                      dirty_key, get_company, utcnow
 
+from accountifie.toolkit.forms import FileForm
 
-from forms import FileForm
-import utils
 
 import logging
 
@@ -35,7 +34,7 @@ PROCESSED_ROOT = os.path.join(DATA_ROOT, 'processed')
 
 
 @login_required
-def upload_file(request, **config):
+def upload_file(request, config):
     file_type = config['file_type']
 
     context = {'file_type': file_type,}     
@@ -45,36 +44,31 @@ def upload_file(request, **config):
         upload = request.FILES.values()[0]
         file_name = upload._name
         file_name_with_timestamp = save_file(upload)
-        company = utils.get_company(request)
+        company = get_company(request)
 
         model = config.pop('model')
         unique = config.pop('unique')
-        name_cleaner_path = config.pop('name_cleaner')
-        value_cleaner_path = config.pop('value_cleaner')
-        exclude_path = config.pop('exclude')
-        post_process_path = config.pop('post_process')
+        name_cleaner = config.pop('name_cleaner')
+        value_cleaner = config.pop('value_cleaner')
+        exclude = config.pop('exclude')
+        post_process = config.pop('post_process')
 
-
-
-        #result is zero if it was able to start the background task successfully.
-        result, out, err = process_incoming_file(model, unique, name_cleaner, value_cleaner, exclude, post_process,
+        result = process_incoming_file(model, unique, name_cleaner, value_cleaner, exclude, post_process,
                                                  file_type=config['file_type'],
                                                  file_name=file_name_with_timestamp,
                                                  company=company,
-                                                 task_title="%s data for %s" % (file_type, company),
-                                                 task_success_url=reverse('upload_complete'),
+                                                 task_title="%s data for %s" % (file_type, company)
                                                  )
 
-        if result != 0:
-            context.update({'file_name': file_name, 'success': False, 'out': out, 'err': err})
-            messages.error(request, 'Could not process the file provided, please see below')
-            return render(request, 'uploaded.html', context)
-        else:
-            return HttpResponseRedirect(reverse('task_result', kwargs={'pid':out,}))
+        output = dict((k, result.get(k)) for k in ['saved', 'key_errors', 'value_errors', 'found', 'data'])
+        output['dupes'] = len(result.get('dups', {}))
+        context = {'data': json.dumps(output, cls=DjangoJSONEncoder, indent=2)}
+        context['title'] = 'File Upload Results'
+        return render(request, 'api_display.html', context)
     else:
-        context.update({'file_name': file_name, 'success': False, 'out': out, 'err': err})
-        messages.error(request, 'Could not process the file provided, please see below')
-        return render(request, 'uploaded.html', context)
+        context['error'] = 'form not in valid format'
+        context['title'] = 'File Upload Results'
+        return render(request, 'api_display.html', context)
 
 
 def save_file(f):
@@ -89,7 +83,6 @@ def save_file(f):
     return new_name 
 
 
-@task
 def process_incoming_file(model, unique, name_cleaner, value_cleaner, exclude, post_process, **config):
     out = StringIO()
     file_name = config.pop('file_name')
@@ -122,8 +115,7 @@ def process_incoming_file(model, unique, name_cleaner, value_cleaner, exclude, p
         os.makedirs(PROCESSED_ROOT)
     processed_name = os.path.join(PROCESSED_ROOT, file_name)
     os.rename(incoming_name, processed_name)
-    print json.dumps(context, indent=4, cls=DjangoJSONEncoder)
-    return 0
+    return context
 
 
 def post_processing(file_type):

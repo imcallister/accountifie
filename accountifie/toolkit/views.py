@@ -14,16 +14,10 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from django.db.models import ForeignKey
 
-from accountifie.tasks.utils import task
-from accountifie.common.models import Log
 
 from accountifie.gl.models import Company
-
-from accountifie.query.query_manager import QueryManager
 import utils
 
 logger = logging.getLogger('default')
@@ -60,63 +54,6 @@ def choose_company(request, company_id):
     dest = request.META.get('HTTP_REFERER', '/')
     return HttpResponseRedirect(dest)
 
-
-@task
-def run_recalc(*args, **kwargs):
-    call_command('recalculate')
-    return 0
-
-@user_passes_test(lambda u: u.is_superuser)
-def recalculate(request):
-    out = StringIO()
-    result, out, err = run_recalc(task_title="Recalculating GL",task_success_url='/dashboard')
-
-    if result != 0:
-        return HttpResponseRedirect('/dashboard')
-    else:
-        return HttpResponseRedirect(reverse('task_result', kwargs={'pid':out,}))
-
-
-@task
-def run_logclean(*args, **kwargs):
-    clean_to = parse(kwargs.get('clean_to', None))
-    to_clean = Log.objects.filter(time__lte=clean_to)
-    Log.objects.filter(time__lte=clean_to).delete()
-    logger.info('cleaned %d log entries to %s' %(len(to_clean), clean_to.isoformat()))
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def cleanlogs(request):
-    out = StringIO()
-    clean_to = request.GET['clean_to']
-    result, out, err = run_logclean(task_title="Cleaning Logs",stdout=out, clean_to=clean_to)
-    return HttpResponseRedirect('/')
-
-
-@task
-def run_primecache(*args, **kwargs):
-    year = datetime.datetime.now().year
-    dates_list = utils.end_of_months(year) + utils.end_of_months(year-1)
-    dates = dict((dt.isoformat(), dt) for dt in dates_list)
-    company_ids = [c['id'] for c in Company.objects.filter(cmpy_type='ALO').values('id')]
-    tags = [None, ['yearend']]
-    query_manager = QueryManager()
-    for cmpy in company_ids:
-        for tag in tags:
-            exclude_cps = [None]
-            exclude_cps.append([c for c in company_ids if c!=cmpy])
-            for exclude_cp in exclude_cps:
-                logger.info('priming balance cache with %s, %s, %s' %(str(cmpy), str(tag), str(exclude_cp)))
-                throw_away = query_manager.pd_acct_balances(cmpy, dates, excl_contra=exclude_cp, excl_tags=tag)
-
-
-@user_passes_test(lambda u: u.is_superuser)
-def primecache(request):
-    out = StringIO()
-    result, out, err = run_primecache(task_title="Priming Balances Cache",
-                                    stdout=out)
-    messages.info(request, 'Balances Cache primed')
-    return HttpResponseRedirect('/maintenance')
 
 
 @user_passes_test(lambda u: u.is_superuser)
