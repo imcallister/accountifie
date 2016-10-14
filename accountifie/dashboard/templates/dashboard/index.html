@@ -27,8 +27,7 @@ dl.plain dt {
     <li><a href="#tab9" data-toggle="tab">DB Schema Info</a></li>
     <li><a href="#tab10" data-toggle="tab">Load testing</a></li>
     <li><a href="#tab11" data-toggle="tab">Upgrading</a></li>
-	{%if "accountifie.tasks" in settings.INSTALLED_APPS%}<li><a href="#tab12" data-toggle="tab">Deferred Tasks</a></li>{%endif%}
-    <li><a href="/dashboard/show_request/">Request info</a></li>
+	  <li><a href="/dashboard/show_request/">Request info</a></li>
   </ul>
   <div class="tab-content">
     <div class="tab-pane active" id="tab1">
@@ -194,13 +193,7 @@ dl.plain dt {
 
 
 
-          </div>
-		  {%if "accountifie.tasks" in settings.INSTALLED_APPS%}<div class="tab-pane" id="tab12">
-        	<h3>Deferred Processes</h3>
-        	<div id="deferreds_container"></div>
-		</div>{%endif%}
-            
-           
+          </div>      
         </div> <!-- tab10 -->
 </div> <!-- /tabbable -->
 {{ content }}
