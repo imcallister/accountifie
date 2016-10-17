@@ -12,7 +12,7 @@ from django.http import HttpResponseRedirect
 
 
 from accountifie.toolkit.forms import LabelledFileForm
-import accountifie.toolkit
+from accountifie.common.uploaders.csv import save_file
 from .models import Metric, MetricEntry
 
 DATA_ROOT = getattr(settings, 'DATA_DIR', os.path.join(settings.ENVIRON_DIR, 'data'))
@@ -20,32 +20,7 @@ INCOMING_ROOT = os.path.join(DATA_ROOT, 'incoming')
 PROCESSED_ROOT = os.path.join(DATA_ROOT, 'processed')
 
 
-
-def order_upload(request):
-    form = LabelledFileForm(request.POST, request.FILES)
-
-    if form.is_valid():
-        label = form.cleaned_data['label']
-
-        upload = request.FILES.values()[0]
-        file_name_with_timestamp = accountifie.toolkit.uploader.save_file(upload)
-        rslts = process_metrics(file_name_with_timestamp, label)
-        if 'error' in rslts:
-            messages.error(request, 'Failed: %s' % rslts['error'])
-        else:
-            messages.success(request, 'Created %d metric entries' % rslts.get('new_count', 0))
-            messages.success(request, 'Updated %d metric entries' % rslts.get('updated_count', 0))
-            messages.info(request, '%d new metrics' % rslts.get('new_metrics', 0))
-
-        context = {}
-        return HttpResponseRedirect('/forecasts')
-    else:
-        context.update({'file_name': request.FILES.values()[0]._name, 'success': False, 'out': None, 'err': None})
-        messages.error(request, 'Could not process the Metrics file provided, please see below')
-        return render(request, 'uploaded.html', context)
-
-
-def process_metrics(file_name, label):
+def process_metrics(file_name, label=None):
     incoming_name = os.path.join(INCOMING_ROOT, file_name)
     with open(incoming_name, 'U') as f:
         reader = csv.reader(f)
@@ -74,6 +49,7 @@ def process_metrics(file_name, label):
     update_entry_cnt = 0
 
     for row in rows:
+
         try:
             dt = parse(row[0])
         except:
@@ -103,6 +79,8 @@ def process_metrics(file_name, label):
             except:
                 pass
 
-    return {'new_count': new_entry_cnt,
-            'new_metrics': new_metrics,
-            'updated_count': update_entry_cnt}
+    msg_list = []
+    msg_list.append('Created %d metric entries' % new_entry_cnt)
+    msg_list.append('Updated %d metric entries' % new_metrics)
+    msg_list.append('%d new metrics' % update_entry_cnt)
+    return msg_list, []
