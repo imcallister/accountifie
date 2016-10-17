@@ -110,6 +110,16 @@
         {% for key, value in menu_items.items %} 
           <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
         {% endfor %}
+        <li class="btn-group">
+            <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"> Forecasts <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            {% block forecasts_items %}
+              {% for key, value in forecasts_items.items %} 
+                <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
+              {% endfor %}
+            {% endblock %}
+          </ul>
+        </li>
       {% endblock %}
         {% if user.is_superuser %}
         <li class="btn-group">
