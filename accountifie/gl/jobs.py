@@ -5,7 +5,7 @@ import logging
 import datetime
 
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect
 
 from accountifie.gl.models import Transaction
 from accountifie.gl.bmo import BusinessModelObject
@@ -20,7 +20,7 @@ def recalculate(request):
     task_name = 'ledger-recalculate'
     task_id = background_task(task=task_name, calc=_recalculate).id
     status_url = 'background_task/status/%s' % task_id
-    return JsonResponse({'task_id': task_id, 'task_name': task_name, 'status_url': status_url})
+    return HttpResponseRedirect('/tasks/list/')
 
 
 def _recalculate(*args, **kwargs):

@@ -42,6 +42,8 @@
             type: 'GET',
             url: task_url,
             success: function(data, status, request) {
+                console.log('in start_long_task');
+                console.log(data);
                 status_url = data.status_url;
                 $('#startTask').modal('show');
                 $('#task_results').text('');
