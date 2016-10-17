@@ -219,45 +219,7 @@ $(document).ready(function(){
         load_logs(1)
        })
 });
-{% if 'accountifie.tasks' in settings.INSTALLED_APPS %}
 
-var load_deferreds_timeout=false;
-
-function load_deferreds(){
-  if($('#tab12').hasClass('active')){
-  	$.get(
-			'{% url "dashboard_deferreds" %}',
-			function(data, textStatus, jqXHR) {
-  			$('#deferreds_container').html(data);
-			},
-			'html'
-		)
-		load_deferreds_timeout=window.setTimeout('load_deferreds()',10000);
-		}
-	}
-
-
-$(document).ready(function(){
-
-   $('a[href="#tab12"]').on('shown.bs.tab', function(event){
-        load_deferreds();
-       });
-
-	$(document).on('click','.kill-task', function(e){
-		var _that = $(this);
-		var tid = _that.data('task');
-		$.get(
-			'{# url "task_kill_js" #}/tasks/kill/'+tid+'/',
-			function(data, textStatus, jqXHR){
-				window.clearTimeout(load_deferreds_timeout);
-				if (typeof console !== "undefined")
-					console.log(data);
-				load_deferreds();
-				},
-			'html'
-			)
-		});
-});
 </script>
-{% endif %}
+
 {% endblock %}

@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.detail import DetailView
 from django.shortcuts import render
 from django.template import RequestContext
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.db import transaction
@@ -42,7 +43,6 @@ def upload_file(request, config):
 
     if form.is_valid():
         upload = request.FILES.values()[0]
-        file_name = upload._name
         file_name_with_timestamp = save_file(upload)
         company = get_company(request)
 
@@ -64,6 +64,11 @@ def upload_file(request, config):
         output['dupes'] = len(result.get('dups', {}))
         context = {'data': json.dumps(output, cls=DjangoJSONEncoder, indent=2)}
         context['title'] = 'File Upload Results'
+        msg = 'Loaded %s. Checked %d -- %d new, %d dupes.' % (config['file_type'],
+                                                              output['found'],
+                                                              len(output['saved']),
+                                                              output['dupes'])
+        messages.info(request, msg)
         return render(request, 'api_display.html', context)
     else:
         context['error'] = 'form not in valid format'
@@ -88,8 +93,7 @@ def process_incoming_file(model, unique, name_cleaner, value_cleaner, exclude, p
     file_name = config.pop('file_name')
     context = {'file_name': file_name}
     file_type = config.pop('file_type')
-    success_url = config.get('success_url', None)
-
+    
     incoming_name = os.path.join(INCOMING_ROOT, file_name)
     
     with open(incoming_name, 'U') as f:
@@ -166,6 +170,7 @@ def save_data(data, company, model, unique, name_cleaner, value_cleaner, exclude
             try:
                 unique_instance.save()
             except Exception as e:
+                print 'exception right here', e
                 message = getattr(e, 'messages', [row])[0]
                 value_errors.append((e.__class__.__name__, index, message))
                 continue
