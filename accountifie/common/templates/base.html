@@ -65,7 +65,8 @@
 
 
     
-{% block extrahead %}{% endblock %}
+{% block extrahead %}
+{% endblock %}
 </head>
 
 <script src="{{STATIC_URL}}common/js/moment.js"></script>
@@ -107,8 +108,13 @@
   <div class="navbar-collapse collapse navbar-responsive-collapse">
     <ul class="nav navbar-nav pull-right">
       {% block menu_items %}
-        {% for key, value in menu_items.items %} 
-          <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
+        {% for key, value, icon in menu_items.items %} 
+          <li>
+            <a class="btn-sm" type="button" href={{value}}>
+              <span class="{{icon}}"></span>
+              {{key}}
+            </a>
+          </li>
         {% endfor %}
         <li class="btn-group">
             <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"> Forecasts <span class="caret"></span></a>
