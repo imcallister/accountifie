@@ -4,7 +4,7 @@ import csv
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 
 import accountifie.common.uploaders
 from accountifie.toolkit.forms import FileForm, LabelledFileForm
@@ -32,6 +32,7 @@ def save_file(infile):
 
 def order_upload(request, processor, redirect_url=None, label=False, file_type='csv upload'):
     if request.method == 'POST':
+        
         if label:
             form = LabelledFileForm(request.POST, request.FILES)
         else:
@@ -52,9 +53,21 @@ def order_upload(request, processor, redirect_url=None, label=False, file_type='
             for err in error_msgs:
                 messages.error(request, err)
         else:
-            msg = 'Could not process the file provided, please see below'
-            messages.error(request, msg)
+            try:
+                upload = request.FILES.values()[0]
+                file_name_with_timestamp = save_file(upload)
+                if label:
+                    summary_msg, error_msgs = processor(file_name_with_timestamp,
+                                                        label=form.cleaned_data['label'])
+                else:
+                    summary_msg, error_msgs = processor(file_name_with_timestamp)
+                
+                return JsonResponse({'summary': summary_msg, 'errors': error_msgs})
+            except:
+                msg = 'Could not process the file provided, please see below'
+                messages.error(request, msg)
         
+
         if redirect_url:
             return HttpResponseRedirect(redirect_url)
         else:
