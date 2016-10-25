@@ -3,6 +3,8 @@
 
 {% block extrahead %}
 <link rel="stylesheet" href="{{STATIC_URL}}base/css/base.css" />
+<script src="{{ STATIC_URL }}base/js/fontawesome.js"></script>
+
 {% endblock %}
 
 {% block title %}{{admin_site_title}}{% endblock %}
@@ -13,32 +15,51 @@
 
 {% block welcome-msg %}{% endblock %}
 
+{% block logs %}{% endblock %}
+{% block userlinks %}{% endblock %}
 
 {% block nav-global %}
-    {% for key, value in menu_items.items %} 
-      <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
-    {% endfor %}
-
-    {% if user.is_superuser %}
-      <li class="btn-group">
-          <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-wrench"></span> POWER USERS <span class="caret"></span></a>
+    <li class="btn-group">
+        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown">
+            <span class="fa fa-usd fa-lg"></span>HII Finances 
+            <span class="caret"></span>
+        </a>
         <ul class="dropdown-menu" role="menu">
-          {% for key, value in power_menu_items.items %} 
-            <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
-          {% endfor %}
+            <li><a class="btn-sm" type="button" href="/reports/">Reporting</a></li>
+            <li><a class="btn-sm" type="button" href="/bookkeeping/">Book-keeping</a></li>
         </ul>
-      </li>
-    {% endif %}
+    </li>
     
     <li class="btn-group">
-        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> {{ company_id }} <span class="caret"></span></a>
+        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-shopping-cart"></span> Inventory <span class="caret"></span></a>
       <ul class="dropdown-menu" role="menu">
-        {% for cmpny in company_list %}
-          <li><a href="/choose_company/{{cmpny}}">{{cmpny}}</a></li>
-        {% endfor %}
+        <li><a class="btn-sm" type="button" href="/inventory/">Stocks</a></li>
+        <li><a class="btn-sm" type="button" href="/inventory/management/">Fulfillment</a></li>
       </ul>
     </li>
 
 
+    <li class="btn-group">
+        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="fa fa-bar-chart fa-lg"></span> Analysis <span class="caret"></span></a>
+      <ul class="dropdown-menu" role="menu">
+        <li><a class="btn-sm" type="button" href="/sales-analysis/">Sales</a></li>
+        <li><a class="btn-sm" type="button" href="/orders_list/">Orders</a></li>
+        <li><a class="btn-sm" type="button" href="/ship_charges/">Shipping & Handling</a></li>
+      </ul>
+    </li>
+
+    {% if user.username %}
+      <li class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <strong>{% firstof user.get_full_name user.username user.email %}</strong> <span class="caret"></span></a>
+      <ul class="dropdown-menu" role="menu">
+          {% block loggedin_options %}{% endblock%}
+          {% if HAS_PROFILE %}<li><a href="{% url 'accounts_profile' %}">My profile</a></li>{% endif %}
+          <li><a href='/accounts/change_password/'>Change Password</a></li>
+          <li><a href='{% url 'accounts_logout' %}'>Logout</a></li>
+      </ul>
+      </li>
+      {% else %}
+          <li><a href="{% url 'accounts_login'%}">Login</a></li>
+      {% endif %}
 {% endblock %}
+
 
