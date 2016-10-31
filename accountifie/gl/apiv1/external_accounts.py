@@ -21,9 +21,8 @@ def external_bals_history(qstring={}):
 
     external_balances = dict((x.date.isoformat(), float(x.balance)) for x in ExternalBalance.objects.filter(account__id=acct).filter(date__in=dts))
     int_bals_df = accountifie.query.query_manager.QueryManager(gl_strategy).pd_acct_balances(company_id, dict((dt.isoformat(),dt) for dt in dts), acct_list=[acct])
-    
     if acct in int_bals_df.index:
-        internal_balances = accountifie.query.query_manager.QueryManager(gl_strategy).pd_acct_balances(company_id, dict((dt.isoformat(),dt) for dt in dts), acct_list=[acct]).loc[acct].to_dict()
+        internal_balances = int_bals_df.loc[acct].to_dict()
     else:
         internal_balances = {}
     bal_checks = []
@@ -31,7 +30,6 @@ def external_bals_history(qstring={}):
     for dt in dts:
         external = external_balances.get(dt.isoformat(), 0.0)
         internal = internal_balances.get(dt.isoformat(), 0.0)
-        
         bal_checks.append({'Date': dt, 'Internal': internal, 'External': external, 'Diff': external - internal})
     
     return bal_checks

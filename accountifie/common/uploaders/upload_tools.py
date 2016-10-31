@@ -39,7 +39,6 @@ def order_upload(request, processor, redirect_url=None, label=False, file_type='
             form = FileForm(request.POST, request.FILES)
 
         if form.is_valid():
-            
             upload = request.FILES.values()[0]
             file_name_with_timestamp = save_file(upload)
 
@@ -65,8 +64,7 @@ def order_upload(request, processor, redirect_url=None, label=False, file_type='
                 return JsonResponse({'summary': summary_msg, 'errors': error_msgs})
             except:
                 msg = 'Could not process the file provided, please see below'
-                messages.error(request, msg)
-        
+                return JsonResponse({'summary': msg, 'errors': []})
 
         if redirect_url:
             return HttpResponseRedirect(redirect_url)
