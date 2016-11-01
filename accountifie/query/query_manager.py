@@ -177,11 +177,11 @@ class QueryManager:
             d = date_indexed_account_balances[dt]
             date_indexed_account_balances[dt] = {k:d[k] for k in d if d[k] != 0.0}
 
-        output = pd.DataFrame(date_indexed_account_balances)
+        output = pd.DataFrame(date_indexed_account_balances).fillna(0)
 
         if paths:
             a = [[x['id'] for x in api_func('gl', 'path_accounts', path)] for path in paths]
-            accts_list = list(itertools.chain(*a))
+            acct_list = list(itertools.chain(*a))
             return output[output.index.isin(acct_list)]
         elif acct_list:
             filtered_output = output[output.index.isin(acct_list)]
