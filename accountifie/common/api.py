@@ -26,8 +26,9 @@ def api_wrapper(func):
     return api_call
 
 
-def resource_func(group, resource, qstring={}):
-    api_module = get_module('%s.%s' % (group, 'apiv1'))
+def resource_func(group, resource, qstring={}, chart=False):
+    module_class = 'chart' if chart else 'apiv1'
+    api_module = get_module('%s.%s' % (group, module_class))
     api_method = getattr(api_module, resource)
     api_call = api_wrapper(api_method)
     return api_call(qstring)
@@ -75,6 +76,12 @@ def get_resource(request, group, resource):
         context = {'data': json.dumps(resource_func(group, resource, qstring=qs), cls=DjangoJSONEncoder, indent=2)}
         context['title'] = 'API call: /%s/%s' % (group, resource)
         return render(request, 'api_display.html', context)
+
+
+def get_chart(request, group, chart):
+    qs = dict((k,v) for k,v in request.GET.iteritems())
+    return HttpResponse(json.dumps(resource_func(group, chart, qstring=qs, chart=True),
+                                   cls=DjangoJSONEncoder), content_type="application/json")
 
 
 def output_as_csv(data, label='output'):
