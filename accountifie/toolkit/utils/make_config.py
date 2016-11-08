@@ -59,6 +59,13 @@ def annual_ends(year):
     column_titles = ['end of %d' % (int(year)-1), 'chg in %s' % year, 'end of %s' % year]
     return columns, column_titles
 
+
+def ytd_ends(dt, year):
+    columns = [datefuncs.end_of_prev_year(int(year)).isoformat(), year, dt.isoformat()]
+    column_titles = ['end of %d' % (int(year)-1), 'chg in %s' % year, 'End of Period']
+    return columns, column_titles
+
+
 def monthly_periods(year):
     columns = ['%sM%s' % (year, '%02d' % x) for x in range(1,13)]
     column_titles = MONTHS        

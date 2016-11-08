@@ -14,6 +14,7 @@ HALF_TAG = re.compile("^(\d{4})H([1-2]{1})$")
 QUARTERLY_TAG = re.compile('(\d{4})(Quarterly)')
 ANNUAL_TAG = re.compile('(\d{4})(Annual)')
 MONTHLY_TAG = re.compile('(\d{4})(Monthly)')
+YTD_TAG = re.compile('(YTD_)(\d{4}-\d{1,2}-\d{1,2})')
 DAILY_TAG = re.compile('(daily_)(\d{4}-\d{1,2}-\d{1,2})')
 TRAILING12M_TAG = re.compile('(12Mtrailing)(-?)(\d{4}-\d{1,2}-\d{1,2})?')
 MULTIYEAR_TAG = re.compile('(\d{1,2})yr_(\d{4}-\d{1,2}-\d{1,2})?')
@@ -115,6 +116,20 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
             columns, column_titles = monthly_periods(yr)
         elif calc_type == 'as_of':
             columns, column_titles = monthly_ends(yr)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+
+    ytd_match = YTD_TAG.search(col_tag)
+    if ytd_match:
+        dt = parse(ytd_match.groups()[1]).date()
+        yr = str(dt.year)
+
+        title = 'YTD to %s %s' %( dt.strftime('%d-%b-%y'), rpt_desc)
+
+        if calc_type == 'diff':
+            return
+        elif calc_type == 'as_of':
+            columns, column_titles = ytd_ends(dt, yr)
+
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
     daily_match = DAILY_TAG.search(col_tag)
