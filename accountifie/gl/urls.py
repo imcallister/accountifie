@@ -23,5 +23,6 @@ urlpatterns = [
     # utilities
     url(r'gl/get_transactions/', views.download_transactions),
     url(r'gl/get_tranlines/', views.download_tranlines),
+
     url(r'celery/recalculate/', jobs.recalculate),
 ]

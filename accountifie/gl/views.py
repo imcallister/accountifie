@@ -56,9 +56,9 @@ class AccountAutocomplete(autocomplete.Select2QuerySetView):
 def download_transactions(request):
     company_ID = utils.get_company(request)
 
-    snapshot_time = datetime.datetime.now()
-    strategy = QueryManagerStrategyFactory().get('snapshot')
-    strategy.set_cache(None)
+    #snapshot_time = datetime.datetime.now()
+    strategy = QueryManagerStrategyFactory().get('remote')
+    #strategy.set_cache(None)
 
     trans = strategy.get_all_transactions(company_ID)
 
