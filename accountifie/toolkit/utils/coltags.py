@@ -125,10 +125,7 @@ def config_fromcoltag(col_tag, rpt_desc, calc_type):
 
         title = 'YTD to %s %s' %( dt.strftime('%d-%b-%y'), rpt_desc)
 
-        if calc_type == 'diff':
-            return
-        elif calc_type == 'as_of':
-            columns, column_titles = ytd_ends(dt, yr)
+        columns, column_titles = ytd_ends(dt, yr)
 
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
