@@ -1,8 +1,9 @@
 
+from accountifie.reporting.models import ReportDef
+from accountifie.reporting.serializers import ReportDefSerializer
 
-def report_calcs():
-	# receive json config 
 
-	# return json results
-	results = {}
-	return results
+def reportdef(qstring):
+    qs = ReportDef.objects.all()
+    return ReportDefSerializer(qs, many=True).data
+
