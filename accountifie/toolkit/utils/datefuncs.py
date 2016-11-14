@@ -30,6 +30,13 @@ def daterange(start, end, bus_days_only=True):
         return dates
 
 
+def today():
+    return datetime.datetime.now().date()    
+
+def yesterday():
+    return prev_busday(today())
+
+
 def start_of_period(period_id):
     pid = period_id
     assert is_period_id(pid)
