@@ -7,10 +7,11 @@ from django.shortcuts import render
 from django.template import RequestContext
 
 import accountifie.toolkit.utils as utils
-from models import ReportDef
+from accountifie.reporting.models import ReportDef
+from .column_funcs import *
 
 
-def qs_parser(qs):
+def qs_parse(qs):
     matches = []
     if 'date' in qs:
         matches.append('date')
@@ -58,6 +59,29 @@ def config_fromdate(calc_type, rpt_desc, dt):
     config['title'] = '%s, %s' % (rpt_desc, dt.strftime('%d-%b-%y'))
     config['date'] = dt.isoformat()
     return config
+
+
+def config_fromperiod(calc_type, rpt_desc, config):
+    
+    if config['period'] == 'year':
+        diff_col_funcs = {'year': annual_periods,
+                      'quarter': quarterly_periods,
+                      'month': monthly_periods}
+
+        asof_col_funcs = {'year': annual_ends,
+                      'quarter': quarter_ends,
+                      'month': monthly_ends}
+
+        title = config['year'] + ' ' + rpt_desc
+
+        if calc_type == 'diff':
+            columns, column_titles = diff_col_funcs[config['by']](config['year'])
+        elif calc_type == 'as_of':
+            columns, column_titles = asof_col_funcs[config['by']](config['year'])    
+
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+    elif config['period'] == 'half':
+        return
 
 
 def config_fromtag(calc_type, rpt_desc, col_tag):

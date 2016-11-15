@@ -1,0 +1,100 @@
+import re
+
+from django.conf import settings
+from dateutil.parser import parse
+import accountifie.toolkit.utils.datefuncs as datefuncs
+
+
+MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+MONTH_TAG = re.compile("^(\d{4})M(0[1-9]{1}|10|11|12)(Monthly)?$")
+QUARTER_TAG = re.compile("^(\d{4})Q([1-4]{1})(Quarterly|Monthly)?$")
+HALF_TAG = re.compile("^(\d{4})H([1-2]{1})(Semi|Quarterly|Monthly)?$")
+YEAR_TAG = re.compile("^(\d{4})(Annual|Semi|Quarterly|Monthly)?$")
+
+
+YTD_TAG = re.compile('(YTD_)(\d{4}-\d{1,2}-\d{1,2})(Annual|Semi|Quarterly|Monthly)?')
+DAILY_TAG = re.compile('(daily_)(\d{4}-\d{1,2}-\d{1,2})')
+TRAILING12M_TAG = re.compile('(12Mtrailing)(-?)(\d{4}-\d{1,2}-\d{1,2})?')
+MULTIYEAR_TAG = re.compile('(\d{1,2})yr_(\d{4}-\d{1,2}-\d{1,2})(Annual|Semi|Quarterly|Monthly)?')
+
+
+BY_MAP = {'Monthly': 'month',
+          'Quarterly': 'quarter',
+          'Semi': 'half',
+          'Annual': 'year'}
+
+
+def parse_shortcut(col_tag):
+
+    month_tag = MONTH_TAG.match(col_tag)
+    if month_tag is not None:
+        year = month_tag.groups()[0]
+        month = month_tag.groups()[1]
+        return {'config_type': 'period',
+                'period': 'month', 
+                'year': year, 'month': month,
+                'by': BY_MAP.get(month_tag.groups()[2], 'month')}
+
+    quarter_tag = QUARTER_TAG.match(col_tag)
+    if quarter_tag is not None:
+        year = quarter_tag.groups()[0]
+        quarter = quarter_tag.groups()[1]
+        return {'config_type': 'period',
+                'period': 'quarter', 
+                'year': year, 'quarter': quarter,
+                'by': BY_MAP.get(quarter_tag.groups()[2], 'quarter')}
+
+    half_tag = HALF_TAG.match(col_tag)
+    if half_tag is not None:
+        year = half_tag.groups()[0]
+        half = half_tag.groups()[1]
+        return {'config_type': 'period',
+                'period': 'semi', 
+                'year': year, 'half': half,
+                'by': BY_MAP.get(half_tag.groups()[2], 'half')}
+
+    year_tag = YEAR_TAG.match(col_tag)
+    if year_tag is not None:
+        year = year_tag.groups()[0]
+        return {'config_type': 'period',
+                'period': 'year', 
+                'year': year,
+                'by': BY_MAP.get(year_tag.groups()[1], 'year')}
+
+
+    ytd_match = YTD_TAG.search(col_tag)
+    if ytd_match:
+        dt = parse(ytd_match.groups()[1]).date()
+        return {'config_type': 'date_range',
+                'from': datefuncs.end_of_prev_year(dt.year),
+                'to': dt,
+                'by': BY_MAP.get(year_tag.groups()[2], 'year')}
+
+    daily_match = DAILY_TAG.search(col_tag)
+    if daily_match:
+        dt = parse(daily_match.groups()[1]).date()
+        return {'config_type': 'date_range',
+                'from': datefuncs.prev_busday(dt.year),
+                'to': dt,
+                'by': BY_MAP.get(year_tag.groups()[2], 'year')}
+
+    trailing12M_match = TRAILING12M_TAG.search(col_tag)
+    if trailing12M_match:
+        dt = parse(daily_match.groups()[1]).date()
+        return {'config_type': 'date_range',
+                'from': datefuncs.end_of_month(dt.month, dt.year - 1),
+                'to': dt,
+                'by': 'month'}
+
+    multiyear_match = MULTIYEAR_TAG.search(col_tag)
+    if multiyear_match:
+        dt = parse(multiyear_match.groups()[1]).date()
+        years = int(multiyear_match.groups()[0])
+        return {'config_type': 'date_range',
+                'from': dt,
+                'to': datefuncs.end_of_prev_month(dt.month, dt.year + years),
+                'by': BY_MAP.get(year_tag.groups()[2], 'year')}
+
+    # didn't match anything
+    raise ValueError('Unexpected shortcut: %s' % repr(col_tag))

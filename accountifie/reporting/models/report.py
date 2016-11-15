@@ -86,23 +86,28 @@ class Report(object):
     
     def configure(self, config):
         qs_matches = rptutils.qs_parse(config)
-
+        
         if len(qs_matches) == 0:
-            print 'no report config recognised'
-            return
-        elif len(qs_matches) > 0:
-            print 'multiple configs recognised'
-            return
+            raise ValueError('Unexpected query string: %s' % repr(config))
+        elif len(qs_matches) > 1:
+            raise ValueError('Unexpected query string: %s' % repr(config))
         else:
-            config_type = qs_matches[0]
+            config['config_type'] = qs_matches[0]
 
-        if config_type == 'date':
+
+        if config['config_type'] == 'shortcut':
+            config.pop('config_type')
+            config.update(rptutils.parse_shortcut(config['col_tag']))
+
+
+        if config['config_type'] == 'date':
             config.update(rptutils.config_fromdate(self.calc_type, self.description, config['as_of']))
-        elif config_type == 'shortcut':
-            config.update(rptutils.config_fromtag(self.calc_type, self.description, config['col_tag']))
-        elif config_type == 'period':
-            config.update(rptutils.config_fromperiod(self.calc_type, self.description, 'today'))
-        elif config_type == 'date_range':
+        elif config['config_type'] == 'period':
+            print
+            print 'config'
+            print config
+            config.update(rptutils.config_fromperiod(self.calc_type, self.description, config))
+        elif config['config_type'] == 'date_range':
             config.update(rptutils.config_fromdaterange(self.calc_type, self.description, 'today'))
         
         self.title = config.get('title')
