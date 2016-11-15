@@ -81,7 +81,7 @@ def parse_shortcut(col_tag):
 
     trailing12M_match = TRAILING12M_TAG.search(col_tag)
     if trailing12M_match:
-        dt = parse(daily_match.groups()[1]).date()
+        dt = parse(trailing12M_match.groups()[2]).date()
         return {'config_type': 'date_range',
                 'from': datefuncs.end_of_month(dt.month, dt.year - 1),
                 'to': dt,
@@ -94,7 +94,7 @@ def parse_shortcut(col_tag):
         return {'config_type': 'date_range',
                 'from': dt,
                 'to': datefuncs.end_of_prev_month(dt.month, dt.year + years),
-                'by': BY_MAP.get(year_tag.groups()[2], 'year')}
+                'by': BY_MAP.get(multiyear_match.groups()[2], 'year')}
 
     # didn't match anything
     raise ValueError('Unexpected shortcut: %s' % repr(col_tag))

@@ -86,7 +86,6 @@ class Report(object):
     
     def configure(self, config):
         qs_matches = rptutils.qs_parse(config)
-        
         if len(qs_matches) == 0:
             raise ValueError('Unexpected query string: %s' % repr(config))
         elif len(qs_matches) > 1:
@@ -99,16 +98,12 @@ class Report(object):
             config.pop('config_type')
             config.update(rptutils.parse_shortcut(config['col_tag']))
 
-
         if config['config_type'] == 'date':
             config.update(rptutils.config_fromdate(self.calc_type, self.description, config['as_of']))
         elif config['config_type'] == 'period':
-            print
-            print 'config'
-            print config
             config.update(rptutils.config_fromperiod(self.calc_type, self.description, config))
         elif config['config_type'] == 'date_range':
-            config.update(rptutils.config_fromdaterange(self.calc_type, self.description, 'today'))
+            config.update(rptutils.config_fromdaterange(self.calc_type, self.description, config))
         
         self.title = config.get('title')
         self.set_columns(config['columns'], column_order=config.get('column_order'))

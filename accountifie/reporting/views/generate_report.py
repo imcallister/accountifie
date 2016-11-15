@@ -22,8 +22,6 @@ def report(request, id):
 
     report, is_report = rptutils.report_prep(request, id)
 
-    print type(report)
-
     if report.from_file:
         try:
             report_data = json.loads(report.from_file)

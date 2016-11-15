@@ -30,13 +30,6 @@ def daterange(start, end, bus_days_only=True):
         return dates
 
 
-def today():
-    return datetime.datetime.now().date()    
-
-def yesterday():
-    return prev_busday(today())
-
-
 def start_of_period(period_id):
     pid = period_id
     assert is_period_id(pid)
@@ -119,13 +112,13 @@ def start_of_next_month(d):
 
 
 def start_of_year(yr):
-    return datetime.date(yr, 1, 1)
+    return datetime.date(int(yr), 1, 1)
 
 def end_of_year(yr):
-    return datetime.date(yr, 12, 31)
+    return datetime.date(int(yr), 12, 31)
 
 def end_of_prev_year(yr):
-    return datetime.date(yr - 1, 12, 31)
+    return datetime.date(int(yr) - 1, 12, 31)
 
 def end_of_month(mth,yr):
     if mth==12:
@@ -172,10 +165,10 @@ def HTD(dt):
 
 
 def start_of_quarter(qtr, yr):
-    return datetime.date(yr, qtr*3 - 2, 1)
+    return datetime.date(int(yr), int(qtr) * 3 - 2, 1)
 
 def end_of_quarter(qtr, yr):
-    return end_of_month(qtr*3, yr)
+    return end_of_month(int(qtr) * 3, int(yr))
 
 def end_of_prev_quarter(qtr, yr):
     start_of_qtr = start_of_quarter(qtr, yr)
@@ -183,10 +176,10 @@ def end_of_prev_quarter(qtr, yr):
 
 
 def start_of_half(half, yr):
-    return datetime.date(yr, half*6 - 5, 1)
+    return datetime.date(int(yr), int(half) * 6 - 5, 1)
 
 def end_of_half(half, yr):
-    return end_of_month(half*6, yr)
+    return end_of_month(int(half) * 6, int(yr))
 
 def end_of_prev_half(half, yr):
     return start_of_half(half, yr) + datetime.timedelta(days=-1)
@@ -201,3 +194,22 @@ def monthrange(start, finish):
         year  = (i - 1) / 12 + start.year
         month = (i - 1) % 12 + 1
         yield (year, month)
+
+def quarterrange(start, end):
+    start_qtr = (start.year, (start.month -1)/3 + 1)
+    end_qtr = (end.year, (end.month -1)/3 + 1)
+    quarters = (end_qtr[0] - start_qtr[0]) * 4 + (end_qtr[1] - start_qtr[1]) + 1
+    for i in xrange(start_qtr[1], start_qtr[1] + quarters):
+        year  = (i - 1) / 4 + start.year
+        qtr = (i - 1) % 4 + 1
+        yield (year, qtr)
+
+def semirange(start, end):
+    start_half = (start.year, (start.month -1)/6 + 1)
+    end_half = (end.year, (end.month -1)/6 + 1)
+    semis = (end_half[0] - start_half[0]) * 2 + (end_half[1] - start_half[1]) + 1
+    for i in xrange(start_half[1], start_half[1] + semis):
+        year  = (i - 1) / 2 + start.year
+        half = (i - 1) % 2 + 1
+        yield (year, half)
+
