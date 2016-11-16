@@ -10,6 +10,7 @@ import accountifie.toolkit.utils as utils
 from accountifie.reporting.models import ReportDef
 from .column_funcs import *
 import accountifie.toolkit.utils.datefuncs as datefuncs
+import shortcuts
 
 
 def qs_parse(qs):
@@ -17,7 +18,7 @@ def qs_parse(qs):
     if 'date' in qs:
         matches.append('date')
     
-    if 'from' in qs and 'to' in qs and 'by' in qs:
+    if 'from' in qs and 'to' in qs:
         matches.append('date_range')
 
     if 'period' in qs and 'by' in qs:
@@ -29,25 +30,9 @@ def qs_parse(qs):
     return matches
 
 
-def date_from_shortcut(scut):
-    if scut == 'yesterday':
-        return utils.yesterday()
-    elif scut == 'today':
-        return utils.today()
-    else:
-        try:
-            if type(scut) == datetime.date:
-                return scut
-            elif type(scut) in [unicode, str]:
-                return parse(scut).date()
-            else:
-                return
-        except:
-            return
-
 
 def config_fromdate(calc_type, rpt_desc, dt):
-    dt = date_from_shortcut(dt)
+    dt = shortcuts.date_from_shortcut(dt)
 
     if calc_type == 'as_of':
         as_of_col = {dt.strftime('%d-%b-%y'): dt.isoformat()}
@@ -84,7 +69,7 @@ def config_fromperiod(calc_type, rpt_desc, config):
             elif config['by'] == 'half':
                 columns, column_titles = gen_semi_ends(year_start, year_end)
             else:
-                columns, column_titles = gen_annual_ends(year_start, year_end)
+                columns, column_titles = annual_ends(config['year'])
 
         title = '%s %s' % (config['year'], rpt_desc)
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
@@ -144,32 +129,29 @@ def config_fromperiod(calc_type, rpt_desc, config):
 
 
 def config_fromdaterange(calc_type, rpt_desc, config):
-    
+    from_dt = shortcuts.date_from_shortcut(config['from'])
+    to_dt = shortcuts.date_from_shortcut(config['to'])
     if calc_type == 'diff':
         if config['by'] == 'month':
-            columns, column_titles = gen_monthly_periods(config['from'], config['to'])
+            columns, column_titles = gen_monthly_periods(from_dt, to_dt)
         elif config['by'] == 'quarter':
-            columns, column_titles = gen_quarterly_periods(config['from'], config['to'])
+            columns, column_titles = gen_quarterly_periods(from_dt, to_dt)
         elif config['by'] == 'half':
-            columns, column_titles = gen_semi_periods(config['from'], config['to'])
+            columns, column_titles = gen_semi_periods(from_dt, to_dt)
         else:
-            columns, column_titles = gen_annual_periods(config['from'], config['to'])
+            columns, column_titles = gen_annual_periods(from_dt, to_dt)
     elif calc_type == 'as_of':
         if config['by'] == 'month':
-            columns, column_titles = gen_monthly_ends(config['from'], config['to'])
+            columns, column_titles = gen_monthly_ends(from_dt, to_dt)
         elif config['by'] == 'quarter':
-            columns, column_titles = gen_quarterly_ends(config['from'], config['to'])
+            columns, column_titles = gen_quarterly_ends(from_dt, to_dt)
         elif config['by'] == 'half':
-            columns, column_titles = gen_semi_ends(config['from'], config['to'])
+            columns, column_titles = gen_semi_ends(from_dt, to_dt)
         else:
-            columns, column_titles = gen_annual_ends(config['from'], config['to'])
+            columns, column_titles = gen_annual_ends(from_dt, to_dt)
 
-    title = 'Trailing 12 Months to %s - %s' % (config['from'], rpt_desc)
+    title = 'Trailing 12 Months to %s - %s' % (from_dt, rpt_desc)
     return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
-
-
-def config_fromtag(calc_type, rpt_desc, col_tag):
-    return utils.config_fromcoltag(col_tag, rpt_desc, calc_type)
 
 
 def get_report(rpt_id, company_id, version=None):
@@ -202,7 +184,7 @@ def report_prep(request, id):
 
     if report is None:
         msg = "Report %s does not exist" % id
-        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False, None
+        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False
 
     if qs['company_ID'] not in report.works_for:
         msg = "This ain't it. Report not available for %s" % report.company_name

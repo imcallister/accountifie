@@ -21,7 +21,9 @@ logger = logging.getLogger('default')
 def report(request, id):
 
     report, is_report = rptutils.report_prep(request, id)
-
+    if not is_report:
+            return report
+        
     if report.from_file:
         try:
             report_data = json.loads(report.from_file)
@@ -29,8 +31,6 @@ def report(request, id):
             msg = "Sorry. file source is not recognised : %s" % report.from_file
             return render(request, 'rpt_doesnt_exist.html', {'message': msg})
     else:
-        if not is_report:
-            return report
         report_data = report.calcs()
 
     if report.format == 'json':

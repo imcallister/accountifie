@@ -86,6 +86,7 @@ class Report(object):
     
     def configure(self, config):
         qs_matches = rptutils.qs_parse(config)
+
         if len(qs_matches) == 0:
             raise ValueError('Unexpected query string: %s' % repr(config))
         elif len(qs_matches) > 1:

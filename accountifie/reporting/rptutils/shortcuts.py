@@ -1,4 +1,5 @@
 import re
+import datetime
 
 from django.conf import settings
 from dateutil.parser import parse
@@ -23,6 +24,25 @@ BY_MAP = {'Monthly': 'month',
           'Quarterly': 'quarter',
           'Semi': 'half',
           'Annual': 'year'}
+
+
+def date_from_shortcut(scut):
+    if scut == 'yesterday':
+        return datefuncs.yesterday()
+    elif scut == 'today':
+        return datefuncs.today()
+    elif scut is None:
+        return datefuncs.today()
+    else:
+        try:
+            if type(scut) == datetime.date:
+                return scut
+            elif type(scut) in [unicode, str]:
+                return parse(scut).date()
+            else:
+                return
+        except:
+            return
 
 
 def parse_shortcut(col_tag):
@@ -81,7 +101,7 @@ def parse_shortcut(col_tag):
 
     trailing12M_match = TRAILING12M_TAG.search(col_tag)
     if trailing12M_match:
-        dt = parse(trailing12M_match.groups()[2]).date()
+        dt = date_from_shortcut(trailing12M_match.groups()[2])
         return {'config_type': 'date_range',
                 'from': datefuncs.end_of_month(dt.month, dt.year - 1),
                 'to': dt,
