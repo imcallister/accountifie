@@ -100,6 +100,18 @@ def gen_semi_ends(start, end):
     column_titles = columns
     return columns, column_titles
 
+def gen_annual_periods(start, end):
+    years = list(datefuncs.annualrange(start, end))
+    columns = ['%s' % y  for y in years]
+    column_titles = columns
+    return columns, column_titles
+
+
+def gen_annual_ends(start, end):
+    years = list(datefuncs.annualrange(start, end))
+    columns = [datefuncs.end_of_year(x[1], x[0]).isoformat() for x in years]
+    column_titles = columns
+    return columns, column_titles
 
 
 def single_month_end(month, year, col_tag):

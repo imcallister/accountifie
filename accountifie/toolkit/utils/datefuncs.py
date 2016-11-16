@@ -30,6 +30,13 @@ def daterange(start, end, bus_days_only=True):
         return dates
 
 
+def today():
+    return datetime.datetime.now().date()
+
+def yesterday():
+    return prev_busday(today())
+
+
 def start_of_period(period_id):
     pid = period_id
     assert is_period_id(pid)
@@ -122,19 +129,19 @@ def end_of_prev_year(yr):
 
 def end_of_month(mth,yr):
     if mth==12:
-        return datetime.date(yr+1,1,1) - datetime.timedelta(days=1)
+        return datetime.date(int(yr) + 1, 1, 1) - datetime.timedelta(days=1)
     else:
-        return datetime.date(yr,mth+1,1) - datetime.timedelta(days=1)
+        return datetime.date(int(yr), int(mth) + 1, 1) - datetime.timedelta(days=1)
 
 def end_of_months(yr):
     return [end_of_month(mth, yr) for mth in range(1,13)]
 
 
 def end_of_prev_month(mth,yr):
-    return datetime.date(yr,mth,1) - datetime.timedelta(days=1)
+    return datetime.date(int(yr), int(mth), 1) - datetime.timedelta(days=1)
 
 def start_of_month(mth,yr):
-    return datetime.date(yr,mth,1)
+    return datetime.date(int(yr), int(mth), 1)
 
 
 def MTD(dt):
@@ -213,3 +220,8 @@ def semirange(start, end):
         half = (i - 1) % 2 + 1
         yield (year, half)
 
+
+def annualrange(start, end):
+    years = end.year - start.year + 1
+    for year in xrange(start.year, start.year + years):
+        yield year

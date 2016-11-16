@@ -58,7 +58,7 @@ def config_fromdate(calc_type, rpt_desc, dt):
     config['columns'] = as_of_col
     config['column_order'] = as_of_col.keys()
     config['title'] = '%s, %s' % (rpt_desc, dt.strftime('%d-%b-%y'))
-    config['date'] = dt.isoformat()
+    config['date'] = dt
     return config
 
 
@@ -75,16 +75,16 @@ def config_fromperiod(calc_type, rpt_desc, config):
             elif config['by'] == 'half':
                 columns, column_titles = gen_semi_periods(year_start, year_end)
             else:
-                columns, column_titles = annual_periods(config['year'])
+                columns, column_titles = gen_annual_periods(year_start, year_end)
         elif calc_type == 'as_of':
             if config['by'] == 'month':
-                columns, column_titles = gen_monthly_ends(half_start, half_end)
+                columns, column_titles = gen_monthly_ends(year_start, year_end)
             elif config['by'] == 'quarter':
-                columns, column_titles = gen_quarterly_ends(half_start, half_end)
+                columns, column_titles = gen_quarterly_ends(year_start, year_end)
             elif config['by'] == 'half':
-                columns, column_titles = gen_semi_ends(half_start, half_end)
+                columns, column_titles = gen_semi_ends(year_start, year_end)
             else:
-                columns, column_titles = annual_ends(config['year'])
+                columns, column_titles = gen_annual_ends(year_start, year_end)
 
         title = '%s %s' % (config['year'], rpt_desc)
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
@@ -129,6 +129,18 @@ def config_fromperiod(calc_type, rpt_desc, config):
 
         title = '%sQ%s %s' % (config['year'], config['quarter'], rpt_desc)
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+    elif config['period'] == 'month':
+        # could be quarterly, monthly
+        mth_start = datefuncs.start_of_month(config['month'], config['year'])
+        mth_end = datefuncs.end_of_month(config['month'], config['year'])
+
+        if calc_type == 'diff':
+            columns, column_titles = gen_monthly_periods(mth_start, mth_end)
+        elif calc_type == 'as_of':
+            columns, column_titles = gen_monthly_ends(mth_start, mth_end)
+        
+        title = '%sM%s %s' % (config['year'], config['month'], rpt_desc)
+        return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
 
 def config_fromdaterange(calc_type, rpt_desc, config):
@@ -141,7 +153,7 @@ def config_fromdaterange(calc_type, rpt_desc, config):
         elif config['by'] == 'half':
             columns, column_titles = gen_semi_periods(config['from'], config['to'])
         else:
-            columns, column_titles = annual_periods(config['year'])
+            columns, column_titles = gen_annual_periods(config['from'], config['to'])
     elif calc_type == 'as_of':
         if config['by'] == 'month':
             columns, column_titles = gen_monthly_ends(config['from'], config['to'])
@@ -150,7 +162,7 @@ def config_fromdaterange(calc_type, rpt_desc, config):
         elif config['by'] == 'half':
             columns, column_titles = gen_semi_ends(config['from'], config['to'])
         else:
-            columns, column_titles = annual_ends(config['year'])
+            columns, column_titles = gen_annual_ends(config['from'], config['to'])
 
     title = 'Trailing 12 Months to %s - %s' % (config['from'], rpt_desc)
     return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
