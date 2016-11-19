@@ -60,3 +60,52 @@ def annual_ends(year):
     columns = [datefuncs.end_of_prev_year(int(year)).isoformat(), year, datefuncs.end_of_year(int(year)).isoformat()]
     column_titles = ['end of %d' % (int(year)-1), 'chg in %s' % year, 'end of %s' % year]
     return columns, column_titles
+
+
+def semi_ends(half, year):
+    columns = [datefuncs.end_of_prev_half(int(half), int(year)).isoformat(),
+               '%dH%d' % (int(year), int(half)),
+               datefuncs.end_of_half(int(half), int(year)).isoformat()
+               ]
+
+    prev_half, prev_half_yr = datefuncs.prev_half(half, year)
+
+    column_titles = ['end of %dH%d' % (int(prev_half_yr), int(prev_half)),
+                     'chg in %dH%d' % (int(year), int(half)),
+                     'end of %dH%d' % (int(year), int(half))]
+    return columns, column_titles
+
+
+def quarter_ends(quarter, year):
+    columns = [datefuncs.end_of_prev_quarter(int(quarter), int(year)).isoformat(),
+               '%dQ%d' % (int(year), int(quarter)),
+               datefuncs.end_of_quarter(int(quarter), int(year)).isoformat()
+               ]
+
+    prev_qtr, prev_qtr_yr = datefuncs.prev_quarter(quarter, year)
+
+    column_titles = ['end of %dQ%d' % (int(prev_qtr_yr), int(prev_qtr)),
+                     'chg in %dQ%d' % (int(year), int(quarter)),
+                     'end of %dQ%d' % (int(year), int(quarter))]
+    return columns, column_titles
+
+def month_ends(month, year):
+    month = int(month)
+    year = int(year)
+    columns = [datefuncs.end_of_prev_month(month, year).isoformat(),
+               '%dM%s' % (year, '%02d' % month),
+               datefuncs.end_of_month(month, year).isoformat()
+               ]
+
+    if month == 1:
+        prev_mth = 12
+        prev_yr = year - 1 
+    else:
+        prev_mth = month - 1
+        prev_yr = year
+    
+    column_titles = ['end of %s %d' % (MONTHS[prev_mth-1], prev_yr),
+                     'chg in %s %d' % (MONTHS[month-1], year),
+                     'end of %s %d' % (MONTHS[month-1], year)]
+    return columns, column_titles
+

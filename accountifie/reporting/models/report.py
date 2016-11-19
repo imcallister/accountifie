@@ -99,6 +99,7 @@ class Report(object):
             config.pop('config_type')
             config.update(rptutils.parse_shortcut(config['col_tag']))
 
+
         if config['config_type'] == 'date':
             dt = rptutils.date_from_shortcut(config['date'])
             config.update(rptutils.config_fromdate(self.calc_type, self.description, dt))

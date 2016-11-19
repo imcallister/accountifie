@@ -31,6 +31,9 @@ def date_from_shortcut(scut):
         return datefuncs.yesterday()
     elif scut == 'today':
         return datefuncs.today()
+    elif scut == 'end_of_last_month':
+        today = datefuncs.today()
+        return datefuncs.end_of_prev_month(today.month, today.year)
     elif scut is None:
         return datefuncs.today()
     else:
@@ -116,5 +119,36 @@ def parse_shortcut(col_tag):
                 'to': datefuncs.end_of_prev_month(dt.month, dt.year + years),
                 'by': BY_MAP.get(multiyear_match.groups()[2], 'year')}
 
+    if col_tag == 'current_YTD':
+        return {'config_type': 'period',
+                'period': 'year', 
+                'year': str(datefuncs.today().year),
+                'by': 'year'}
+
+    if col_tag == 'current_HTD':
+        start_of_half = datefuncs.HTD(datefuncs.today())[0]
+        half_num = 1 if start_of_half.month == 1 else 2
+        return {'config_type': 'period',
+                'period': 'half', 
+                'year': str(start_of_half.year),
+                'half': str(half_num),
+                'by': 'half'}
+
+    if col_tag == 'current_QTD':
+        start_of_qtr = datefuncs.QTD(datefuncs.today())[0]
+        qtr_num = 1 + int(start_of_qtr.month - 1) / 3
+        return {'config_type': 'period',
+                'period': 'quarter', 
+                'year': str(start_of_qtr.year),
+                'quarter': str(qtr_num),
+                'by': 'quarter'}
+
+    if col_tag == 'current_MTD':
+        today = datefuncs.today()
+        return {'config_type': 'period',
+                'period': 'month', 
+                'year': str(today.year),
+                'month': str(today.month),
+                'by': 'month'}
     # didn't match anything
     raise ValueError('Unexpected shortcut: %s' % repr(col_tag))

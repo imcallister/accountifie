@@ -92,7 +92,7 @@ def config_fromperiod(calc_type, rpt_desc, config):
             elif config['by'] == 'quarter':
                 columns, column_titles = gen_quarterly_ends(half_start, half_end)
             else:
-                columns, column_titles = gen_semi_ends(half_start, half_end)
+                columns, column_titles = semi_ends(config['half'], config['year'])
 
         title = '%sH%s %s' % (config['year'], config['half'], rpt_desc)
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
@@ -110,7 +110,7 @@ def config_fromperiod(calc_type, rpt_desc, config):
             if config['by'] == 'month':
                 columns, column_titles = gen_monthly_ends(qtr_start, qtr_end)
             else:
-                columns, column_titles = gen_quarterly_ends(qtr_start, qtr_end)
+                columns, column_titles = quarter_ends(config['quarter'], config['year'])
 
         title = '%sQ%s %s' % (config['year'], config['quarter'], rpt_desc)
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
@@ -122,7 +122,7 @@ def config_fromperiod(calc_type, rpt_desc, config):
         if calc_type == 'diff':
             columns, column_titles = gen_monthly_periods(mth_start, mth_end)
         elif calc_type == 'as_of':
-            columns, column_titles = gen_monthly_ends(mth_start, mth_end)
+            columns, column_titles = month_ends(config['month'], config['year'])
         
         title = '%sM%s %s' % (config['year'], config['month'], rpt_desc)
         return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}

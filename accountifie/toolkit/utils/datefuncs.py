@@ -181,6 +181,22 @@ def end_of_prev_quarter(qtr, yr):
     start_of_qtr = start_of_quarter(qtr, yr)
     return start_of_qtr + datetime.timedelta(days=-1)
 
+def prev_quarter(qtr, year):
+    qtr = int(qtr)
+    year = int(year)
+    if qtr == 1:
+        return 4, year-1
+    else:
+        return qtr-1, year
+
+
+def prev_half(half, year):
+    half = int(half)
+    year = int(year)
+    if half == 1:
+        return 2, year-1
+    else:
+        return 1, year
 
 def start_of_half(half, yr):
     return datetime.date(int(yr), int(half) * 6 - 5, 1)
