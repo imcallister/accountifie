@@ -56,7 +56,8 @@ def parse_shortcut(col_tag):
         month = month_tag.groups()[1]
         return {'config_type': 'period',
                 'period': 'month', 
-                'year': year, 'month': month,
+                'year': year,
+                'month': month,
                 'by': BY_MAP.get(month_tag.groups()[2], 'month')}
 
     quarter_tag = QUARTER_TAG.match(col_tag)
@@ -65,7 +66,8 @@ def parse_shortcut(col_tag):
         quarter = quarter_tag.groups()[1]
         return {'config_type': 'period',
                 'period': 'quarter', 
-                'year': year, 'quarter': quarter,
+                'year': year,
+                'quarter': quarter,
                 'by': BY_MAP.get(quarter_tag.groups()[2], 'quarter')}
 
     half_tag = HALF_TAG.match(col_tag)
@@ -73,8 +75,9 @@ def parse_shortcut(col_tag):
         year = half_tag.groups()[0]
         half = half_tag.groups()[1]
         return {'config_type': 'period',
-                'period': 'semi', 
-                'year': year, 'half': half,
+                'period': 'half', 
+                'year': year,
+                'half': half,
                 'by': BY_MAP.get(half_tag.groups()[2], 'half')}
 
     year_tag = YEAR_TAG.match(col_tag)
@@ -122,7 +125,7 @@ def parse_shortcut(col_tag):
     if col_tag == 'current_YTD':
         return {'config_type': 'period',
                 'period': 'year', 
-                'year': str(datefuncs.today().year),
+                'year': datefuncs.today().year,
                 'by': 'year'}
 
     if col_tag == 'current_HTD':
@@ -130,8 +133,8 @@ def parse_shortcut(col_tag):
         half_num = 1 if start_of_half.month == 1 else 2
         return {'config_type': 'period',
                 'period': 'half', 
-                'year': str(start_of_half.year),
-                'half': str(half_num),
+                'year': start_of_half.year,
+                'half': half_num,
                 'by': 'half'}
 
     if col_tag == 'current_QTD':
@@ -139,16 +142,16 @@ def parse_shortcut(col_tag):
         qtr_num = 1 + int(start_of_qtr.month - 1) / 3
         return {'config_type': 'period',
                 'period': 'quarter', 
-                'year': str(start_of_qtr.year),
-                'quarter': str(qtr_num),
+                'year': start_of_qtr.year,
+                'quarter': qtr_num,
                 'by': 'quarter'}
 
     if col_tag == 'current_MTD':
         today = datefuncs.today()
         return {'config_type': 'period',
                 'period': 'month', 
-                'year': str(today.year),
-                'month': str(today.month),
+                'year': today.year,
+                'month': today.month,
                 'by': 'month'}
     # didn't match anything
     raise ValueError('Unexpected shortcut: %s' % repr(col_tag))

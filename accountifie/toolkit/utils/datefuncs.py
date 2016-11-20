@@ -2,6 +2,8 @@ from accountifie.cal import is_period_id
 import datetime
 from datetime import tzinfo
 from dateutil.parser import parse
+import isoweek
+
 
 ZERO = datetime.timedelta(0)
 
@@ -14,21 +16,20 @@ class utc(tzinfo):
         return "UTC"
     def dst(self, dt):
         return ZERO
-utc = utc()
+
+UTC = utc()
 
 def utcnow():
     u = datetime.datetime.utcnow()
-    return u.replace(tzinfo=utc)
-
+    return u.replace(tzinfo=UTC)
 
 def daterange(start, end, bus_days_only=True):
     dates = [start + datetime.timedelta(days=d) for d in range(0, (end - start).days + 1)]
 
     if bus_days_only:
-        return [d for d in dates if d.weekday()<5]
+        return [d for d in dates if d.weekday() < 5]
     else:
         return dates
-
 
 def today():
     return datetime.datetime.now().date()
@@ -48,7 +49,6 @@ def start_of_period(period_id):
         part2 = None
         sep = 'Y'
     if sep == 'W':        
-        import isoweek
         return isoweek.Week(year, part2).monday()
     elif sep == 'M':
         return datetime.date(year, part2, 1)
@@ -73,7 +73,6 @@ def end_of_period(period_id):
         part2 = None
         sep = 'Y'
     if sep == 'W':        
-        import isoweek
         return isoweek.Week(year, part2).sunday()
     elif sep == 'M':
         return end_of_month(part2, year)
@@ -86,11 +85,15 @@ def end_of_period(period_id):
     else:
         raise ValueError("Unexpected date identifier %s" % id)
 
+def end_of_prev_period(period_id):
+    return start_of_period(period_id) - datetime.timedelta(days=1)
 
 ##### END DOCENGINE  #####
 
 
 from pandas.tseries.offsets import BDay
+
+
 def prev_busday(d):
     if type(d) in [str, unicode]:
         d = parse(d).date()
@@ -128,7 +131,9 @@ def end_of_prev_year(yr):
     return datetime.date(int(yr) - 1, 12, 31)
 
 def end_of_month(mth,yr):
-    if mth==12:
+    mth = int(mth)
+    yr = int(yr)
+    if mth == 12:
         return datetime.date(int(yr) + 1, 1, 1) - datetime.timedelta(days=1)
     else:
         return datetime.date(int(yr), int(mth) + 1, 1) - datetime.timedelta(days=1)
@@ -145,8 +150,7 @@ def start_of_month(mth,yr):
 
 
 def MTD(dt):
-    return start_of_month(dt.month, dt,year), dt
-
+    return start_of_month(dt.month, dt.year), dt
 
 def QTD(dt):
     mm = dt.month
@@ -227,7 +231,7 @@ def quarterrange(start, end):
         qtr = (i - 1) % 4 + 1
         yield (year, qtr)
 
-def semirange(start, end):
+def halfrange(start, end):
     start_half = (start.year, (start.month -1)/6 + 1)
     end_half = (end.year, (end.month -1)/6 + 1)
     semis = (end_half[0] - start_half[0]) * 2 + (end_half[1] - start_half[1]) + 1
