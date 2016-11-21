@@ -103,7 +103,7 @@ def balance_trends(params):
     three_mth_order = ['M_2','M_1','M_0']
 
     col_tag = '%dM%s' % (dt.year, '{:02d}'.format(dt.month))
-    report.configure(col_tag=col_tag)
+    report.configure({'col_tag': col_tag})
     report.columns = three_mth
     report.column_order = three_mth_order
     report.acct_list = acct_list
@@ -132,13 +132,15 @@ def report_prep(request, id):
 
 
 def html_report_snippet(rpt_id, company_id, as_of=None, col_tag=None, path=None, version='v1', gl_strategy=None):
+    config = {}
+    if as_of:
+        config['as_of'] = as_of
+    if col_tag:
+        config['col_tag'] = col_tag
+
     report = get_report(rpt_id, company_id, version=version)
 
-    if company_id not in report.works_for:
-        msg = "This ain't it. Report not available for %s" % company_ID
-        return render(request, '404.html', {'message': report})
-
-    report.configure(as_of=as_of, col_tag=col_tag, path=path)
+    report.configure(config)
     report.set_gl_strategy(gl_strategy)
 
     report_data = [x for x in report.calcs() if x['fmt_tag']!='header']
