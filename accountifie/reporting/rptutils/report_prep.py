@@ -112,8 +112,8 @@ def history_prep(request):
 
 
 def report_prep(request, id):
-    qs = dict((k, request.GET.get(k)) for k in request.GET.keys())
     
+    qs = dict((k, request.GET.get(k)) for k in request.GET.keys())
     if qs.get('company_ID') is None:
         qs['company_ID'] = utils.get_company(request)
 
@@ -129,6 +129,7 @@ def report_prep(request, id):
         return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False
 
     report.configure(qs)
+    report.format = qs.get('format', 'html')
     report.set_gl_strategy(gl_strategy)
 
     return report, True
