@@ -19,7 +19,7 @@ import models
 from accountifie.common.api import api_func
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 from accountifie.query.query_manager import QueryManager
-from accountifie.reporting.views import report_prep
+from accountifie.reporting.rptutils import report_prep
 import accountifie.toolkit.utils as utils
 from accountifie.common.table import get_table
 

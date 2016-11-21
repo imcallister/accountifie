@@ -38,7 +38,7 @@ from reportdef import ReportDef
 import accountifie.query.query_manager
 from accountifie.common.api import api_func
 import accountifie.toolkit.utils as utils
-
+import accountifie.reporting.rptutils as rptutils
 
 
 
@@ -52,7 +52,7 @@ ROW_FORMATS = {'item': ITEM, 'minor_total': MINOR_TOTAL, 'major_total': MAJOR_TO
 
 
 class Report(object):
-    def __init__(self, company_id, description='', title='', subtitle='', footer='', bands = [], columns={}, calc_type='as_of'):
+    def __init__(self, company_id, description='', date=None, title='', subtitle='', footer='', bands=[], columns=None, calc_type='as_of'):
         self.description = description
         self.title = title
         self.subtitle = subtitle
@@ -62,10 +62,14 @@ class Report(object):
         self.bands = bands
         self.columns = columns
         self.calc_type = calc_type
-        
+        self.column_order = None
+        self.date = None
+        self.path = None
         self.set_company()
         self.by_id = {}
-
+        self.format = 'html'
+        self.from_file = None
+        
 
 
     def set_company(self):
@@ -79,44 +83,37 @@ class Report(object):
     def set_gl_strategy(self, gl_strategy):
         self.query_manager = accountifie.query.query_manager.QueryManager(gl_strategy=gl_strategy)
 
-    def configure(self, as_of=None, col_tag=None, path=None):
-        if as_of:
-            self.config_fromdate(as_of)
-        elif col_tag:
-            self.config_fromtag(col_tag)
-        else:
-            self.config_fromdate('today')
-        if path:
-            self.path = path
-
-
-    def config_fromdate(self, as_of):
-        # depends on report.calc_type = 'as_of' or 'diff'
-        if as_of == 'today':
-            as_of = datetime.datetime.now().date()    
-        else:
-            as_of = parse(as_of).date()
-        
-        if self.calc_type == 'as_of':
-            as_of_col = {as_of.strftime('%d-%b-%y'): as_of.isoformat()}
-        else:
-            as_of_col = {str(as_of.year), str(as_of.year)}
-        
-        self.set_columns(as_of_col, column_order=as_of_col.keys())
-        self.title = '%s, %s' % (self.description, as_of.strftime('%d-%b-%y'))
-        self.date = as_of.isoformat()
-
-    def config_fromtag(self,col_tag):
-        config = utils.config_fromcoltag(col_tag, self.description, self.calc_type)
-        self.title = config['title']
-        self.set_columns(config['columns'], column_order=config['column_order'])
-
     
-    def set_title(self, override=None):
-        if override:
-            self.title = override
+    def configure(self, config):
+        qs_matches = rptutils.qs_parse(config)
+
+        if len(qs_matches) == 0:
+            raise ValueError('Unexpected query string: %s' % repr(config))
+        elif len(qs_matches) > 1:
+            raise ValueError('Unexpected query string: %s' % repr(config))
         else:
-            self.title = self.description
+            config['config_type'] = qs_matches[0]
+
+
+        if config['config_type'] == 'shortcut':
+            config.pop('config_type')
+            config.update(rptutils.parse_shortcut(config['col_tag']))
+
+
+        if config['config_type'] == 'date':
+            dt = rptutils.date_from_shortcut(config['date'])
+            config.update(rptutils.config_fromdate(self.calc_type, self.description, dt))
+        elif config['config_type'] == 'period':
+            config.update(rptutils.config_fromperiod(self.calc_type, self.description, config))
+        elif config['config_type'] == 'date_range':
+            config.update(rptutils.config_fromdaterange(self.calc_type, self.description, config))
+        
+        self.title = config.get('title')
+        self.set_columns(config['columns'], column_order=config.get('column_order'))
+        self.date = config.get('date')
+        self.path = config.get('path')
+        return
+
 
     def get_row(self, df_row):
         if 'fmt_tag' in df_row:
@@ -126,8 +123,8 @@ class Report(object):
                 values = [utils.entry(df_row[col_label]['text'] , link=df_row[col_label]['link']) for col_label in self.column_order]
                 fmt_tag = df_row['fmt_tag']
                 _css_class = ROW_FORMATS[fmt_tag]['css_class']
-                _indent  = ROW_FORMATS[fmt_tag]['indent']
-                _type  = ROW_FORMATS[fmt_tag]['type']
+                _indent = ROW_FORMATS[fmt_tag]['indent']
+                _type = ROW_FORMATS[fmt_tag]['type']
                 return BasicBand(df_row['label'], css_class=_css_class, values=values, indent=_indent, type=_type).get_rows(self)
         else:
             values = [utils.entry(df_row[col_label]['text'] , link=df_row[col_label]['link']) for col_label in self.column_order]
@@ -135,76 +132,32 @@ class Report(object):
                                 indent=df_row['indent'], type=df_row['type']).get_rows(self)
 
 
-    def html_report_context(self):
+    def _context(self):
         if self.column_order:
             column_titles = self.column_order
         else:
             column_titles = self.columns.keys()
 
         columns = [self.columns[x] for x in column_titles]
-        
         context = dict(
                 report=self,
                 columns=columns,
                 column_titles=column_titles,
                 title=self.title,
-                colcount = 2+len(self.columns),
-                italic_styles = ['group_header', 'group_total'],
-                no_space_before_styles = ['group_item', 'group_total'],
-                numeric_column_indices = range(2, len(self.columns) + 2),
+                colcount=2+len(self.columns),
+                italic_styles=['group_header', 'group_total'],
+                no_space_before_styles=['group_item', 'group_total'],
+                numeric_column_indices=range(2, len(self.columns) + 2),
                 )
 
         return context
+
+
+    def html_report_context(self):
+        return self._context()
 
     def pdf_report_context(self):
-        if self.column_order:
-            column_titles = self.column_order
-        else:
-            column_titles = self.columns.keys()
-
-        columns = [self.columns[x] for x in column_titles]
-        
-        context = dict(
-                report=self,
-                columns=columns,
-                column_titles=column_titles,
-                title=self.title,
-                colcount = 2+len(self.columns),
-                italic_styles = ['group_header', 'group_total'],
-                no_space_before_styles = ['group_item', 'group_total'],
-                numeric_column_indices = range(2, len(self.columns) + 2),
-                )
-
-        return context
-
-    def report_content(self):
-        output = self.get_content()
-        #assume html format
-        if self.column_order:
-            column_titles = self.column_order
-        else:
-            column_titles = self.columns.keys()
-
-        columns = [self.columns[x] for x in column_titles]
-        
-        context = dict(
-                report=self,
-                rows=output,
-                columns=columns,
-                column_titles=column_titles,
-                title=self.title,
-                #hacking around django template language limitations.
-                #this should be replaced entirely by CSS
-                colcount = 2+len(self.columns),
-                italic_styles = ['group_header', 'group_total'],
-                no_space_before_styles = ['group_item', 'group_total'],
-                #used by jquery.column-align.js
-                numeric_column_indices = range(2, len(self.columns) + 2),
-                )
-
-        return context
-
-
+        return self._context()
 
     def get_content(self):
         "Returns list of dictionaries with info to format"

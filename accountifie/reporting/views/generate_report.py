@@ -8,7 +8,7 @@ from django.template import RequestContext, Context
 from django.core.serializers.json import DjangoJSONEncoder
 
 
-import accountifie.reporting.rptutils
+import accountifie.reporting.rptutils as rptutils
 import accountifie.toolkit.utils as utils
 
 import logging
@@ -16,63 +16,41 @@ import logging
 logger = logging.getLogger('default')
 
 
-def report_prep(request, id):
-    as_of = request.GET.get('date', None)
-    col_tag = request.GET.get('col_tag', None)
-    from_file = request.GET.get('from_file', None)
-
-    format = request.GET.get('format', 'html')
-    company_ID = request.GET.get('company', utils.get_company(request))
-    path = request.GET.get('path', None)
-    report = accountifie.reporting.rptutils.get_report(id, company_ID)
-    gl_strategy = request.GET.get('gl_strategy', None)
-
-    if report is None:
-        msg = "Report %s does not exist" % id
-        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False, None, None
-
-    if company_ID not in report.works_for:
-        msg = "This ain't it. Report not available for %s" % report.company_name
-        return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False, None, None
-
-    report.configure(as_of=as_of, col_tag=col_tag, path=path)
-    report.set_gl_strategy(gl_strategy)
-    return report, True, format, from_file
-
 
 @login_required
 def report(request, id):
 
-    report, is_report, format, from_file = report_prep(request, id)
-    if from_file:
+    report, is_report = rptutils.report_prep(request, id)
+    if not is_report:
+            return report
+        
+    if report.from_file:
         try:
-            report_data = json.loads(from_file)
+            report_data = json.loads(report.from_file)
         except:
-            msg = "Sorry. file source is not recognised : %s" % from_file
+            msg = "Sorry. file source is not recognised : %s" % report.from_file
             return render(request, 'rpt_doesnt_exist.html', {'message': msg})
     else:
-        if not is_report:
-            return report
         report_data = report.calcs()
 
-    if format == 'json':
+    if report.format == 'json':
         return HttpResponse(json.dumps(report_data, cls=DjangoJSONEncoder), content_type="application/json")
-    elif format == 'csv':
+    elif report.format == 'csv':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="report.csv"'
 
         writer = csv.writer(response)
         writer.writerow([''] + report.column_order)
-        map_values = lambda x: '' if x=='' else str(x['text']).replace('(','-').replace(')','')
+        map_values = lambda x: '' if x == '' else str(x['text']).replace('(', '-').replace(')', '')
         
         for row in report_data:
             if row['fmt_tag'] != 'header':
                 writer.writerow([row['label']] + [map_values(row[col]) for col in report.column_order])
         return response
-    elif format == 'html':
+    elif report.format == 'html':
         # not bootstrap ... the more custom style for more complex reports
         context = report.html_report_context()
-        context['query_string']=request.META['QUERY_STRING']
+        context['query_string'] = request.META['QUERY_STRING']
         context['rows'] = []
         for rec in report_data:
             context['rows'] += report.get_row(rec)
