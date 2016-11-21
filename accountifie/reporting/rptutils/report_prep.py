@@ -18,7 +18,7 @@ def qs_parse(qs):
     if 'date' in qs:
         matches.append('date')
     
-    if 'from' in qs and 'to' in qs:
+    if 'from' in qs or 'to' in qs:
         matches.append('date_range')
 
     if 'period' in qs and 'by' in qs:
@@ -28,7 +28,6 @@ def qs_parse(qs):
         matches.append('shortcut')
 
     return matches
-
 
 
 def config_fromdate(calc_type, rpt_desc, dt):
@@ -78,6 +77,38 @@ def get_report(rpt_id, company_id, version=None):
             rpt = obj(company_id)
             break
     return rpt
+
+
+def history_prep(request):
+    config = dict((k, request.GET.get(k)) for k in request.GET.keys())
+    
+    if config.get('company_ID') is None:
+        config['company_ID'] = utils.get_company(request)
+
+    qs_matches = qs_parse(config)
+
+    if len(qs_matches) == 0:
+        raise ValueError('Unexpected query string: %s' % repr(config))
+    elif len(qs_matches) > 1:
+        raise ValueError('Unexpected query string: %s' % repr(config))
+    else:
+        config['config_type'] = qs_matches[0]
+
+    if config['config_type'] == 'shortcut':
+        config.pop('config_type')
+        config.update(shortcuts.parse_shortcut(config['col_tag']))
+
+    if config['config_type'] == 'date_range':
+        if config.get('from'): 
+            config['from'] = shortcuts.date_from_shortcut(config.get('from'))
+        if config.get('to'):
+            config['to'] = shortcuts.date_from_shortcut(config.get('to'))
+    elif config['config_type'] == 'period':
+        period_id = colfuncs.get_period_id(config)
+        config['from'] = datefuncs.start_of_period(period_id)
+        config['to'] = datefuncs.end_of_period(period_id)
+        
+    return config
 
 
 def report_prep(request, id):

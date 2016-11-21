@@ -9,6 +9,7 @@ from accountifie.cal.models import Year
 from accountifie.common.api import api_func
 import accountifie.query.query_manager
 import accountifie.toolkit.utils as utils
+import accountifie.reporting.rptutils as rptutils
 
 import logging
 
@@ -39,13 +40,10 @@ def create_row(row, col_order, fmtr=ACCT_DEF):
 
 @login_required
 def history(request, type, id):
-
-    from_date, to_date = utils.extractDateRange(request)
-
-    start_date = settings.DATE_EARLY
-    end_date = to_date
-
-    company_ID = utils.get_company(request)
+    config = rptutils.history_prep(request)
+    start_date = config.get('from', settings.DATE_EARLY)
+    end_date = config.get('to', settings.DATE_LATE)
+    company_ID = config['company_ID']
 
     if type == 'account':
         cp = request.GET.get('cp',None)
@@ -90,13 +88,13 @@ def history(request, type, id):
     entries = []
 
     if (history is not None) and (history.empty is False):
-        unused_history = history[history['date']<from_date]
-        used_history = history[history['date']>=from_date]
+        unused_history = history[history['date'] < start_date]
+        used_history = history[history['date'] >= start_date]
 
         if len(unused_history) > 0:
             start_row = unused_history.iloc[-1]
             start_row['id'] = 'None'
-            start_row['date'] = from_date
+            start_row['date'] = start_date
             start_row['comment'] = 'Opening Balance'
             start_row['contra_accts'] = 'None'
             start_row['counterparty'] = 'None'
@@ -112,15 +110,17 @@ def history(request, type, id):
     context['history'] = entries
     context['years'] = years
     context['by_date_cleared'] = False
-    context['from_date'] = from_date
-    context['to_date'] = to_date
+    context['from_date'] = start_date
+    context['to_date'] = end_date
 
     return render(request, 'history.html', context)
 
 @login_required
 def balance_history(request, type, id):
-    from_date, to_date = utils.extractDateRange(request)
-    company_ID = utils.get_company(request)
+    config = rptutils.history_prep(request)
+    from_date = config.get('from', settings.DATE_EARLY)
+    to_date = config.get('to', settings.DATE_LATE)
+    company_ID = config['company_ID']
 
     if type == 'account':
         cp = request.GET.get('cp',None)

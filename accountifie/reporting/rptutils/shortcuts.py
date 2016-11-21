@@ -27,6 +27,9 @@ BY_MAP = {'Monthly': 'month',
 
 
 def date_from_shortcut(scut):
+    if not scut:
+        return None
+    
     if scut == 'yesterday':
         return datefuncs.yesterday()
     elif scut == 'today':

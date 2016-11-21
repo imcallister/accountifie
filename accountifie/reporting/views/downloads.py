@@ -2,16 +2,19 @@ import csv
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.conf import settings
 
 import accountifie.reporting.api
 from accountifie.common.api import api_func
-import accountifie.toolkit.utils as utils
+import accountifie.reporting.rptutils as rptutils
 
 
 @login_required
 def download_ledger(request):
-    from_date, to_date = utils.extractDateRange(request)
-    company_ID = utils.get_company(request)
+    config = rptutils.history_prep(request)
+    from_date = config.get('from', settings.DATE_EARLY)
+    to_date = config.get('to', settings.DATE_LATE)
+    company_ID = config['company_ID']
 
     accts = api_func('gl', 'accounts')
     response = HttpResponse(content_type='text/csv')
