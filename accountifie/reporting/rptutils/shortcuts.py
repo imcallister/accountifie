@@ -98,7 +98,7 @@ def parse_shortcut(col_tag):
         return {'config_type': 'date_range',
                 'from': datefuncs.end_of_prev_year(dt.year),
                 'to': dt,
-                'by': BY_MAP.get(year_tag.groups()[2], 'year')}
+                'by': BY_MAP.get(ytd_match.groups()[2], 'year')}
 
     daily_match = DAILY_TAG.search(col_tag)
     if daily_match:
@@ -106,7 +106,7 @@ def parse_shortcut(col_tag):
         return {'config_type': 'date_range',
                 'from': datefuncs.prev_busday(dt.year),
                 'to': dt,
-                'by': BY_MAP.get(year_tag.groups()[2], 'year')}
+                'by': BY_MAP.get(daily_match.groups()[2], 'year')}
 
     trailing12M_match = TRAILING12M_TAG.search(col_tag)
     if trailing12M_match:

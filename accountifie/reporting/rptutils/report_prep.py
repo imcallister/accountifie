@@ -56,7 +56,7 @@ def config_fromperiod(calc_type, rpt_desc, config):
 
 def config_fromdaterange(calc_type, rpt_desc, config):
     columns, column_titles = colfuncs.daterange_periods(calc_type, config)
-    title = 'Trailing 12 Months to %s - %s' % (config['to'], rpt_desc)
+    title = 'From %s to %s. %s' % (config['from'], config['to'], rpt_desc)
     return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
 
 
