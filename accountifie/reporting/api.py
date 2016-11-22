@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.template import RequestContext
 
 import accountifie.toolkit.utils as utils
-from accountifie.reporting.rptutils import get_report
+import accountifie.reporting.rptutils as rptutils
 from accountifie.common.api import api_func
 import accountifie.query.query_manager as QM
 
@@ -89,7 +89,7 @@ def balance_trends(params):
     company_id = params.get('company_id', utils.get_default_company())
     
     # 3 months for now
-    report = get_report('AccountActivity', company_id, version='v1')
+    report = rptutils.get_report('AccountActivity', company_id, version='v1')
     report.set_gl_strategy(gl_strategy)
 
     M_1 = utils.end_of_prev_month(dt.month, dt.year)

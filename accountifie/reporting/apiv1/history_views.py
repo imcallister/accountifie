@@ -6,6 +6,7 @@ from django.conf import settings
 from accountifie.common.api import api_func
 import accountifie.query.query_manager as QM
 from accountifie.toolkit.utils import start_of_year, daterange
+import accountifie.reporting.rptutils as rptutils
 
 import logging
 
@@ -52,16 +53,18 @@ def _cutoff(start_cutoff, hist):
     
 def history(id, qstring={}):
 
-    start_cutoff = qstring.get('from_date', None)
-    start_date = settings.DATE_EARLY
-    end_date = qstring.get('to_date', datetime.datetime.now().date())
+    end_date = rptutils.date_from_shortcut(qstring.get('to_date', datetime.datetime.now().date()))
 
+    start_cutoff = qstring.get('from_date', None)
+    if start_cutoff:
+        start_cutoff = rptutils.date_from_shortcut(start_cutoff)
+    else:
+        start_cutoff = start_of_year(end_date.year)
+    start_date = settings.DATE_EARLY
+    
     cp = qstring.get('cp', None)
     excl = qstring.get('excl', None)
     incl = qstring.get('incl', None)
-
-    if not start_cutoff:
-        start_cutoff = start_of_year(end_date.year)
 
     company_id = qstring.get('company_id', api_func('environment', 'variable', 'DEFAULT_COMPANY_ID'))
     
