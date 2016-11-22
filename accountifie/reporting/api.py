@@ -119,7 +119,7 @@ def report_prep(request, id):
     format = request.GET.get('format', 'html')
     company_id = request.GET.get('company', utils.get_company(request))
     path = request.GET.get('path', None)
-    report = get_report(id, company_id, version='v1')
+    report = rptutils.get_report(id, company_id, version='v1')
     gl_strategy = request.GET.get('gl_strategy', None)
 
     if company_id not in report.works_for:
@@ -138,7 +138,7 @@ def html_report_snippet(rpt_id, company_id, as_of=None, col_tag=None, path=None,
     if col_tag:
         config['col_tag'] = col_tag
 
-    report = get_report(rpt_id, company_id, version=version)
+    report = rptutils.get_report(rpt_id, company_id, version=version)
 
     report.configure(config)
     report.set_gl_strategy(gl_strategy)
