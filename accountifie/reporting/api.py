@@ -32,7 +32,7 @@ def transaction_info(params):
 def history(params):
     from_date = params['from_date']
     to_date = params['to_date']
-    company_ID = params['company_ID']
+    company_id = params['company_id']
     cp = params.get('cp', None)
     type = params.get('type', None)
     id = params.get('id', None)
@@ -40,7 +40,7 @@ def history(params):
     if type == 'account':
         acct = api_func('gl', 'account', id)
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
 
         if cp and not history.empty:
             history = history[history['counterparty']==cp]
@@ -59,13 +59,13 @@ def history(params):
         if incl:
             incl = [x.replace('_','.') for x in incl]
             display_name += '  -- incl %s' % ','.join(incl)
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, type, ref, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, type, ref, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
         column_titles = ['id', 'date', 'comment', 'account_id', 'contra_accts', 'counterparty', 'amount', 'balance']
     elif type == 'creditor':
         cp_info = api_func('gl', 'counterparty', id)
         
         display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)
         history = history[history['counterparty']==id]
         history['balance'] = history['amount'].cumsum()
 
@@ -117,13 +117,13 @@ def report_prep(request, id):
     as_of = request.GET.get('date', None)
     col_tag = request.GET.get('col_tag', None)
     format = request.GET.get('format', 'html')
-    company_ID = request.GET.get('company', utils.get_company(request))
+    company_id = request.GET.get('company', utils.get_company(request))
     path = request.GET.get('path', None)
-    report = get_report(id, company_ID, version='v1')
+    report = get_report(id, company_id, version='v1')
     gl_strategy = request.GET.get('gl_strategy', None)
 
-    if company_ID not in report.works_for:
-        msg = "This ain't it. Report not available for %s" % company_ID
+    if company_id not in report.works_for:
+        msg = "This ain't it. Report not available for %s" % company_id
         return msg, False, None
 
     report.configure(as_of=as_of, col_tag=col_tag, path=path)

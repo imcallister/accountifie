@@ -82,8 +82,8 @@ def get_report(rpt_id, company_id, version=None):
 def history_prep(request):
     config = dict((k, request.GET.get(k)) for k in request.GET.keys())
     
-    if config.get('company_ID') is None:
-        config['company_ID'] = utils.get_company(request)
+    if config.get('company_id') is None:
+        config['company_id'] = utils.get_company(request)
 
     qs_matches = qs_parse(config)
 
@@ -114,17 +114,17 @@ def history_prep(request):
 def report_prep(request, id):
     
     qs = dict((k, request.GET.get(k)) for k in request.GET.keys())
-    if qs.get('company_ID') is None:
-        qs['company_ID'] = utils.get_company(request)
+    if qs.get('company_id') is None:
+        qs['company_id'] = utils.get_company(request)
 
-    report = get_report(id, qs['company_ID'])
+    report = get_report(id, qs['company_id'])
     gl_strategy = request.GET.get('gl_strategy', None)
 
     if report is None:
         msg = "Report %s does not exist" % id
         return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False
 
-    if qs['company_ID'] not in report.works_for:
+    if qs['company_id'] not in report.works_for:
         msg = "This ain't it. Report not available for %s" % report.company_name
         return render(request, 'rpt_doesnt_exist.html', {'message': msg}), False
 

@@ -101,7 +101,9 @@ def daterange_periods(calc_type, config):
     elif config['by'] == 'month':
         return monthly_periods(calc_type, start, end)
     else:
-        raise ValueError("Unrecognised config %s" % repr(config))        
+        columns = [start.isoformat(), end.isoformat()]
+        column_titles = list(columns)
+        return columns, column_titles
 
 
 # SINGLE PERIODS

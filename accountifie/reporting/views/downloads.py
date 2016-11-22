@@ -14,7 +14,7 @@ def download_ledger(request):
     config = rptutils.history_prep(request)
     from_date = config.get('from', settings.DATE_EARLY)
     to_date = config.get('to', settings.DATE_LATE)
-    company_ID = config['company_ID']
+    company_id = config['company_id']
 
     accts = api_func('gl', 'accounts')
     response = HttpResponse(content_type='text/csv')
@@ -24,7 +24,7 @@ def download_ledger(request):
     header_row = ['id', 'date', 'comment', 'contra_accts', 'counterparty', 'amount', 'balance']
 
     for acct in accts:
-        history = accountifie.reporting.api.history({'type': 'account', 'from_date': from_date, 'to_date': to_date, 'company_ID': company_ID, 'id': acct['id']})
+        history = accountifie.reporting.api.history({'type': 'account', 'from_date': from_date, 'to_date': to_date, 'company_id': company_id, 'id': acct['id']})
         if len(history) > 0:
             writer.writerow([])
             writer.writerow([acct['id'], acct['display_name'], acct['path']])

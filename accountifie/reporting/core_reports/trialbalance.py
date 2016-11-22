@@ -55,6 +55,9 @@ class TrialBalance(Report):
         if config['config_type'] == 'date':
             dt = rptutils.date_from_shortcut(config['date'])
             config.update(rptutils.config_fromdate(self.calc_type, self.description, dt))
+        elif config['config_type'] == 'date_range':
+            dt = rptutils.date_from_shortcut(config['to'])
+            config.update(rptutils.config_fromdate(self.calc_type, self.description, dt))
         else:
             raise ValueError('Unexpected query string: %s' % repr(config))
         

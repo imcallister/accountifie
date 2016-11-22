@@ -43,14 +43,14 @@ def history(request, type, id):
     config = rptutils.history_prep(request)
     start_date = config.get('from', settings.DATE_EARLY)
     end_date = config.get('to', settings.DATE_LATE)
-    company_ID = config['company_ID']
+    company_id = config['company_id']
 
     if type == 'account':
         cp = request.GET.get('cp',None)
         acct = api_func('gl', 'account', id)
 
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=start_date, to_date=end_date, cp=cp)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, 'account', acct['id'], from_date=start_date, to_date=end_date, cp=cp)
 
         if cp and not history.empty:
             history = history[history['counterparty']==cp]
@@ -69,14 +69,14 @@ def history(request, type, id):
         if incl:
             incl = [x.replace('_','.') for x in incl]
             display_name += '  -- incl %s' % ','.join(incl)
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, type, ref, from_date=start_date, to_date=end_date, excl_contra=excl, incl=incl)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, type, ref, from_date=start_date, to_date=end_date, excl_contra=excl, incl=incl)
         column_titles = ['id', 'date', 'comment', 'account_id', 'contra_accts', 'counterparty', 'amount', 'balance']
     elif type == 'creditor':
         cp = request.GET.get('cp',None)
         cp_info = api_func('gl', 'counterparty', id)
         
         display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=start_date, to_date=end_date, cp=id)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, 'account', '3000', from_date=start_date, to_date=end_date, cp=id)
         history = history[history['counterparty']==id]
         history['balance'] = history['amount'].cumsum()
 
@@ -120,13 +120,13 @@ def balance_history(request, type, id):
     config = rptutils.history_prep(request)
     from_date = config.get('from', settings.DATE_EARLY)
     to_date = config.get('to', settings.DATE_LATE)
-    company_ID = config['company_ID']
+    company_id = config['company_id']
 
     if type == 'account':
         cp = request.GET.get('cp',None)
         acct = api_func('gl', 'account', id)
         display_name = '%s: %s' %(acct['id'], acct['display_name'])
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, 'account', acct['id'], from_date=from_date, to_date=to_date, cp=cp)
 
         if cp and not history.empty:
             history = history[history['counterparty']==cp]
@@ -145,7 +145,7 @@ def balance_history(request, type, id):
         if incl:
             incl = [x.replace('_','.') for x in incl]
             display_name += '  -- incl %s' % ','.join(incl)
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, type, ref, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, type, ref, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
         balance_history = history[['amount','date']].groupby('date').sum().cumsum().reset_index()
         column_titles = ['date', 'amount']
     elif type == 'creditor':
@@ -153,7 +153,7 @@ def balance_history(request, type, id):
         cp_info = api_func('gl', 'counterparty', id)
         
         display_name = '%s: %s' %(cp_info['id'], cp_info['name'])
-        history = accountifie.query.query_manager.QueryManager().pd_history(company_ID, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)
+        history = accountifie.query.query_manager.QueryManager().pd_history(company_id, 'account', '3000', from_date=from_date, to_date=to_date, cp=id)
         history = history[history['counterparty']==id]
         balance_history = history[['amount','date']].groupby('date').sum().cumsum().reset_index()
         column_titles = ['date', 'amount']
