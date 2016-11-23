@@ -47,7 +47,9 @@ def _cutoff(start_cutoff, hist):
     unused_history['date'] = start_cutoff
     unused_history['id'] = 'Start'
     for col in [x for x in list(unused_history.columns) if x not in ['id','date','balance']]:
-        unused_history[col] = '-'
+        unused_history[col] = ''
+    unused_history['amount'] = 0.0
+    unused_history['comment'] = 'Starting Balance'
     
     return pd.concat([unused_history, used_history])
     
@@ -82,9 +84,14 @@ def history(id, qstring={}):
 
 
 def balance_history(id, qstring={}):
+    end_date = rptutils.date_from_shortcut(qstring.get('to_date', datetime.datetime.now().date()))
+
     start_cutoff = qstring.get('from_date', None)
+    if start_cutoff:
+        start_cutoff = rptutils.date_from_shortcut(start_cutoff)
+    else:
+        start_cutoff = start_of_year(end_date.year)
     start_date = settings.DATE_EARLY
-    end_date = qstring.get('to_date', datetime.datetime.now().date())
 
     cp = qstring.get('cp', None)
     excl = qstring.get('excl', None)
@@ -96,7 +103,7 @@ def balance_history(id, qstring={}):
     company_id = qstring.get('company_id', api_func('environment', 'variable', 'DEFAULT_COMPANY_ID'))
     
     if api_func('gl', 'account', str(id)) is not None:
-        hist = _account_history(id, company_id, start_date, end_date, cp)
+        hist = _account_history(str(id), company_id, start_date, end_date, cp)
         hist = _cutoff(start_cutoff, hist)
     elif api_func('gl', 'counterparty', id) is not None:
         hist = _cp_history(id, company_id, start_date, end_date)

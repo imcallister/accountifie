@@ -13,5 +13,4 @@ urlpatterns = [
     
     # transaction history
     url(r'history/(?P<type>[()_a-zA-Z0-9]+)/(?P<id>[()_a-zA-Z0-9]+)/$', views.history),
-    url(r'balance_history/(?P<type>[()_a-zA-Z0-9]+)/(?P<id>[()_a-zA-Z0-9]+)/$', views.balance_history),
 ]
