@@ -8,6 +8,7 @@ from accountifie.reporting.models import Report
 from accountifie.toolkit.utils import DZERO
 import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
+import accountifie.reporting.rptutils as rptutils
 
 
 logger = logging.getLogger('default')
@@ -20,40 +21,51 @@ class TrialBalance(Report):
     """
 
     def __init__(self, company_id, date=None):
+        config = {'description': 'Trial Balance',
+                  'calc_type': 'as_of',
+                  'date': date}
+        
+        super(TrialBalance, self).__init__(company_id, **config)
 
-        self.date = date
-        self.description = 'Trial Balance'
-        self.title = "Trial Balance"
-        self.company_id = company_id
-        self.columns = {'Debits':'Debits', 'Credits': 'Credits'}
-        self.calc_type = 'as_of'
-        self.set_company()
-        self.works_for = [cmpny['id'] for cmpny in api_func('gl', 'company')]
-        self.column_order = ['Debits', 'Credits']
         self.label_map = None
         self.link_map = lambda x: utils.acct_history_link(x.name)
+        self.works_for = [cmpny['id'] for cmpny in api_func('gl', 'company')]
+        self.columns = {'Debits':'Debits', 'Credits': 'Credits'}
+        self.column_order = ['Debits', 'Credits']
         
         
     def set_columns(self, columns, column_order=None):
         # columns are fixed... don't mistakenly adjust to dates
         pass
 
-    def configure(self, as_of=None, col_tag=None, path=None):
-        if as_of:
-            if as_of == 'today':
-                self.date = datetime.datetime.now().date()    
-            else:
-                self.date = parse(as_of).date()
-            self.title = 'Trial Balance as of %s' % self.date.strftime('%d-%b-%y')
-        elif col_tag:
-            config = utils.config_fromcoltag(col_tag, self.description, self.calc_type)
-            try:
-                self.date = config['columns']['Today']
-            except:
-                self.date = config['columns'][config['column_order'][-1]]
-            self.title = config['title']
+    def configure(self, config, path=None):
+        qs_matches = rptutils.qs_parse(config)
+        if len(qs_matches) == 0:
+            raise ValueError('Unexpected query string: %s' % repr(config))
+        elif len(qs_matches) > 1:
+            raise ValueError('Unexpected query string: %s' % repr(config))
         else:
-            self.date = datetime.datetime.now().date()    
+            config['config_type'] = qs_matches[0]
+
+
+        if config['config_type'] == 'shortcut':
+            config.pop('config_type')
+            config.update(rptutils.parse_shortcut(config['col_tag']))
+
+        if config['config_type'] == 'date':
+            dt = rptutils.date_from_shortcut(config['date'])
+            config.update(rptutils.config_fromdate(self.calc_type, self.description, dt))
+        elif config['config_type'] == 'date_range':
+            dt = rptutils.date_from_shortcut(config['to'])
+            config.update(rptutils.config_fromdate(self.calc_type, self.description, dt))
+        else:
+            raise ValueError('Unexpected query string: %s' % repr(config))
+        
+        self.set_columns(config['columns'], column_order=config.get('column_order'))
+        self.date = config.get('date')
+        self.path = config.get('path')
+        self.title = 'Trial Balance as of %s' % self.date.strftime('%d-%b-%y')
+
 
     def calcs(self):
         bals = self.query_manager.pd_acct_balances(self.company_id, {'balance': self.date})

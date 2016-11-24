@@ -64,7 +64,7 @@ def api_func(*args, **kwargs):
 
 
 def get_resource(request, group, resource):
-    qs = dict((k,v) for k,v in request.GET.iteritems())
+    qs = dict((k, request.GET.get(k)) for k in request.GET.keys())
     raw = (qs.get('raw') == 'true')
     as_csv = (qs.get('as_csv') == 'true')
     if raw:
@@ -106,7 +106,7 @@ def output_as_csv(data, label='output'):
 
 
 def get_item(request, group, resource, item):
-    qs = request.GET.copy()
+    qs = dict((k, request.GET.get(k)) for k in request.GET.keys())
     raw = (qs.get('raw') == 'true')
     as_csv = (qs.get('as_csv') == 'true')
     if raw:

@@ -10,7 +10,7 @@ class MetricEntryAdmin(admin.ModelAdmin):
     list_filter = ('metric', 'label')
 
 class ReportDefAdmin(admin.ModelAdmin):
-    list_display = ('name', 'path',)
+    list_display = ('name', 'description', 'path', 'calc_type')
 
 
 admin.site.register(Metric, MetricAdmin)

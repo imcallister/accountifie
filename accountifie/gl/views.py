@@ -54,13 +54,13 @@ class AccountAutocomplete(autocomplete.Select2QuerySetView):
 
 @login_required
 def download_transactions(request):
-    company_ID = utils.get_company(request)
+    company_id = utils.get_company(request)
 
     #snapshot_time = datetime.datetime.now()
     strategy = QueryManagerStrategyFactory().get('remote')
     #strategy.set_cache(None)
 
-    trans = strategy.get_all_transactions(company_ID)
+    trans = strategy.get_all_transactions(company_id)
 
     all_accts_list = api_func('gl', 'account')
     all_accts = dict((r['id'], r) for r in all_accts_list)
@@ -97,8 +97,8 @@ def download_transactions(request):
 
 @login_required
 def download_tranlines(request):
-    company_ID = utils.get_company(request)
-    trans = QueryManager().tranlines(company_ID)
+    company_id = utils.get_company(request)
+    trans = QueryManager().tranlines(company_id)
     
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="tranlines.csv"'

@@ -19,36 +19,52 @@
 {% block userlinks %}{% endblock %}
 
 {% block nav-global %}
-    <li class="btn-group">
-        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown">
-            <span class="fa fa-usd fa-lg"></span>HII Finances 
-            <span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu" role="menu">
-            <li><a class="btn-sm" type="button" href="/reports/">Reporting</a></li>
-            <li><a class="btn-sm" type="button" href="/bookkeeping/">Book-keeping</a></li>
-        </ul>
-    </li>
+    {% block menu_items %}
+        {% for key, value, icon in menu_items.items %} 
+          <li>
+            <a class="btn-sm" type="button" href={{value}}>
+              <span class="{{icon}}"></span>
+              {{key}}
+            </a>
+          </li>
+        {% endfor %}
+        
+        <li class="btn-group">
+            <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"> Forecasts <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            {% block forecasts_items %}
+              {% for key, value in forecasts_items.items %} 
+                <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
+              {% endfor %}
+            {% endblock %}
+          </ul>
+        </li>
+    {% endblock %}
+      
+    {% if user.is_superuser %}
+        <li class="btn-group">
+            <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-wrench"></span> POWER USERS <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            {% block power_menu_items %}
+              {% for key, value in power_menu_items.items %} 
+                <li><a class="btn-sm" type="button" href={{value}}>{{key}}</a></li>
+              {% endfor %}
+            {% endblock %}
+          </ul>
+        </li>
+    {% endif %}
     
-    <li class="btn-group">
-        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-shopping-cart"></span> Inventory <span class="caret"></span></a>
-      <ul class="dropdown-menu" role="menu">
-        <li><a class="btn-sm" type="button" href="/inventory/">Stocks</a></li>
-        <li><a class="btn-sm" type="button" href="/inventory/management/">Fulfillment</a></li>
-      </ul>
-    </li>
+        <li class="btn-group">
+            <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> {{ company_id }} <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            {% for cmpny in company_list %}
+              <li><a href="/choose_company/{{cmpny}}">{{cmpny}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
 
 
-    <li class="btn-group">
-        <a class="btn btn-sm dropdown-toggle" data-toggle="dropdown"><span class="fa fa-bar-chart fa-lg"></span> Analysis <span class="caret"></span></a>
-      <ul class="dropdown-menu" role="menu">
-        <li><a class="btn-sm" type="button" href="/sales-analysis/">Sales</a></li>
-        <li><a class="btn-sm" type="button" href="/orders_list/">Orders</a></li>
-        <li><a class="btn-sm" type="button" href="/ship_charges/">Shipping & Handling</a></li>
-      </ul>
-    </li>
-
-    {% if user.username %}
+      {% if user.username %}
       <li class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <strong>{% firstof user.get_full_name user.username user.email %}</strong> <span class="caret"></span></a>
       <ul class="dropdown-menu" role="menu">
           {% block loggedin_options %}{% endblock%}

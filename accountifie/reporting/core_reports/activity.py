@@ -13,22 +13,18 @@ from accountifie.common.api import api_func
 class AccountActivity(Report):
     
     def __init__(self, company_id, date=None):
+        config = {'description': 'Account Activity',
+                  'calc_type': 'diff',
+                  'date': date}
+        
+        super(AccountActivity, self).__init__(company_id, **config)
 
-        self.date = date
-        self.description = 'Account Activity'
-        self.title = None
-        self.company_id = company_id
-        self.columns = None
-        self.column_order = None
-        self.calc_type = 'as_of'
-        self.set_company()
         self.label_map = None
         self.link_map = lambda x: utils.acct_history_link(x.name)
+        self.works_for = [cmpny['id'] for cmpny in api_func('gl', 'company')]
+        self.acct_list = None
         self.equity_sign = False
 
-        self.path = None
-        self.acct_list = None
-        self.works_for = [cmpny['id'] for cmpny in api_func('gl', 'company')]
         
 
     
