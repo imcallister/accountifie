@@ -3,6 +3,7 @@ import inspect
 import datetime
 from dateutil.parser import parse
 
+from django.conf import settings
 from django.shortcuts import render
 from django.template import RequestContext
 
@@ -88,7 +89,10 @@ def history_prep(request):
     qs_matches = qs_parse(config)
 
     if len(qs_matches) == 0:
-        raise ValueError('Unexpected query string: %s' % repr(config))
+        config['config_type'] = 'date_range'
+        config['from'] = settings.DATE_EARLY
+        config['to'] = settings.DATE_LATE
+        
     elif len(qs_matches) > 1:
         raise ValueError('Unexpected query string: %s' % repr(config))
     else:
