@@ -96,8 +96,8 @@ def unfmt(x):
 
 def get_dates(dt):
     if is_period_id(dt):
-        start = start_of_period(dt)
-        end =end_of_period(dt)
+        start = datefuncs.start_of_period(dt)
+        end = datefuncs.end_of_period(dt)
     elif type(dt) in [str, unicode] and dt[-4:]=='_YTD':
         end = parse(dt[:-4])
         start = datetime.date(end.year, 1, 1)

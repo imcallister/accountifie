@@ -14,7 +14,7 @@ class AccountActivity(Report):
     
     def __init__(self, company_id, date=None):
         config = {'description': 'Account Activity',
-                  'calc_type': 'diff',
+                  'calc_type': 'as_of',
                   'date': date}
         
         super(AccountActivity, self).__init__(company_id, **config)
@@ -29,7 +29,6 @@ class AccountActivity(Report):
 
     
     def calcs(self):
-        
         if self.path:
             bals = self.query_manager.pd_acct_balances(self.company_id,self.columns, paths=[self.path]).fillna(0.0)
         elif self.acct_list:

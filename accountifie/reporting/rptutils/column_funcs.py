@@ -14,6 +14,8 @@ def get_period_id(config):
         return '%sQ%s' % (config['year'], config['quarter'])
     elif config['period'] == 'month':
         return '%sM%02d' % (config['year'], int(config['month']))
+    elif config['period'] == 'day':
+        return 'D%d-%02d-%02d' % (int(config['year']), int(config['month']), int(config['day']))
     else:
         raise ValueError("Bad config %s" % repr(config))
 
@@ -67,12 +69,20 @@ def annual_periods(calc_type, start, end):
     column_titles = columns
     return columns, column_titles
 
+def day_periods(calc_type, start, end):
+    columns = [start.isoformat(), end.isoformat()]
+    column_titles = ['Previous Day', 'Current Day']
+    return columns, column_titles
+
 def gen_periods(calc_type, config):
     period_id = get_period_id(config)
     start = datefuncs.start_of_period(period_id)
     end = datefuncs.end_of_period(period_id)
 
     # if just as of end of single period... show chg
+    if config['period'] == 'day':
+        return single_period(config, start, end)
+    
     if config['by'] == config['period'] and calc_type == 'as_of':
         return single_period(config, datefuncs.end_of_prev_period(period_id), end)
 
@@ -84,6 +94,8 @@ def gen_periods(calc_type, config):
         return quarterly_periods(calc_type, start, end)
     elif config['by'] == 'month':
         return monthly_periods(calc_type, start, end)
+    elif config['by'] == 'day':
+        return day_periods(calc_type, start, end)
     else:
         raise ValueError("Unrecognised config %s" % repr(config))        
 

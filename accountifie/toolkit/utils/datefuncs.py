@@ -41,6 +41,11 @@ def yesterday():
 def start_of_period(period_id):
     pid = period_id
     assert is_period_id(pid)
+
+    # daily
+    if pid[0] == 'D':
+        return prev_busday(parse(pid[1:]).date())
+
     year = int(pid[0:4])
     if len(pid) > 5: 
         part2 = int(pid[5:])  #month, week, quarter
@@ -63,8 +68,14 @@ def start_of_period(period_id):
         raise ValueError("Unexpected date identifier %s" % id)
     
 def end_of_period(period_id):
-    assert is_period_id(period_id)
     pid = period_id
+    assert is_period_id(period_id)
+
+    # daily
+    if pid[0] == 'D':
+        return parse(pid[1:]).date()
+
+
     year = int(period_id[0:4])
     if len(pid) > 5: 
         part2 = int(pid[5:])  #month, week, quarter
