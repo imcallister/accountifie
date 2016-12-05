@@ -1,20 +1,27 @@
-import datetime
 import pandas as pd
 import numpy as np
 import itertools
-from dateutil.parser import parse
-from functools import partial
 import query_manager_strategy_factory
 
 from django.conf import settings
-from collections import defaultdict
 
 import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
 
-import time
 import logging
 logger = logging.getLogger('default')
+
+
+def _get_acct_list(acct_list, paths):
+        if acct_list:
+            return acct_list
+        else:
+            if paths:
+                accts = list(itertools.chain(*[api_func('gl', 'path_accounts', p) for p in paths]))
+                return [x['id'] for x in accts]
+            else:
+                return [x['id'] for x in api_func('gl', 'path_accounts', '')]
+
 
 class QueryManager:
 
@@ -28,99 +35,26 @@ class QueryManager:
             strategy_inst = query_manager_strategy_factory.QueryManagerStrategyFactory().get()
         self.gl_strategy = strategy_inst
 
-    # CALCULATIONS
-    
-    ## REFERENCES: 0 internal, 1 external
-    def cp_balances(self, company_id, acct_list,from_date=None,to_date=None):
-        cache = glcache.get_cache(company_id)
-        entries = cache.get_gl_entries(acct_list)
-    
-        if from_date:
-            if type(from_date) == str:
-                from_date = parse(from_date).date()
-            entries = entries[entries['date'] >= from_date]
-    
-        if to_date:
-            if type(to_date) == str:
-                to_date = parse(to_date).date()
-            entries = entries[entries['date'] <= to_date]
-    
-        entries['pos_amount'] = entries['amount'].map(abs)
-        entries['neg_amount'] = entries['amount'].map(abs) * (-1.0)
-        entries.rename(columns={'amount': 'total'}, inplace=True)
-    
-        bals = entries[['total', 'pos_amount', 'neg_amount', 'counterparty']].groupby('counterparty').sum()
-        return bals[bals['total'] != 0.0].sort_index(by='total')
-    
+
     ## REFERENCES: 0 internal, 2 external
     def path_drilldown(self, company_id, dates, path, excl_contra=None, excl_interco=None):
         paths = api_func('gl', 'child_paths', path)
         output = self.pd_path_balances(company_id, dates, paths, excl_contra=excl_contra, excl_interco=excl_interco)
         return output
     
-    ## REFERENCES: 1 internal, 0 external
-    def deprec_factor(self, row, start, end):
-        if row['date_end'] is None or row['date_end'] == row['date']:
-            return 1.0
-        days_outside = float(max((row['date_end'] - end).days, 0) + max((start - row['date']).days, 0))
-        expense_period = float((row['date_end'] - row['date']).days + 1)
-        deprec_factor = float('1')
-        if expense_period > 0.0:
-            deprec_factor -= days_outside / expense_period
-        return deprec_factor
     
-    ## REFERENCES: 1 internal, 0 external
-    def deprec_calcs(self, start, end, entries):
-    
-        sub_entries = entries[(entries.date<=end) & (entries.date_end >=start)]
-        _deprec_factor = partial(self.deprec_factor, start=start, end=end)
-    
-        if  not sub_entries.empty:
-            sub_entries.loc[:, 'deprec_factor'] = sub_entries.apply(_deprec_factor, axis=1)
-            sub_entries.loc[:, 'comment'] = sub_entries.apply(lambda row: row['comment'] + (' (prorated)' if row['deprec_factor'] < 1.0 else ''), axis=1)
-            sub_entries.loc[:, 'amount'] *= sub_entries['deprec_factor']
-            sub_entries.loc[:, 'date'] = sub_entries.apply(lambda row: min(row['date_end'],end), axis=1)
-        return sub_entries
-    
-    ## REFERENCES: 0 internal, 1 external
-    def trans_detail(self, trans_list, company_id=utils.get_default_company()):
-        
-        cache = glcache.get_cache(company_id)
-        entries = cache.get_gl_entries_trans(trans_list)
-    
-        entries['date_end'] = entries.apply(lambda row: row['date_end'] if row['date_end'] is not None else row['date'],axis=1)
-        start_date = min(min(entries['date']), min(entries['date_end']))
-        end_date = max(max(entries['date']), max(entries['date_end']))
-    
-        start_mth = start_date.month
-        start_yr = start_date.year
-    
-        end_mth = end_date.month
-        end_yr = end_date.year
-    
-        dt = utils.start_of_month(start_date.month, start_date.year)
-        dates = {dt.isoformat(): dt}
-    
-        dt1 = start_date
-        dt2 = end_date
-        start_month=dt1.month
-        end_months=(dt2.year-dt1.year)*12 + dt2.month+1
-        date_list = [utils.end_of_month(mn,yr) for (yr, mn) in (
-                  ((m - 1) / 12 + dt1.year, (m - 1) % 12 + 1) for m in range(start_month, end_months)
-              )]
-    
-        date_list = list(set([start_date,end_date] + date_list))
-        dates = dict((d.isoformat(), d) for d in date_list)
-    
-        dates[datetime.date(start_yr,start_month,1).isoformat()] = datetime.date(start_yr,start_month,1)
-    
-        data = {}
-        for dt in dates:
-            start, end = utils.get_dates(dates[dt])
-            sub_entries = self.deprec_calcs(start, end, entries)
-            col = sub_entries[['account_id','amount']].groupby('account_id').sum()['amount']
-            data[dt] = col[col!=0.0]
-        return pd.DataFrame(data).fillna(0.0).T
+    def cp_balances(self, company_id, dates, paths=None, acct_list=None, excl_contra=None, excl_interco=False, with_tags=None, excl_tags=None):
+
+        accts = _get_acct_list(acct_list, paths)
+        dates_dict = dict((dt, utils.get_dates_dict(dates[dt])) for dt in dates)
+        balances = self.gl_strategy.cp_balances_for_dates(company_id, accts, dates_dict)
+
+        # filter empties
+        for acct in balances:
+            for dt in balances[acct]:
+                balances[acct][dt] = [l for l in balances[acct][dt] if float(l['total']) > 0.0]
+        return balances
+
 
     def pd_path_balances(self, company_id, dates, paths, filter_zeros=True, assets=False, excl_contra=None, excl_interco=False, with_tags=None, excl_tags=None):
 
@@ -219,11 +153,6 @@ class QueryManager:
         
         if all_entries is None or len(all_entries) == 0:
             return pd.DataFrame()
-    
-        clean_end = lambda row: row['date_end'] if row['date_end'] else row['date']
-        
-    
-        period_entries = []
     
         all_entries_pd = pd.DataFrame(all_entries)
         all_entries_pd.sort(['date', 'id'], ascending=[1, 0], inplace=True)
