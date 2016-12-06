@@ -38,7 +38,6 @@ class ActivityTestCase(TestCase):
 
     # create activity
     activity = AccountActivity('TEST')
-    #activity.columns = {'end of 2014': '2014-12-31', u'chg in 2015': u'2015', u'end of 2015': '2015-12-31'}
     activity.configure({'col_tag': '2015Annual'})
     activity.set_gl_strategy(mock_strategy)
 

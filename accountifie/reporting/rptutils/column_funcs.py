@@ -122,7 +122,7 @@ def daterange_periods(calc_type, config):
 def single_period(config, start, end):
     period_id = get_period_id(config)
     columns = [start.isoformat(), period_id, end.isoformat()]
-    column_titles = [columns[0], 'chg in %s' % config['period'], columns[2]]
+    column_titles = [columns[0], 'chg in period', columns[2]]
     return columns, column_titles
 
 
