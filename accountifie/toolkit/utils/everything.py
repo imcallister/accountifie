@@ -18,7 +18,6 @@ from pprint import pprint
 from django.db import models
 from django.conf import settings
 
-from accountifie.cal import is_period_id, is_iso_date, start_of_period, end_of_period
 import datefuncs
 
 locale.setlocale(locale.LC_ALL, '')
@@ -33,13 +32,14 @@ logger = logging.getLogger('default')
 DZERO = Decimal("0.00")
 HUNDREDTH = Decimal("0.01")
 
-
+"""
 def periods(period_tags):
     periods = {}
     for tag in period_tags:
         period_tag = period_tags[tag]
         periods[tag] = {'start': start_of_period(period_tag), 'end': end_of_period(period_tag)}
     return periods
+"""
 
 def day_before(d):
     return d - datetime.timedelta(days=1)
@@ -95,7 +95,7 @@ def unfmt(x):
 
 
 def get_dates(dt):
-    if is_period_id(dt):
+    if datefuncs.is_period_id(dt):
         start = datefuncs.start_of_period(dt)
         end = datefuncs.end_of_period(dt)
     elif type(dt) in [str, unicode] and dt[-4:]=='_YTD':

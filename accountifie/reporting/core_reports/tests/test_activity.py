@@ -19,17 +19,17 @@ class ActivityTestCase(TestCase):
     # setup mock strategy
     mock_strategy = mock.create_autospec(QueryManagerStrategy, instance=True)
     mock_strategy.account_balances_for_dates.return_value = {
-      'end of 2014': {
+      '2014-12-31': {
         '1001': 10.00,
         '1002': 0.00,
         '1003': 24.00
       },
-       'chg in 2015': {
+       'chg in year': {
         '1001': 100.00,
         '1002': -1.00,
         '1003': 20.00
        }, 
-       'end of 2015': {
+       '2015-12-31': {
         '1001': 110.00,
         '1002': -1.00,
         '1003': 44.00
@@ -39,7 +39,7 @@ class ActivityTestCase(TestCase):
     # create activity
     activity = AccountActivity('TEST')
     #activity.columns = {'end of 2014': '2014-12-31', u'chg in 2015': u'2015', u'end of 2015': '2015-12-31'}
-    activity.config_fromtag('2015Annual')
+    activity.configure({'col_tag': '2015Annual'})
     activity.set_gl_strategy(mock_strategy)
 
     # run calc
@@ -50,9 +50,9 @@ class ActivityTestCase(TestCase):
       company_id='TEST',
       account_ids=['1001', '1002', '1003'],
       # TODO: remove hardcoded start date
-      dates={'end of 2014': {'start': datetime.date(2013, 1, 1), 'end': datetime.date(2014,12,31)},
-            'chg in 2015': {'start': datetime.date(2015, 1, 1), 'end': datetime.date(2015,12,31)},
-            'end of 2015': {'start': datetime.date(2013, 1, 1), 'end': datetime.date(2015,12,31)},
+      dates={'2014-12-31': {'start': datetime.date(2013, 1, 1), 'end': datetime.date(2014,12,31)},
+            'chg in year': {'start': datetime.date(2015, 1, 1), 'end': datetime.date(2015,12,31)},
+            '2015-12-31': {'start': datetime.date(2013, 1, 1), 'end': datetime.date(2015,12,31)},
       },
       with_counterparties=None,
       excl_interco=False,
@@ -63,18 +63,18 @@ class ActivityTestCase(TestCase):
 
     # test result
     self.assertEqual(result[0]['label'], '1001: TestOne')
-    self.assertEqual(result[0]['end of 2014']['text'], 10.0)
-    self.assertEqual(result[0]['chg in 2015']['text'], 100.0)
-    self.assertEqual(result[0]['end of 2015']['text'], 110.0)
+    self.assertEqual(result[0]['2014-12-31']['text'], 10.0)
+    self.assertEqual(result[0]['chg in year']['text'], 100.0)
+    self.assertEqual(result[0]['2015-12-31']['text'], 110.0)
 
     self.assertEqual(result[1]['label'], '1002: TestTwo')
-    self.assertEqual(result[1]['end of 2014']['text'], 0.0)
-    self.assertEqual(result[1]['chg in 2015']['text'], -1.0)
-    self.assertEqual(result[1]['end of 2015']['text'], -1.0)
+    self.assertEqual(result[1]['2014-12-31']['text'], 0.0)
+    self.assertEqual(result[1]['chg in year']['text'], -1.0)
+    self.assertEqual(result[1]['2015-12-31']['text'], -1.0)
 
     self.assertEqual(result[2]['label'], '1003: TestThree')
-    self.assertEqual(result[2]['end of 2014']['text'], 24.0)
-    self.assertEqual(result[2]['chg in 2015']['text'], 20.0)
-    self.assertEqual(result[2]['end of 2015']['text'], 44.0)
+    self.assertEqual(result[2]['2014-12-31']['text'], 24.0)
+    self.assertEqual(result[2]['chg in year']['text'], 20.0)
+    self.assertEqual(result[2]['2015-12-31']['text'], 44.0)
 
     

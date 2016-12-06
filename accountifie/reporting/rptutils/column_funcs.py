@@ -82,7 +82,7 @@ def gen_periods(calc_type, config):
     # if just as of end of single period... show chg
     if config['period'] == 'day':
         return single_period(config, start, end)
-    
+
     if config['by'] == config['period'] and calc_type == 'as_of':
         return single_period(config, datefuncs.end_of_prev_period(period_id), end)
 
@@ -122,7 +122,7 @@ def daterange_periods(calc_type, config):
 def single_period(config, start, end):
     period_id = get_period_id(config)
     columns = [start.isoformat(), period_id, end.isoformat()]
-    column_titles = [columns[0], 'chg in %s' % columns[1], columns[2]]
+    column_titles = [columns[0], 'chg in %s' % config['period'], columns[2]]
     return columns, column_titles
 
 

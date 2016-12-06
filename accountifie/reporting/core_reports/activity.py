@@ -2,7 +2,6 @@ import datetime
 import pandas as pd
 from dateutil.parser import parse
 
-from accountifie.cal import is_period_id, is_iso_date, start_of_period, end_of_period
 
 from accountifie.reporting.models import Report
 import accountifie.gl.models as gl

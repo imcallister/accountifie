@@ -57,6 +57,7 @@ def history(id, qstring={}):
 
     end_date = rptutils.date_from_shortcut(qstring.get('to', datetime.datetime.now().date()))
     start_cutoff = qstring.get('from', None)
+
     if start_cutoff:
         start_cutoff = rptutils.date_from_shortcut(start_cutoff)
     else:
