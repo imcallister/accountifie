@@ -16,6 +16,7 @@ YEAR_TAG = re.compile("^(\d{4})(Annual|Semi|Quarterly|Monthly)?$")
 
 YTD_TAG = re.compile('(YTD_)(\d{4}-\d{1,2}-\d{1,2})(Annual|Semi|Quarterly|Monthly)?')
 DAILY_TAG = re.compile('(daily_)(\d{4}-\d{1,2}-\d{1,2})')
+DAY_TAG = re.compile('(day_)(\d{4}-\d{1,2}-\d{1,2})')
 TRAILING12M_TAG = re.compile('(12Mtrailing)(-?)(\d{4}-\d{1,2}-\d{1,2})?')
 MULTIYEAR_TAG = re.compile('(\d{1,2})yr_(\d{4}-\d{1,2}-\d{1,2})(Annual|Semi|Quarterly|Monthly)?')
 
@@ -52,6 +53,16 @@ def date_from_shortcut(scut):
 
 
 def parse_shortcut(col_tag):
+
+    day_tag = DAY_TAG.match(col_tag)
+    if day_tag is not None:
+        dt = parse(day_tag.groups()[1]).date()
+        return {'config_type': 'period',
+                'period': 'day', 
+                'year': dt.year,
+                'month': dt.month,
+                'day': dt.day,
+                'by': 'day'}
 
     month_tag = MONTH_TAG.match(col_tag)
     if month_tag is not None:

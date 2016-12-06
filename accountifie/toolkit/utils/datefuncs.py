@@ -1,8 +1,8 @@
-from accountifie.cal import is_period_id
 import datetime
 from datetime import tzinfo
 from dateutil.parser import parse
 import isoweek
+import re
 
 
 ZERO = datetime.timedelta(0)
@@ -38,9 +38,33 @@ def yesterday():
     return prev_busday(today())
 
 
+PAT_YEAR = re.compile("^\d{4}$")
+PAT_MONTH = re.compile("^\d{4}M(0[1-9]{1}|10|11|12)$")
+PAT_QUARTER = re.compile("^\d{4}Q[0-4]$")
+PAT_HALF = re.compile("^\d{4}H[1-2]$")
+PAT_WEEK = re.compile("^\d{4}W(0[1-9]|[1-4][0-9]|5[0-3]$)")
+PAT_DAY = re.compile("^(D)(\d{4}-\d{1,2}-\d{1,2})")
+
+#combine above 
+PAT_PERIOD_ID = re.compile("|".join([PAT_YEAR.pattern, PAT_MONTH.pattern, PAT_QUARTER.pattern, PAT_HALF.pattern, PAT_WEEK.pattern, PAT_DAY.pattern]))
+
+
+def is_period_id(text):
+    if not text:
+        return False
+
+    match = PAT_PERIOD_ID.match(unicode(text))
+    return (match is not None)
+
+
 def start_of_period(period_id):
     pid = period_id
     assert is_period_id(pid)
+
+    # daily
+    if pid[0] == 'D':
+        return prev_busday(parse(pid[1:]).date())
+
     year = int(pid[0:4])
     if len(pid) > 5: 
         part2 = int(pid[5:])  #month, week, quarter
@@ -63,8 +87,14 @@ def start_of_period(period_id):
         raise ValueError("Unexpected date identifier %s" % id)
     
 def end_of_period(period_id):
-    assert is_period_id(period_id)
     pid = period_id
+    assert is_period_id(period_id)
+
+    # daily
+    if pid[0] == 'D':
+        return parse(pid[1:]).date()
+
+
     year = int(period_id[0:4])
     if len(pid) > 5: 
         part2 = int(pid[5:])  #month, week, quarter

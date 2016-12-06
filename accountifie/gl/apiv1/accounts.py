@@ -23,9 +23,9 @@ def path_accounts(path, qstring={}):
     incl = qstring.get('incl', None)
 
     if excl:
-        acct_list = [a for a in list(Account.objects.filter(path__contains=str(path)).values()) if filter_it(a['path'], excl)]
+        acct_list = [a for a in list(Account.objects.filter(path__contains=str(path)).values()) if filter_it(a['path'], excl.split(','))]
     elif incl:
-        acct_list = [a for a in list(Account.objects.filter(path__contains=str(path)).values()) if not filter_it(a['path'], incl)]
+        acct_list = [a for a in list(Account.objects.filter(path__contains=str(path)).values()) if not filter_it(a['path'], incl.split(','))]
     else:
         acct_list = list(Account.objects.filter(path__contains=str(path)).values())
 

@@ -13,6 +13,7 @@ import json
 import urllib
 import urllib2
 from decimal import Decimal
+from collections import defaultdict
 
 from dateutil.parser import parse
 from django.conf import settings
@@ -26,6 +27,28 @@ logger = logging.getLogger('default')
 
 
 class QueryManagerRemoteStrategy(QueryManagerStrategy):
+    def cp_balances_for_dates(self, company_id, account_ids, dates):        
+        if api_func('gl', 'company', company_id)['cmpy_type'] == 'CON':
+            company_list = api_func('gl', 'company_list', company_id)
+            balances = [self.cp_balances_for_dates(cmpny, account_ids, dates) for cmpny in company_list]
+            return self.__merge_account_balances_for_dates_results(balances)
+        
+        client = accountifieSvcClient(company_id)
+        result = defaultdict(dict)
+
+        for dt in dates:
+            start = dates[dt]['start']
+            end = dates[dt]['end']
+
+            cp_balances = client.cp_balances(accounts=account_ids,
+                                             from_date=start,
+                                             to_date=end)
+
+            for acct_bals in cp_balances:
+                result[acct_bals['id']][dt] = acct_bals['closingBalance']
+
+        return result
+
     def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra, with_tags, excl_tags):
         
         interco_exempt_accounts = api_func('gl', 'externalaccounts')
@@ -243,7 +266,6 @@ class accountifieSvcClient(object):
         return json_result
 
     def balances(self, accounts, from_date=None, to_date=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None, with_tags=None, excluding_tags=None):
-        start_time = time.time()
         from_date = None if from_date == '2000-01-01' else from_date
         account_balances = self.__get('/balances', {
             'accounts': ','.join(accounts),
@@ -257,6 +279,16 @@ class accountifieSvcClient(object):
         })
 
         return account_balances
+
+    def cp_balances(self, accounts, from_date=None, to_date=None):
+        from_date = None if from_date == '2000-01-01' else from_date
+        cp_balances = self.__get('/cpBalances', {
+            'accounts': ','.join(accounts),
+            'from': from_date,
+            'to': to_date
+        })
+
+        return cp_balances
 
     def transactions(self, accounts, from_date=None, to_date=None, chunk_frequency=None, with_counterparties=None, excluding_counterparties=None, excluding_contra_accounts=None):
         from_date = None if from_date == '2000-01-01' else from_date

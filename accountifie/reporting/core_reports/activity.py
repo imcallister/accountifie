@@ -2,7 +2,6 @@ import datetime
 import pandas as pd
 from dateutil.parser import parse
 
-from accountifie.cal import is_period_id, is_iso_date, start_of_period, end_of_period
 
 from accountifie.reporting.models import Report
 import accountifie.gl.models as gl
@@ -14,7 +13,7 @@ class AccountActivity(Report):
     
     def __init__(self, company_id, date=None):
         config = {'description': 'Account Activity',
-                  'calc_type': 'diff',
+                  'calc_type': 'as_of',
                   'date': date}
         
         super(AccountActivity, self).__init__(company_id, **config)
@@ -29,7 +28,6 @@ class AccountActivity(Report):
 
     
     def calcs(self):
-        
         if self.path:
             bals = self.query_manager.pd_acct_balances(self.company_id,self.columns, paths=[self.path]).fillna(0.0)
         elif self.acct_list:
