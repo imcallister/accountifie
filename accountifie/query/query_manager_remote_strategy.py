@@ -40,13 +40,13 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
         for dt in dates:
             start = dates[dt]['start']
             end = dates[dt]['end']
-
             cp_balances = client.cp_balances(accounts=account_ids,
                                              from_date=start,
                                              to_date=end)
 
             for acct_bals in cp_balances:
-                result[acct_bals['id']][dt] = acct_bals['closingBalance']
+                result[acct_bals['id']][dt] = {'openingBalance': acct_bals['openingBalance'],
+                                               'closingBalance': acct_bals['closingBalance']}
 
         return result
 
@@ -158,12 +158,14 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
             for acct in result:
                 merged_results[acct] = merged_results[acct] if acct in merged_results else {}
                 for date in result[acct]:
-                    existing_amount = merged_results[acct][date] if date in merged_results[acct] else []
-                    all_rows = existing_amount + result[acct][date]
-                    merged_results[acct][date] = []
-                    for k,v in itertools.groupby(sorted(all_rows, key=lambda x: x['cp']), key=lambda x: x['cp']):
-                        merged_results[acct][date].append({'cp': k, 'total': str(sum(Decimal(r['total']) for r in v))})
-
+                    if date not in merged_results[acct]:
+                        merged_results[acct][date] = {'closingBalance': [], 'openingBalance': []}
+                    existing_amount = merged_results[acct][date]
+                    for col in ['closingBalance', 'openingBalance']:
+                        all_rows = existing_amount[col] + result[acct][date][col]
+                        merged_results[acct][date][col] = []
+                        for k,v in itertools.groupby(sorted(all_rows, key=lambda x: x['cp']), key=lambda x: x['cp']):
+                            merged_results[acct][date][col].append({'cp': k, 'total': str(sum(Decimal(r['total']) for r in v))})
         return merged_results
 
     def __merge_account_balances_for_dates_results(self, result_list):
