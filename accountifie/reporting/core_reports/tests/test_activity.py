@@ -50,7 +50,7 @@ class ActivityTestCase(TestCase):
       account_ids=['1001', '1002', '1003'],
       # TODO: remove hardcoded start date
       dates={'2014-12-31': {'start': datetime.date(2013, 1, 1), 'end': datetime.date(2014,12,31)},
-            'chg in year': {'start': datetime.date(2015, 1, 1), 'end': datetime.date(2015,12,31)},
+            'chg in period': {'start': datetime.date(2015, 1, 1), 'end': datetime.date(2015,12,31)},
             '2015-12-31': {'start': datetime.date(2013, 1, 1), 'end': datetime.date(2015,12,31)},
       },
       with_counterparties=None,
@@ -63,17 +63,17 @@ class ActivityTestCase(TestCase):
     # test result
     self.assertEqual(result[0]['label'], '1001: TestOne')
     self.assertEqual(result[0]['2014-12-31']['text'], 10.0)
-    self.assertEqual(result[0]['chg in year']['text'], 100.0)
+    self.assertEqual(result[0]['chg in period']['text'], 100.0)
     self.assertEqual(result[0]['2015-12-31']['text'], 110.0)
 
     self.assertEqual(result[1]['label'], '1002: TestTwo')
     self.assertEqual(result[1]['2014-12-31']['text'], 0.0)
-    self.assertEqual(result[1]['chg in year']['text'], -1.0)
+    self.assertEqual(result[1]['chg in period']['text'], -1.0)
     self.assertEqual(result[1]['2015-12-31']['text'], -1.0)
 
     self.assertEqual(result[2]['label'], '1003: TestThree')
     self.assertEqual(result[2]['2014-12-31']['text'], 24.0)
-    self.assertEqual(result[2]['chg in year']['text'], 20.0)
+    self.assertEqual(result[2]['chg in period']['text'], 20.0)
     self.assertEqual(result[2]['2015-12-31']['text'], 44.0)
 
     

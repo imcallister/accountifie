@@ -52,7 +52,8 @@ class QueryManager:
         # filter empties
         for acct in balances:
             for dt in balances[acct]:
-                balances[acct][dt] = [l for l in balances[acct][dt] if float(l['total']) > 0.0]
+                for col in ['openingBalance', 'closingBalance']:
+                    balances[acct][dt][col] = [l for l in balances[acct][dt][col] if abs(float(l['total'])) > 0.0]
         return balances
 
 
