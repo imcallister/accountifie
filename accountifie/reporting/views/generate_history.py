@@ -46,6 +46,7 @@ def create_row(row, col_order, qs=None, fmtr=ACCT_DEF):
 def history(request, type, id):
     qs = request.GET.urlencode()
     config = rptutils.history_prep(request)
+
     if type == 'account':
         acct = api_func('gl', 'account', id)
         display_name = '%s: %s' %(acct['id'], acct['display_name'])

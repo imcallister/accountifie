@@ -138,8 +138,8 @@ def load_file(**config):
     value_cleaner = config.get('value_cleaner')
     exclude = config.get('exclude', [])
     data = csv_to_modelattr(file, name_cleaner=clean_csv_fields, company=company)
-    with transaction.atomic():
-        results = save_data(data, company, model, unique, name_cleaner, value_cleaner, exclude)
+    #with transaction.atomic():
+    results = save_data(data, company, model, unique, name_cleaner, value_cleaner, exclude)
         
     return json.dumps(results, ensure_ascii=False)
     
@@ -163,8 +163,8 @@ def save_data(data, company, model, unique, name_cleaner, value_cleaner, exclude
         if dirty:
             #if a key is wrong the whole file will fail anyway
             return dict(dups=dups, saved=saved, key_errors=dirty, value_errors=value_errors)
-        
-        unique_instance = create_instance(row, model, name_cleaner=name_cleaner, value_cleaner=value_cleaner,
+        with transaction.atomic():
+            unique_instance = create_instance(row, model, name_cleaner=name_cleaner, value_cleaner=value_cleaner,
                                               unique=unique, company=company, exclude=exclude)
         if unique_instance:
             try:

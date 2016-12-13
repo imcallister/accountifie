@@ -262,7 +262,7 @@ class accountifieSvcClient(object):
             json_result = json.load(response)
             return json_result
         except:
-            logger.info('Accountifie svc post failed on %s with params %s', url, str(params))
+            logger.error('Accountifie svc post failed on %s with params %s', url, str(params))
             return None
 
     def __get(self, path, params=None):
