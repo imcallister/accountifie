@@ -41,6 +41,9 @@ def _path_history(path, company_id , from_date, to_date, excl, incl):
     return QM.QueryManager().pd_history(company_id, 'path', path, from_date=from_date, to_date=to_date, excl_contra=excl, incl=incl)
 
 def _cutoff(start_cutoff, hist):
+    if hist.empty:
+        return pd.DataFrame()
+    
     used_history = hist[hist['date'] >= start_cutoff]
     unused_history = hist[hist['date'] < start_cutoff][-1:]
     
