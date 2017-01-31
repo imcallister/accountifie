@@ -53,11 +53,11 @@ def entry(x, link='', ccy_fmt=''):
     return {'text': fmt(x, values_fmt=ccy_fmt), 'link': link}
 
 def acct_history_link(id):
-    from_dt = datefuncs.start_of_year(datetime.datetime.now().year).isoformat()
+    from_dt = datefuncs.start_of_prev_year(datetime.datetime.now().year).isoformat()
     return ('/reporting/history/account/%s/?from=%s' % (id, from_dt))
 
 def path_history_link(path):
-    from_dt = datefuncs.start_of_year(datetime.datetime.now().year).isoformat()
+    from_dt = datefuncs.start_of_prev_year(datetime.datetime.now().year).isoformat()
     return ('/reporting/history/path/%s/?from=%s' % (path.replace('.', '_'), from_dt))
 
 def path_balances_link(path, date='today'):
