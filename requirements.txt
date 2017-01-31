@@ -21,7 +21,7 @@ django-extensions
 factory-boy==2.7.0
 django-model-changes==0.15
 django-pandas==0.2.2
-six==1.9.0
+six==1.10.0
 psycopg2==2.6
 numexpr==2.4.3
 django-betterforms==1.1.2
