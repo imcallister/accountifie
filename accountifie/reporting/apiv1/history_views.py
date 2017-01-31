@@ -5,7 +5,7 @@ from django.conf import settings
 
 from accountifie.common.api import api_func
 import accountifie.query.query_manager as QM
-from accountifie.toolkit.utils import start_of_year, daterange
+from accountifie.toolkit.utils import start_of_year, start_of_prev_year, daterange
 import accountifie.reporting.rptutils as rptutils
 
 import logging
@@ -64,7 +64,7 @@ def history(id, qstring={}):
     if start_cutoff:
         start_cutoff = rptutils.date_from_shortcut(start_cutoff)
     else:
-        start_cutoff = start_of_year(end_date.year)
+        start_cutoff = start_of_prev_year(end_date.year)
     start_date = settings.DATE_EARLY
     
     cp = qstring.get('cp', None)

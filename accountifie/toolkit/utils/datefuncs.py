@@ -154,6 +154,9 @@ def start_of_next_month(d):
 def start_of_year(yr):
     return datetime.date(int(yr), 1, 1)
 
+def start_of_prev_year(yr):
+    return datetime.date(int(yr - 1), 1, 1)
+
 def end_of_year(yr):
     return datetime.date(int(yr), 12, 31)
 
