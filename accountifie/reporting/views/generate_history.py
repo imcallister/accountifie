@@ -62,6 +62,7 @@ def history(request, type, id):
     else:
         raise ValueError('This type of history is not supported')
     
+
     hist_rslts = rptg_api.history(id, config)
     if hist_rslts:
         entries = [create_row(h, column_titles, qs=qs) for h in hist_rslts]
