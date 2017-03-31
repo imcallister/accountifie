@@ -219,7 +219,7 @@ class CsvModel(BaseModel):
         if delimiter:
             self.delimiter = delimiter
         elif self.has_class_delimiter():
-            self.   delimiter = self.cls.Meta.delimiter
+            self.delimiter = self.cls.Meta.delimiter
         if not isinstance(data, Model):
             self.construct_obj_from_data(data)
         else:

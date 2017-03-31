@@ -45,7 +45,10 @@ def _recalculate(*args, **kwargs):
             logger.info('Recalculate -- working on %s' % klass)
             qs =klass.objects.all()
             for obj in qs:
-                obj.update_gl()
+                try:
+                    obj.update_gl()
+                except:
+                    logger.error('failed on %s' % str(obj))
             logger.info('Recalculate -- finished %s' % klass)
         QueryManagerStrategyFactory().set_fast_inserts('*', False)
         QueryManagerStrategyFactory().take_snapshot('*')
