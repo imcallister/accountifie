@@ -48,7 +48,7 @@ def _recalculate(*args, **kwargs):
                 try:
                     obj.update_gl()
                 except:
-                    logger.error('failed on %s' % str(obj))
+                    logger.error('Recalc failed on %s - %s' % (klass._meta.model_name, str(obj)))
             logger.info('Recalculate -- finished %s' % klass)
         QueryManagerStrategyFactory().set_fast_inserts('*', False)
         QueryManagerStrategyFactory().take_snapshot('*')
