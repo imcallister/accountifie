@@ -19,6 +19,7 @@ from django.conf import settings
 from pandas.util.testing import assert_frame_equal
 from query_manager_remote_strategy import QueryManagerRemoteStrategy
 from query_manager_local_strategy import QueryManagerLocalStrategy
+from query_manager_test_strategy import QueryManagerTestStrategy
 from query_manager_snapshot_strategy import QueryManagerSnapshotStrategy
 from query_manager_forecast_strategy import QueryManagerForecastStrategy
 from accountifie.common.api import api_func
@@ -29,7 +30,8 @@ class QueryManagerStrategyFactory(object):
     self.force_default_strategy = None
     self.strategy_singletons = {
       'remote': QueryManagerRemoteStrategy(),
-      'local': QueryManagerLocalStrategy()
+      'local': QueryManagerLocalStrategy(),
+      'test': QueryManagerTestStrategy(),
     }
     try:
       self.noop_mutating_functions = api_func('environment', 'variable', 'DISABLE_ACCOUNTIFIE_SVC_MUTATES') == 'true'

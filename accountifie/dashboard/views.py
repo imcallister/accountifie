@@ -112,69 +112,17 @@ def index(request):
 
 @staff_member_required
 def logs(request):
-    pip = os.path.join(sys.exec_prefix, 'bin', 'pip')
-    if not os.path.isfile(pip):
-        pip = 'pip'
-    SHELL_COMMANDS = (
-        ('Hostname','hostname'),
-        ('hg version', 'hg id'),
-        ('git version', "git log --pretty=format:'%h' -n 1"),
-        ('hg branch', 'hg branch'),
-        ('git branch', 'git rev-parse --abbrev-ref HEAD'),
-        ('MySQL version', 'mysql --version'),
-        ('Local Packages', '%s freeze -l' % pip)
-    )
-    SD = OrderedDict()
-    for k,v in sorted(settings_list(), key=lambda x: x[0]):
-        SD[k] = v
-    context = {
-        'args': sys.argv,
-        'exe': sys.executable,
-        'settings': SD,
-        }
-
-    context['versions'] = OrderedDict()
-    # get versions
-    curr_dir = os.path.realpath(os.path.dirname(__file__))
-    for name, shell_command in SHELL_COMMANDS:
-        try:
-            result = utils.run_shell_command(shell_command, curr_dir)
-            if result:
-                if isinstance(result, list):
-                    result = '<br>'.split(result)
-                context['versions'][name] = result
-        except:
-            pass
-    # machine status    
-    context['machine'] = OrderedDict()
-    if sys.platform == 'darwin':
-        context['machine']['Uptime'] = 'not done yet on MacOS'
-        context['machine']['Disk Space'] = 'not done yet on MacOS'
-    elif sys.platform == 'win32':
-        context['machine']['Uptime'] = 'not done yet on Windows'
-        context['machine']['Disk Space'] = 'not done yet on Windows'
-    else:
-        context['machine']['Uptime'] = utils.server_uptime()
-        context['machine']['Disk Space'] = utils.disk_usage('/')._asdict()
-    if os.path.exists(settings.MEDIA_ROOT):
-        context['machine']['Media Folder'] = utils.sizeof_fmt(utils.folder_size(settings.MEDIA_ROOT))
-
-    context['stats'] = utils.get_available_stats()
-    gan = (lambda app: app.__name__) if settings.DJANGO_18 else (lambda app: app)
-    context['apps'] = [(gan(app), ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
-    context['relations'] = [[(model.__name__, ', '.join(['%s (%s) through %s' % (relation.__name__, relation.__module__, field.__class__.__name__)
-                                                        for field, relation in relations]), gan(app)) 
-                                                            for model, relations in rel_info] 
-                                                                for app, rel_info in all_relations()]
-    #context['rel_graph'] = 
-    
-    context['config_warnings'] = utils.get_configuration_warnings()
-
-    return render(request, 'dashboard/logs.html', context)
+    level = request.GET.get('level')
+    return render(request, 'dashboard/logs.html', {'level': level})
 
 @login_required
 def db_logs_modal(request):
-    log_list = Log.objects.all()
+    level = request.GET.get('level')
+
+    if level:
+        log_list = Log.objects.filter(level=level)
+    else:
+        log_list = Log.objects.all()
     paginator = Paginator(log_list, LOG_ENTRIES_PER_PAGE) # Show 25 contacts per page
 
     page = request.GET.get('page')
@@ -217,8 +165,6 @@ def stat(request, app_name, stat_name):
     Runs the designated canned query and shows the results
     '''
 
-    print app_name
-    print stat_name
     from django.utils.importlib import import_module
     try:
         stats = import_module('.stats', app_name)
