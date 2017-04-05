@@ -17,10 +17,25 @@ dl.plain dt {
 {% block breadcrumbs %}<li><a href="..">Home</a></li><li>Dashboard</li>{% endblock %}
 {% block content %}
 <div class="tabbable tabs-left">
-  <h3>Database Logs</h3>
-  <div id="logs_container"></div>
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#tab1" data-toggle="tab">ERROR</a></li>
+    <li><a href="#tab2" data-toggle="tab">INFO</a></li>
+    <li><a href="#tab3" data-toggle="tab">DEBUG</a></li>
+  </ul>
+
+  
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+      <div id="error_logs_container"></div>
+    </div>
+    <div class="tab-pane" id="tab2">
+      <div id="info_logs_container"></div>
+    </div>
+    <div class="tab-pane" id="tab3">
+      <div id="debug_logs_container"></div>
+    </div>
+  </div>
 </div>
-    
 {{ content }}
 {% endblock %}
 
@@ -29,18 +44,43 @@ dl.plain dt {
 {% block extrajs %}{{block.super}}
 <script src="{{ STATIC_URL }}common/js/load_tester.js"></script>
 <script>
-function load_logs(page){
-    $.get(
-        '{% url "dashboard_logs" %}',
-        {page: page},
-        function(data, textStatus, jqXHR) {
-            $('#logs_container').html(data)
-        },
-        'html'
-    )
-}
-$(document).ready(function(){
-   load_logs(1)
-});
+  function load_errors(page){  
+      $.get(
+          '{% url "dashboard_logs" %}',
+          {page: page, level: 'ERROR'},
+          function(data, textStatus, jqXHR) {
+              $('#error_logs_container').html(data)
+          },
+          'html'
+      )
+  };
+
+  function load_infos(page){  
+      $.get(
+          '{% url "dashboard_logs" %}',
+          {page: page, level: 'INFO'},
+          function(data, textStatus, jqXHR) {
+              $('#info_logs_container').html(data)
+          },
+          'html'
+      )
+  };
+
+  function load_debugs(page){  
+      $.get(
+          '{% url "dashboard_logs" %}',
+          {page: page, level: 'DEBUG'},
+          function(data, textStatus, jqXHR) {
+              $('#debug_logs_container').html(data)
+          },
+          'html'
+      )
+  };
+
+  $(document).ready(function(){
+     load_errors(1);
+     load_infos(1);
+     load_debugs(1);
+  });
 </script>
 {% endblock %}
