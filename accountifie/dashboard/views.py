@@ -135,7 +135,7 @@ def db_logs_modal(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         logs = paginator.page(paginator.num_pages)
 
-    return render(request, 'dashboard/logs_excerpt.html', {"logs": logs})
+    return render(request, 'dashboard/logs_excerpt.html', {"logs": logs, "level": level})
 
 
 @login_required
