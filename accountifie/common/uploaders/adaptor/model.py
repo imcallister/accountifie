@@ -533,7 +533,7 @@ class CsvImporter(object):
         except SkipRow:
             pass
         except ForeignKeyFieldError as e:
-            return False, 'Line # %d. Foreign Key error: %s' % (line_number, e.message)
+            return False, 'Line # %d. %s' % (line_number, e.message)
         except ValueError as e:
             if line_number == 0 and self.csvModel.has_header():
                 pass
