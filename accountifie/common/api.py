@@ -27,18 +27,26 @@ def api_wrapper(func):
 
 
 def resource_func(group, resource, qstring={}, chart=False):
-    module_class = 'chart' if chart else 'apiv1'
-    api_module = get_module('%s.%s' % (group, module_class))
-    api_method = getattr(api_module, resource)
-    api_call = api_wrapper(api_method)
-    return api_call(qstring)
+    try:
+        module_class = 'chart' if chart else 'apiv1'
+        api_module = get_module('%s.%s' % (group, module_class))
+        api_method = getattr(api_module, resource)
+        api_call = api_wrapper(api_method)
+        return api_call(qstring)
+    except:
+        logger.exception('Error calling api %s:%s' % (group, resource))
+        return
 
 
 def item_func(group, resource, item, qstring={}):
-    api_module = get_module('%s.%s' % (group, 'apiv1'))
-    api_method = getattr(api_module, resource)
-    api_call = api_wrapper(api_method)
-    return api_call(str(item), dict(qstring))
+    try:
+        api_module = get_module('%s.%s' % (group, 'apiv1'))
+        api_method = getattr(api_module, resource)
+        api_call = api_wrapper(api_method)
+        return api_call(str(item), dict(qstring))
+    except:
+        logger.exception('Error calling api %s:%s:%s' % (group, resource, item))
+        return
 
 
 def get_module(group):
