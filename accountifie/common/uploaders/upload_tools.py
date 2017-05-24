@@ -1,4 +1,6 @@
 import os
+import sys
+import traceback
 import csv
 
 from django.conf import settings
@@ -63,6 +65,9 @@ def order_upload(request, processor, redirect_url=None, label=False, file_type='
                 
                 return JsonResponse({'summary': summary_msg, 'errors': error_msgs})
             except:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+                traceback.print_exc()
                 msg = 'Could not process the file provided, please see below'
                 return JsonResponse({'summary': msg, 'errors': []})
 

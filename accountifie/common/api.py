@@ -21,7 +21,7 @@ def api_wrapper(func):
             return func(*args, **kwargs)
         except:
             ex_type, ex, tb = sys.exc_info()
-            logger.info('error in api call: %s.%s --- %s' %(func.__module__, func.__name__, ex))
+            logger.exception('error in api call: %s.%s --- %s' %(func.__module__, func.__name__, ex))
             return None
     return api_call
 
@@ -58,17 +58,22 @@ def get_module(group):
     try:
         return importlib.import_module('accountifie.%s' % group)
     except:
-        logger.error("couldn't find api group %s" % group)
+        logger.exception("couldn't find api group %s" % group)
         return None
 
 def api_func(*args, **kwargs):
     qs = kwargs.get('qstring', {})
-    if len(args)==2:
-        return resource_func(args[0], args[1], qstring=qs)
-    elif len(args)==3:
-        return item_func(args[0], args[1], args[2], qstring=qs)
-    else:
-        logger.error('error calling api_func: %s' % str(args))
+
+    try:
+        if len(args)==2:
+            return resource_func(args[0], args[1], qstring=qs)
+        elif len(args)==3:
+            return item_func(args[0], args[1], args[2], qstring=qs)
+        else:
+            logger.exception('error calling api_func: %s' % str(args))
+    except:
+        logger.exception('error calling api_func: %s' % str(args))
+        return
 
 
 def get_resource(request, group, resource):
