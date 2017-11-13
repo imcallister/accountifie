@@ -1,3 +1,4 @@
+numpy==1.13.3
 pandas==0.20.3
 Django==1.11.1
 django-behave==0.1.5
@@ -21,7 +22,7 @@ django-model-changes==0.15
 django-pandas==0.2.2
 six==1.10.0
 psycopg2==2.6
-numexpr==2.4.3
+numexpr==2.6.4
 django-betterforms==1.1.2
 django-admin-bootstrapped==2.5.6
 django-colorful==1.1.0
