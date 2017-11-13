@@ -25,32 +25,6 @@ def index(request):
     return render(request, 'index.html', d)
 
 
-class CounterpartyAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        # Don't forget to filter out results depending on the visitor !
-        if not self.request.user.is_authenticated():
-            return Counterparty.objects.none()
-
-        qs = Counterparty.objects.all()
-        if self.q:
-            qs = qs.filter(name__icontains=self.q)
-
-        return qs
-
-
-class AccountAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        # Don't forget to filter out results depending on the visitor !
-        if not self.request.user.is_authenticated():
-            return Account.objects.none()
-
-        qs = Account.objects.all()
-        if self.q:
-            qs = qs.filter(display_name__icontains=self.q)
-
-        return qs
-
-
 @login_required
 def download_transactions(request):
     company_id = utils.get_company(request)
