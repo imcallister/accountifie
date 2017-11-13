@@ -2,12 +2,11 @@ import pytz
 
 from django.db import models
 from django.utils.safestring import mark_safe
-from jsonfield import JSONField
 
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 from accountifie.common.api import api_func
 
-import logging 
+import logging
 
 logger = logging.getLogger('default')
 
@@ -28,7 +27,7 @@ class GLSnapshot(models.Model):
             fmt = '%Y-%m-%dT%H:%M:%SZ'
             snapshot_time = self.snapped_at.astimezone(UTC).strftime(fmt)
             QueryManagerStrategyFactory().get().take_snapshot(company_id, snapshot_time=snapshot_time)
-        
+
 
     @property
     def desc_link(self):
@@ -40,5 +39,3 @@ class GLSnapshot(models.Model):
         url = '/snapshot/glsnapshots/balances/%s/?date=%s' % (self.id, self.closing_date.isoformat())
 
         return mark_safe('<a href="%s">%s' % (url, 'Reconciliation'))
-
-

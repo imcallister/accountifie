@@ -156,13 +156,12 @@ INSTALLED_APPS = (
 
     'django_nose',
     'django_extensions',
-    
+
     'betterforms',
     #'json_field',
 
     'accountifie.common',
     'accountifie.cal',
-    'accountifie.forecasts',
     'accountifie.gl',
     'accountifie.snapshot',
     'accountifie.environment',
