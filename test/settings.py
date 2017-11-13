@@ -114,7 +114,6 @@ MIDDLEWARE_CLASSES = (
     'djangosecure.middleware.SecurityMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'accountifie.middleware.ssl.SSLRedirect',
-    'simple_history.middleware.HistoryRequestMiddleware',
     'accountifie.toolkit.error_handling.StandardExceptionMiddleware'
 )
 
@@ -138,7 +137,7 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(PROJECT_DIR, 'templates'),
-    
+
 )
 
 INSTALLED_APPS = (
@@ -154,14 +153,13 @@ INSTALLED_APPS = (
     'djangosecure',
     #'cerberos',
     'accountifie.dashboard',
-    
+
     'django_nose',
     'django_extensions',
-    'simple_history',
-
+    
     'betterforms',
     #'json_field',
-    
+
     'accountifie.common',
     'accountifie.cal',
     'accountifie.forecasts',
@@ -171,11 +169,11 @@ INSTALLED_APPS = (
     'accountifie.reporting',
 
 
-    
+
     'django_admin_bootstrapped',
     'django.contrib.admin',
-    
-    
+
+
 )
 
 LOGIN_REDIRECT_URL = '/'
@@ -263,7 +261,7 @@ except ImportError:
     pass
 
 #recommendations for security from: http://django-secure.readthedocs.org/en/v0.1.2/
-SECURE_SSL_REDIRECT = False  
+SECURE_SSL_REDIRECT = False
 SECURE_HSTS_SECONDS = 24*24*3600*30
 SECURE_HSTS_SECONDS_INCLUDE_SUBDOMAINDS = True
 SECURE_FRAME_DENY = True
@@ -286,7 +284,7 @@ MESSAGE_TAGS = {
     }
 
 
-    
+
 DASHBOARD_TITLE = CLIENT_PROJECT + ' Dashboard'
 THUMBNAIL_SIZES = (
     (120,80),
