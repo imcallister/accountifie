@@ -11,7 +11,6 @@ import accountifie.toolkit.utils as utils
 from accountifie.common.api import api_func
 from .models import Counterparty, Account
 
-from dal import autocomplete
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 
@@ -64,13 +63,13 @@ def download_transactions(request):
 
     all_accts_list = api_func('gl', 'account')
     all_accts = dict((r['id'], r) for r in all_accts_list)
-    
+
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="transactions.csv"'
     writer = csv.writer(response)
 
     writer.writerow(['', '', '', '', '', '','debit', 'debit', 'debit', 'debit','credit', 'credit', 'credit', 'credit'])
-    writer.writerow(['Id', 'dateEnd', 'date', 'type', 'comment', 'counterpartyId', 'amount', 'accountId', 
+    writer.writerow(['Id', 'dateEnd', 'date', 'type', 'comment', 'counterpartyId', 'amount', 'accountId',
                     'account name','counterpartyId', 'amount', 'accountId', 'account name'])
 
     for ex in trans:
@@ -99,7 +98,7 @@ def download_transactions(request):
 def download_tranlines(request):
     company_id = utils.get_company(request)
     trans = QueryManager().tranlines(company_id)
-    
+
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="tranlines.csv"'
     writer = csv.writer(response)
