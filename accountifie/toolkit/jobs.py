@@ -10,7 +10,7 @@ from accountifie.common.models import Log
 from accountifie.celery import background_task
 from accountifie.query.query_manager import QueryManager
 from accountifie.gl.models import Company
-import utils
+from . import utils
 
 
 logger = logging.getLogger('default')

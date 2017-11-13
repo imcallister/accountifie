@@ -1,1 +1,1 @@
-from server_info import *
+from .server_info import *

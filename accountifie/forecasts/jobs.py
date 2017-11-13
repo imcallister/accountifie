@@ -5,7 +5,7 @@ import csv
 from django.http import HttpResponseRedirect
 from django.conf import settings
 
-from models import Forecast
+from .models import Forecast
 from accountifie.celery import background_task
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 import accountifie.toolkit.utils as utils

@@ -44,7 +44,7 @@ def date_from_shortcut(scut):
         try:
             if type(scut) == datetime.date:
                 return scut
-            elif type(scut) in [unicode, str]:
+            elif type(scut) in [str, str]:
                 return parse(scut).date()
             else:
                 return

@@ -1,2 +1,2 @@
-from modals import *
-from tables import *
+from .modals import *
+from .tables import *

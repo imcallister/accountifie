@@ -4,7 +4,7 @@ See query_manager_strategy.py for interface docs.
 Use query_manager_strategy_factory.py to get an instance of this class.
 """
 
-from query_manager_strategy import QueryManagerStrategy
+from .query_manager_strategy import QueryManagerStrategy
 
 
 class QueryManagerTestStrategy(QueryManagerStrategy):

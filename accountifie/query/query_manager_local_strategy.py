@@ -17,7 +17,7 @@ from datetime import datetime
 from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from functools import partial
-from query_manager_strategy import QueryManagerStrategy
+from .query_manager_strategy import QueryManagerStrategy
 
 
 class QueryManagerLocalStrategy(QueryManagerStrategy):
@@ -41,8 +41,8 @@ class QueryManagerLocalStrategy(QueryManagerStrategy):
 
   def transactions(self, company_id, account_ids, from_date, to_date, chunk_frequency, with_counterparties, excl_interco, excl_contra):
     period_entries = []
-    from_date = dateutil.parser.parse(from_date).date() if isinstance(from_date, basestring) else from_date
-    to_date =   dateutil.parser.parse(to_date).date()   if isinstance(to_date, basestring) else to_date
+    from_date = dateutil.parser.parse(from_date).date() if isinstance(from_date, str) else from_date
+    to_date =   dateutil.parser.parse(to_date).date()   if isinstance(to_date, str) else to_date
 
     periods = [{'from': from_date, 'to': to_date}]
     if chunk_frequency == 'end-of-month':
@@ -127,9 +127,9 @@ class QueryManagerLocalStrategy(QueryManagerStrategy):
     tran.save()    
 
     for (account, amount, counterparty, tags) in lines:
-        if type(account) in types.StringTypes:
+        if type(account) in (str,):
             account = accountifie.gl.models.Account.objects.get(id=account)
-        if type(counterparty) in types.StringTypes:
+        if type(counterparty) in (str,):
             counterparty = accountifie.gl.models.Counterparty.objects.get(id=counterparty)
         tran.tranline_set.create(account=account, amount=amount, counterparty=counterparty, tags=tags)
                 

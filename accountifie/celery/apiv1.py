@@ -4,7 +4,7 @@ from djcelery.models import TaskMeta
 
 from django.utils.safestring import mark_safe
 
-_STATUS_COLOR_CLASS = dict(zip(('IN_PROGRESS', 'COMPLETED', 'FAILED', 'UNKNOWN') , ('info', 'success', 'danger', 'warning')))
+_STATUS_COLOR_CLASS = dict(list(zip(('IN_PROGRESS', 'COMPLETED', 'FAILED', 'UNKNOWN') , ('info', 'success', 'danger', 'warning'))))
 
 def colorise(status):
     return _STATUS_COLOR_CLASS[status]
@@ -41,7 +41,7 @@ def _get_info(t):
 	return data
 
 def tasks_in_progress(qstring={}):
-	unfinished = TaskMeta.objects.exclude(status='SUCCESS').values()
+	unfinished = list(TaskMeta.objects.exclude(status='SUCCESS').values())
 	return [_get_info(t) for t in unfinished if t['result']['status']=='IN_PROGRESS']
 
 
@@ -49,7 +49,6 @@ def tasks_just_finished(qstring={}):
 	RECENT = 60 * 60 * 24 * 7 # last week
 	now = datetime.datetime.now()
 	cutoff = now - datetime.timedelta(seconds=RECENT)
-	data = TaskMeta.objects.filter(date_done__gte=cutoff) \
-						   .order_by('-date_done') \
-						   .values()
+	data = list(TaskMeta.objects.filter(date_done__gte=cutoff) \
+						   .order_by('-date_done').values())
 	return [_get_info(t) for t in data]

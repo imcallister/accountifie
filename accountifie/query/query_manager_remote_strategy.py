@@ -11,14 +11,14 @@ Use query_manager_strategy_factory.py to get an instance of this class.
 import pandas as pd
 import itertools
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 from decimal import Decimal
 from collections import defaultdict
 
 from dateutil.parser import parse
 from django.conf import settings
-from query_manager_strategy import QueryManagerStrategy
+from .query_manager_strategy import QueryManagerStrategy
 from accountifie.common.api import api_func
 import logging
 
@@ -256,9 +256,9 @@ class accountifieSvcClient(object):
     def __post(self, path, params=None):
         params = json.dumps(params) if params is not None else '{}'
         url = '%s%s' % (self.url_base, path)
-        request = urllib2.Request(url, data=params, headers={'Content-Type': 'application/json'})
+        request = urllib.request.Request(url, data=params, headers={'Content-Type': 'application/json'})
         try:
-            response = urllib2.urlopen(request)
+            response = urllib.request.urlopen(request)
             json_result = json.load(response)
             return json_result
         except:
@@ -267,14 +267,14 @@ class accountifieSvcClient(object):
 
     def __get(self, path, params=None):
         if params:
-            params = urllib.urlencode(params)
+            params = urllib.parse.urlencode(params)
             url = '%s%s?%s' % (self.url_base, path, params)
         else:
             url = '%s%s' % (self.url_base, path)
 
         start_time = time.time()
-        request = urllib2.Request(url)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(url)
+        response = urllib.request.urlopen(request)
         json_result = json.load(response)
 
         resp_time = time.time() - start_time

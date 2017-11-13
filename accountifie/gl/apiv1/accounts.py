@@ -42,7 +42,7 @@ def account(acct_id, qstring):
     try:
         acct = (list(Account.objects.filter(pk=acct_id)) + list(Account.objects.filter(path=acct_id)))[0]
         flds = ['display_name', 'role', 'path', 'id']
-        return dict((k,v) for k,v in acct.__dict__.iteritems() if k in flds)
+        return dict((k,v) for k,v in acct.__dict__.items() if k in flds)
     except:
         return None
 

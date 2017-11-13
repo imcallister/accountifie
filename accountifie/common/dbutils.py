@@ -17,8 +17,8 @@ else:
     def all_concrete_models():
         R = [].append
         M = apps.get_models()
-        for app_label, models in apps.all_models.iteritems():
-            models = [model for name,model in models.iteritems() if model in M and not model._meta.abstract]
+        for app_label, models in apps.all_models.items():
+            models = [model for name,model in models.items() if model in M and not model._meta.abstract]
             if models:
                 R((app_label,models))
         return R.__self__

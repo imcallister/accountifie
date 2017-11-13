@@ -9,9 +9,9 @@ from django.template import RequestContext
 
 import accountifie.toolkit.utils as utils
 from accountifie.reporting.models import ReportDef
-import column_funcs as colfuncs
+from . import column_funcs as colfuncs
 import accountifie.toolkit.utils.datefuncs as datefuncs
-import shortcuts
+from . import shortcuts
 
 
 def qs_parse(qs):
@@ -41,7 +41,7 @@ def config_fromdate(calc_type, rpt_desc, dt):
     
     config = {}
     config['columns'] = as_of_col
-    config['column_order'] = as_of_col.keys()
+    config['column_order'] = list(as_of_col.keys())
     config['title'] = '%s, %s' % (rpt_desc, dt.strftime('%d-%b-%y'))
     config['date'] = dt
     return config
@@ -52,13 +52,13 @@ def config_fromperiod(calc_type, rpt_desc, config):
 
     columns, column_titles = colfuncs.gen_periods(calc_type, config)
     title = '%s %s' % (period_id, rpt_desc)
-    return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+    return {'title': title, 'columns': dict(list(zip(column_titles, columns))), 'column_order': column_titles}
 
 
 def config_fromdaterange(calc_type, rpt_desc, config):
     columns, column_titles = colfuncs.daterange_periods(calc_type, config)
     title = 'From %s to %s. %s' % (config['from'], config['to'], rpt_desc)
-    return {'title': title, 'columns': dict(zip(column_titles, columns)), 'column_order': column_titles}
+    return {'title': title, 'columns': dict(list(zip(column_titles, columns))), 'column_order': column_titles}
 
 
 def get_report(rpt_id, company_id, version=None):
@@ -81,7 +81,7 @@ def get_report(rpt_id, company_id, version=None):
 
 
 def history_prep(request):
-    config = dict((k, request.GET.get(k)) for k in request.GET.keys())
+    config = dict((k, request.GET.get(k)) for k in list(request.GET.keys()))
     
     if config.get('company_id') is None:
         config['company_id'] = utils.get_company(request)
@@ -117,7 +117,7 @@ def history_prep(request):
 
 def report_prep(request, id):
     
-    qs = dict((k, request.GET.get(k)) for k in request.GET.keys())
+    qs = dict((k, request.GET.get(k)) for k in list(request.GET.keys()))
     if qs.get('company_id') is None:
         qs['company_id'] = utils.get_company(request)
 

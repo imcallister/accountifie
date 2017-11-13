@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 import sys
 if sys.version > '3':
     long = int
-    basestring = (str, bytes)
-    unicode = str
+    str = (str, bytes)
+    str = str
 
 __all__ = ['Country', 'State', 'Locality', 'Address', 'AddressField']
 
@@ -107,7 +107,7 @@ def _to_python(value):
 
         # If "formatted" is empty try to construct it from other values.
         if not address_obj.formatted:
-            address_obj.formatted = unicode(address_obj)
+            address_obj.formatted = str(address_obj)
 
         # Need to save.
         address_obj.save()
@@ -130,11 +130,11 @@ def to_python(value):
 
     # If we have an integer, assume it is a model primary key. This is mostly for
     # Django being a cunt.
-    elif isinstance(value, (int, long)):
+    elif isinstance(value, int):
         return value
 
     # A string is considered a raw value.
-    elif isinstance(value, basestring):
+    elif isinstance(value, str):
         obj = Address(raw=value)
         obj.save()
         return obj

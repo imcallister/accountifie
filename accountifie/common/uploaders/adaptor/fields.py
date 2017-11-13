@@ -1,6 +1,5 @@
 from datetime import datetime
 from decimal import Decimal
-from lxml import etree
 
 from django.db.models import Model as djangoModel
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -46,7 +45,7 @@ class Field(BaseField):
             self.keys = kwargs.pop('keys')
         self.choices = kwargs.pop('choices', AllChoices())
         if len(kwargs) > 0:
-            raise ValueError("Arguments %s unexpected" % kwargs.keys())
+            raise ValueError("Arguments %s unexpected" % list(kwargs.keys()))
 
     def get_transform_method(self, instance):
         """ Look for transform_<field_name>, else look for the transform parameter, else identity method """
@@ -59,7 +58,7 @@ class Field(BaseField):
             value = self.prepare(value)
             transform = self.get_transform_method(instance)
             value = transform(value)
-        
+
             if not value and self.null:
                 value = self.default
             else:
@@ -176,123 +175,3 @@ class ComposedKeyField(DjangoModelField):
             return self.model.objects.get(**value)
         except ObjectDoesNotExist:
             raise exceptions.ForeignKeyFieldError("No match found for %s" % self.model.__name__, self.model.__name__, value)
-
-
-class XMLField(Field):
-    type_field_class = None
-
-    def __init__(self, *args, **kwargs):
-        self.path = kwargs.pop("path")
-        self.root = kwargs.pop("root", None)
-        self.attribute = kwargs.pop("attribute", None)
-        self.namespaces = kwargs.pop("namespaces", None)
-        self.type_class = self._get_type_field()
-        if self.type_class:
-            self.type_class.__init__(self, *args, **kwargs)
-        else:
-            BaseField.__init__(self, kwargs)
-
-    def _get_type_field(self):
-        base_classes = self.__class__.__bases__
-        for base_class in base_classes:
-            if issubclass(base_class, Field) and not issubclass(base_class, XMLField):
-                return base_class
-
-    def get_prep_value(self, value, instance=None):
-        from lxml import etree
-        element = self.root if self.root is not None else etree.fromstring(value)
-        values = element.xpath(self.path, namespaces=self.namespaces)
-        if not values and self.null:
-            if self.default is not None:
-                parsed_value = self.default
-            else:
-                return None
-        else:
-            if not self.attribute:
-                parsed_value = element.xpath(self.path,
-                                             namespaces=self.namespaces)[0].text
-            else:
-                parsed_value = element.xpath(self.path,
-                                             namespaces=self.namespaces)[0]\
-                                      .get(self.attribute)
-        return self.type_class.get_prep_value(self, parsed_value, instance=instance)
-
-    def set_root(self, root):
-        self.root = root
-
-    def raise_type_error(self, value):
-        raise ValueError("Value \'%s\' does not match the expected type %s" %
-                             (value, self.__class__.field_name))
-
-
-class XMLRootField(XMLField):
-    def __init__(self, *args, **kwargs):
-        super(XMLRootField, self).__init__(*args, **kwargs)
-        kwargs['root'] = self
-
-    def get_prep_value(self, value, instance=None):
-        pass
-
-    def to_python(self, value):
-        pass
-
-    def get_root(self, value):
-        from lxml import etree
-        element = self.root if self.root is not None else etree.fromstring(value)
-        return element.xpath(self.path, namespaces=self.namespaces)
-
-
-class XMLEmbed(XMLRootField):
-    field_name = "not defined"
-
-    def __init__(self, embed_model):
-        self.embed_model = embed_model
-        super(XMLEmbed, self).__init__(path=self.embed_model.get_root_field()[1].path)
-
-    def get_prep_value(self, value, instance=None):
-        roots = self.get_root(self.root)
-        objects = []
-        for root in roots:
-            objects.append(self.embed_model(value, element=root))
-        transform = self.get_transform_method(instance)
-        objects = transform(objects)
-        return objects
-
-
-class XMLCharField(XMLField, CharField):
-    pass
-
-
-class XMLIntegerField(XMLField, IntegerField):
-    pass
-
-
-class XMLDecimalField(XMLField, DecimalField):
-    pass
-
-
-class XMLFloatField(XMLField, FloatField):
-    pass
-
-
-class XMLDjangoModelField(XMLField, DjangoModelField):
-    def __init__(self, *args, **kwargs):
-        self.nomatch = kwargs.pop("nomatch", False)
-        super(XMLDjangoModelField, self).__init__(*args, **kwargs)
-
-    def get_prep_value(self, value, instance=None):
-        try:
-            return super(XMLDjangoModelField, self).get_prep_value(value, instance=instance)
-        except exceptions.ForeignKeyFieldError as e:
-            if self.nomatch:
-                return None
-            else:
-                raise e
-
-
-class XMLBooleanField(XMLField, BooleanField):
-    pass
-
-
-class XMLDateField(XMLField, DateField):
-    pass

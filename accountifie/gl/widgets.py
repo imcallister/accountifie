@@ -1,7 +1,8 @@
+"""
 from django import forms
 from dal import autocomplete
 
-from models import Counterparty, Account
+from .models import Counterparty, Account
 
 
 def counterparty_widget():
@@ -13,3 +14,4 @@ def account_widget():
     return forms.ModelChoiceField(queryset=Account.objects.all(),
                                   widget=autocomplete.ModelSelect2(url='account-autocomplete')
                                   )
+"""

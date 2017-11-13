@@ -20,6 +20,6 @@ class Command(BaseCommand):
             
         cal.populate(from_date=from_date, to_date=to_date, verbose=verbose)
         finished = time.clock()
-        print "populated calendar in %0.1f seconds" % (finished - started)
+        print("populated calendar in %0.1f seconds" % (finished - started))
 
 

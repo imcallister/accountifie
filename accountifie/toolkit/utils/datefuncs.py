@@ -53,7 +53,7 @@ def is_period_id(text):
     if not text:
         return False
 
-    match = PAT_PERIOD_ID.match(unicode(text))
+    match = PAT_PERIOD_ID.match(str(text))
     return (match is not None)
 
 
@@ -125,7 +125,7 @@ from pandas.tseries.offsets import BDay
 
 
 def prev_busday(d):
-    if type(d) in [str, unicode]:
+    if type(d) in [str, str]:
         d = parse(d).date()
     return (d - BDay(1)).date()
 
@@ -133,7 +133,7 @@ def prev_busday(d):
 def as_date(thing):
     if isinstance(thing, datetime.date):
         return thing
-    elif type(thing) == type(u''):
+    elif type(thing) == type(''):
         if '-' in thing:
             y,m,d = thing.split('-')
             return datetime.date(int(y), int(m), int(d))
@@ -250,7 +250,7 @@ def month_ends(yr):
 
 def monthrange(start, finish):
     months = (finish.year - start.year) * 12 + finish.month + 1
-    for i in xrange(start.month, months):
+    for i in range(start.month, months):
         year  = (i - 1) / 12 + start.year
         month = (i - 1) % 12 + 1
         yield (year, month)
@@ -259,7 +259,7 @@ def quarterrange(start, end):
     start_qtr = (start.year, (start.month -1)/3 + 1)
     end_qtr = (end.year, (end.month -1)/3 + 1)
     quarters = (end_qtr[0] - start_qtr[0]) * 4 + (end_qtr[1] - start_qtr[1]) + 1
-    for i in xrange(start_qtr[1], start_qtr[1] + quarters):
+    for i in range(start_qtr[1], start_qtr[1] + quarters):
         year  = (i - 1) / 4 + start.year
         qtr = (i - 1) % 4 + 1
         yield (year, qtr)
@@ -268,7 +268,7 @@ def halfrange(start, end):
     start_half = (start.year, (start.month -1)/6 + 1)
     end_half = (end.year, (end.month -1)/6 + 1)
     semis = (end_half[0] - start_half[0]) * 2 + (end_half[1] - start_half[1]) + 1
-    for i in xrange(start_half[1], start_half[1] + semis):
+    for i in range(start_half[1], start_half[1] + semis):
         year  = (i - 1) / 2 + start.year
         half = (i - 1) % 2 + 1
         yield (year, half)
@@ -276,5 +276,5 @@ def halfrange(start, end):
 
 def annualrange(start, end):
     years = end.year - start.year + 1
-    for year in xrange(start.year, start.year + years):
+    for year in range(start.year, start.year + years):
         yield year

@@ -43,7 +43,7 @@ class ReplaceText(object):
     def process_response(self, request, response):
         content = response.content
         TR = getattr(settings,'TEXT_REPLACEMENTS',())
-        for i in xrange(0,len(TR),2):
+        for i in range(0,len(TR),2):
             content = content.replace(TR[i],TR[i+1])
         response.content = content
         return response

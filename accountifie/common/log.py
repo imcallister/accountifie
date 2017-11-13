@@ -13,7 +13,7 @@ from django.conf import settings
 
 class DbLogHandler(logging.Handler):
     def emit(self, record):
-        from models import Log
+        from .models import Log
         try:
             request = record.request
             filter = get_exception_reporter_filter(request)

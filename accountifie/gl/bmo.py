@@ -45,7 +45,7 @@ class BusinessModelObject(object):
         for trandict in trans:
             d2 = trandict.copy()
             
-            if not d2.has_key('date_end'):
+            if 'date_end' not in d2:
                 d2['date_end'] = d2['date']
 
             try:

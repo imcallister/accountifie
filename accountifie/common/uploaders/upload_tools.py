@@ -1,7 +1,7 @@
 import os
 import sys
 import traceback
-import csv
+from . import csv
 
 from django.conf import settings
 from django.contrib import messages
@@ -41,7 +41,7 @@ def order_upload(request, processor, redirect_url=None, label=False, file_type='
             form = FileForm(request.POST, request.FILES)
 
         if form.is_valid():
-            upload = request.FILES.values()[0]
+            upload = list(request.FILES.values())[0]
             file_name_with_timestamp = save_file(upload)
 
             if label:
@@ -55,7 +55,7 @@ def order_upload(request, processor, redirect_url=None, label=False, file_type='
                 messages.error(request, err)
         else:
             try:
-                upload = request.FILES.values()[0]
+                upload = list(request.FILES.values())[0]
                 file_name_with_timestamp = save_file(upload)
                 if label:
                     summary_msg, error_msgs = processor(file_name_with_timestamp,
@@ -90,7 +90,7 @@ def csv_to_modelattr(open_file, name_cleaner=None, company=get_default_company()
     csv_to_modelattr = dict([(name, name_cleaner(name)) for name in f_csv.fieldnames])
     csv_to_modelattr['company_id'] = company
 
-    return [dict([(csv_to_modelattr[name], value) for name, value in row.items() if name in csv_to_modelattr]) for row in f_csv]
+    return [dict([(csv_to_modelattr[name], value) for name, value in list(row.items()) if name in csv_to_modelattr]) for row in f_csv]
 
 
 
@@ -105,16 +105,16 @@ def get_pk_name(model):
     
 def instance_nonrel_data(row, model, name_cleaner=None, value_cleaner=None):
     model_flds =  model._meta.get_all_field_names()
-    instance_data_no_fk = dict((name_cleaner(name), value_cleaner(name, value)) for name, value in row.items() if name_cleaner(name)
+    instance_data_no_fk = dict((name_cleaner(name), value_cleaner(name, value)) for name, value in list(row.items()) if name_cleaner(name)
                         and name_cleaner(name) not in get_fk_attr(model) and name_cleaner(name) in model_flds)
     return model(**instance_data_no_fk)
     
 def set_foreignkeys(instance, row, model, name_cleaner=None, value_cleaner=None):
     if get_foreignkeys(model): 
-        instance_fk = dict((name_cleaner(name), value_cleaner(name, value)) for name, value in row.items() if name_cleaner(name) 
+        instance_fk = dict((name_cleaner(name), value_cleaner(name, value)) for name, value in list(row.items()) if name_cleaner(name) 
                         and name_cleaner(name) in get_fk_attr(model))
-        for fk in get_foreignkeys(model).items():
-            if instance_fk.has_key(fk[0]):
+        for fk in list(get_foreignkeys(model).items()):
+            if fk[0] in instance_fk:
                 try:
                     related = fk[1].objects.get(pk=instance_fk[fk[0]])
                     setattr(instance, fk[0], related)
@@ -123,7 +123,7 @@ def set_foreignkeys(instance, row, model, name_cleaner=None, value_cleaner=None)
     return instance
     
 def dirty_key(row, model=None, unique=None, name_cleaner=None, value_cleaner=None):
-    dirty = [name_cleaner(k) for k in row.keys() 
+    dirty = [name_cleaner(k) for k in list(row.keys()) 
                 if name_cleaner(k) not in [f.name for f in [field for field in model._meta.fields 
                         if field not in get_fk_attr(model)]] 
                                 if name_cleaner(k)]

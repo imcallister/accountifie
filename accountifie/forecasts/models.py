@@ -1,5 +1,5 @@
 import logging
-from urlparse import urlparse
+from urllib.parse import urlparse
 import datetime
 import pandas as pd
 from decimal import Decimal
@@ -68,7 +68,7 @@ class Forecast(models.Model):
                 return v
 
         def _clean_proj(p):
-            return dict((k, _clean_field(k, v)) for k, v in p.iteritems())
+            return dict((k, _clean_field(k, v)) for k, v in p.items())
 
         hardcoded_projs = [_clean_proj(p) for p in self.hardcode_projections]
         calcd_projs = _get_calcs(self.model)

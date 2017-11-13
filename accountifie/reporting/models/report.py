@@ -32,8 +32,8 @@ from dateutil.parser import parse
 import datetime
 
 
-from bands import TextBand, BasicBand
-from reportdef import ReportDef
+from .bands import TextBand, BasicBand
+from .reportdef import ReportDef
 
 import accountifie.query.query_manager
 from accountifie.common.api import api_func
@@ -136,7 +136,7 @@ class Report(object):
         if self.column_order:
             column_titles = self.column_order
         else:
-            column_titles = self.columns.keys()
+            column_titles = list(self.columns.keys())
 
         columns = [self.columns[x] for x in column_titles]
         context = dict(
@@ -147,7 +147,7 @@ class Report(object):
                 colcount=2+len(self.columns),
                 italic_styles=['group_header', 'group_total'],
                 no_space_before_styles=['group_item', 'group_total'],
-                numeric_column_indices=range(2, len(self.columns) + 2),
+                numeric_column_indices=list(range(2, len(self.columns) + 2)),
                 )
 
         return context
@@ -172,11 +172,11 @@ class Report(object):
             if band.id and this_content:
                 last_row = this_content[-1]
                 #last row has values for maths
-                if last_row.has_key('values'):
+                if 'values' in last_row:
                     self.by_id[band.id] = last_row['values']
         #at the end, walk through formatting
         for row in content:
-            if row.has_key('values'):
+            if 'values' in row:
                 if row['values'] != '':
                     row['values'] = [{'text': utils.fmt(c['text']), 'link': c['link']} if c != '' else '' for c in row['values']]
                     

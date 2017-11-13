@@ -12,8 +12,8 @@ import pandas as pd
 import datetime
 
 import accountifie.toolkit.utils as utils
-from query_manager_strategy import QueryManagerStrategy
-import query_manager
+from .query_manager_strategy import QueryManagerStrategy
+from . import query_manager
 from accountifie.common.api import api_func
 from accountifie.forecasts.models import Forecast
 
@@ -28,14 +28,14 @@ FOREVER = datetime.date(2099,12,31)
 
 def get_trans_data(tr):
     trans_keys = ['comment', 'dateEnd', 'date', 'type', 'id']
-    return dict((k, v) for k, v in tr.iteritems() if k in trans_keys)
+    return dict((k, v) for k, v in tr.items() if k in trans_keys)
 
 def get_contra(tr, account_id):
     return ','.join([x['accountId'] for x in tr['lines'] if x['accountId'] != account_id])
 
 
 def parse_cache(data, company_id='INC'):
-    lines = [[dict(l.items() + get_trans_data(tr).items() + [('contra_accts', get_contra(tr, l['accountId']))]) for l in tr['lines']] for tr in data]
+    lines = [[dict(list(l.items()) + list(get_trans_data(tr).items()) + [('contra_accts', get_contra(tr, l['accountId']))]) for l in tr['lines']] for tr in data]
 
     col_rename = {'accountId': 'account_id', 'dateEnd': 'date_end', 'counterpartyId': 'counterparty'}
     cache = pd.DataFrame(list(itertools.chain(*lines)))

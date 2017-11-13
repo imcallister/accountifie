@@ -40,7 +40,7 @@ class Account(models.Model):
         db_table = 'gl_account'
     
     def __unicode__(self):
-        return u'%s: %s' % (self.id, self.display_name)
+        return '%s: %s' % (self.id, self.display_name)
 
 
 class Transaction(models.Model):
@@ -60,7 +60,7 @@ class Transaction(models.Model):
         db_table = 'gl_transaction'
     
     def __unicode__(self):
-        return u'%s' % self.comment
+        return '%s' % self.comment
 
     def delete(self):
         tranlines = TranLine.objects.filter(transaction__id=self.id)

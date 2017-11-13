@@ -4,7 +4,7 @@ Adapted with permission from ReportLab's DocEngine framework
 
 import os
 import json
-from StringIO import StringIO
+from io import StringIO
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -42,7 +42,7 @@ def upload_file(request, config):
     form = FileForm(request.POST, request.FILES)
 
     if form.is_valid():
-        upload = request.FILES.values()[0]
+        upload = list(request.FILES.values())[0]
         file_name_with_timestamp = save_file(upload)
         company = get_company(request)
 
@@ -109,7 +109,7 @@ def process_incoming_file(model, unique, name_cleaner, value_cleaner, exclude, p
         context['example'] = data['key_errors']
     else:
         context['example'] = dict(no_keys_found='no values found')
-    for k in [x for x in data.keys() if x not in context.keys()]:
+    for k in [x for x in list(data.keys()) if x not in list(context.keys())]:
         context[k] = data[k]
     
     post_processing(file_type)
@@ -170,15 +170,15 @@ def save_data(data, company, model, unique, name_cleaner, value_cleaner, exclude
             try:
                 unique_instance.save()
             except Exception as e:
-                print 'exception right here', e
+                print('exception right here', e)
                 message = getattr(e, 'messages', [row])[0]
                 value_errors.append((e.__class__.__name__, index, message))
                 continue
             
             #need to deconstruct the model instance for later json serialization
-            saved.append(dict([(k, v)for k,v in unique_instance.__dict__.items() if k in [f.name for f in unique_instance._meta.fields]]))
+            saved.append(dict([(k, v)for k,v in list(unique_instance.__dict__.items()) if k in [f.name for f in unique_instance._meta.fields]]))
         else:
-            decoded = dict((k.decode('utf-8', 'ignore'),v.decode('utf-8', 'ignore')) for k,v in row.iteritems())
+            decoded = dict((k.decode('utf-8', 'ignore'),v.decode('utf-8', 'ignore')) for k,v in row.items())
             dups.append(decoded)
     
     return dict(dups=dups, saved=saved, key_errors=[], value_errors=value_errors)

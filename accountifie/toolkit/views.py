@@ -2,7 +2,7 @@ import os
 import csv
 import json
 from ast import literal_eval
-from StringIO import StringIO
+from io import StringIO
 import datetime
 import gzip
 import csv
@@ -18,7 +18,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 
 
 from accountifie.gl.models import Company
-import utils
+from . import utils
 
 logger = logging.getLogger('default')
 
