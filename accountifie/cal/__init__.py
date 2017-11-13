@@ -75,7 +75,7 @@ def populate(from_date=None,
     
     
     if verbose:
-        print 'populating calendar from %s to %s' % (from_date, to_date)
+        print('populating calendar from %s to %s' % (from_date, to_date))
     d = from_date
     while d <= to_date:
         year_id = d.year
@@ -88,7 +88,7 @@ def populate(from_date=None,
             djyear = Year(id=d.year)
             djyear.save()
             years[d.year] = djyear
-            if verbose: print '    added year %s' % d.year
+            if verbose: print('    added year %s' % d.year)
         else:
             djyear = years[year_id]
             
@@ -97,7 +97,7 @@ def populate(from_date=None,
             djquarter = Quarter(id=quarter_id, year=djyear)
             djquarter.save()
             quarters[quarter_id] = djquarter
-            if verbose: print '        added quarter %s' % quarter_id
+            if verbose: print('        added quarter %s' % quarter_id)
         else:
             djquarter = quarters[quarter_id]
         
@@ -108,7 +108,7 @@ def populate(from_date=None,
                             quarter=djquarter)
             djmonth.save()
             months[month_id] = djmonth
-            if verbose: print '            added month %s' % month_id
+            if verbose: print('            added month %s' % month_id)
         else:
             djmonth = months[month_id]
         
@@ -120,7 +120,7 @@ def populate(from_date=None,
                         month=djmonth)
             djday.save()
             days[d] = djday
-            if verbose: print '              added day %s' % d
+            if verbose: print('              added day %s' % d)
         
         d = d + timedelta(1)
 
@@ -147,10 +147,10 @@ def populate(from_date=None,
                 week.start_month = Month.objects.get(id="%04dM%02d" % (yyyy, d.month))
                 week.end_month = Month.objects.get(id="%04dM%02d" % (yyyy, d.month))
                 week.save()
-                if verbose: print("created week %s" % week_id)
+                if verbose: print(("created week %s" % week_id))
             except Month.DoesNotExist:
                 #hit year end, don't bother saving this week
-                if verbose: print("No related month, skipping %s" % week_id)
+                if verbose: print(("No related month, skipping %s" % week_id))
                 
         d = d + timedelta(days=7)
 
@@ -232,7 +232,7 @@ def is_period_id(text):
     if not text:
         return False
 
-    match = PAT_PERIOD_ID.match(unicode(text))
+    match = PAT_PERIOD_ID.match(str(text))
     return (match is not None)
 
 

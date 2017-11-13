@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from accountifie.common.models import Log
 from accountifie.common.dbutils import all_relations, all_concrete_models
 
-import utils
+from . import utils
 
 
 LOG_ENTRIES_PER_PAGE = 25
@@ -28,7 +28,7 @@ def localsets():
     project_name = os.path.basename(settings.PROJECT_DIR) 
     try:
         ls = __import__('%s.localsettings' % project_name) 
-        for k, v in ls.localsettings.__dict__.items():
+        for k, v in list(ls.localsettings.__dict__.items()):
             if k == k.upper() and re.match("[^__]", k):
                 res[k]=v
     except:
@@ -38,9 +38,9 @@ def localsets():
 def settings_list():
     res = []
     omit_list = ('SECRET_KEY', 'DB_PASSWORD',)
-    for ke, va in [ (k, v) for k, v in settings._wrapped.__dict__.items() if not k.startswith('_') and k not in omit_list]:
+    for ke, va in [ (k, v) for k, v in list(settings._wrapped.__dict__.items()) if not k.startswith('_') and k not in omit_list]:
         if ke=='DATABASES':
-            for name, props in settings.DATABASES.items():
+            for name, props in list(settings.DATABASES.items()):
                 res.append(('DATABASE "%s"' % name, props['NAME']),)
         else:
             if va:
@@ -233,6 +233,6 @@ def show_request(request):
     """
     params = dict(
             request=request,
-            env='\n'.join(['%s=%r' % (k,v) for k,v in os.environ.iteritems()]),
+            env='\n'.join(['%s=%r' % (k,v) for k,v in os.environ.items()]),
             )
     return render(request, 'dashboard/show_request.html', params)

@@ -15,7 +15,7 @@ from django.http import HttpResponse
 
 from accountifie.cal.models import Year
 
-import models
+from . import models
 from accountifie.common.api import api_func
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 from accountifie.query.query_manager import QueryManager

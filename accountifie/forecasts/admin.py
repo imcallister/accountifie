@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from models import *
+from .models import *
 
 
 class ForecastAdmin(admin.ModelAdmin):

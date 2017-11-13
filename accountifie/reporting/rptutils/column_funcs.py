@@ -1,6 +1,6 @@
 
 import accountifie.toolkit.utils.datefuncs as datefuncs
-import shortcuts
+from . import shortcuts
 
 MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 

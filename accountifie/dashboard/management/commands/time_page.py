@@ -18,7 +18,7 @@ except:
     sys.exit(1)
 
 from time import clock
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -88,7 +88,7 @@ class Command(BaseCommand):
                 started = clock()
                 b.visit(url)
                 finished = time.clock()
-                print 'page visit in %0.3f seconds' % (finished - started)
+                print('page visit in %0.3f seconds' % (finished - started))
             if not b.status_code.is_success:
                 logging.error('[time_page] Request to %s returned an Error' % search)
                 if verbose>1:
@@ -101,7 +101,7 @@ class Command(BaseCommand):
             
             how_long = int(1000 * (finished - started))
             if verbose > 1:
-                print('%0.2fms\n' % how_long)
+                print(('%0.2fms\n' % how_long))
                 # sys.exit(1)
             if os.path.isfile(filename):
                 with open(filename, 'r') as infile:

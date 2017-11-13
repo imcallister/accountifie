@@ -77,7 +77,7 @@ def api_func(*args, **kwargs):
 
 
 def get_resource(request, group, resource):
-    qs = dict((k, request.GET.get(k)) for k in request.GET.keys())
+    qs = dict((k, request.GET.get(k)) for k in list(request.GET.keys()))
     raw = (qs.get('raw') == 'true')
     as_csv = (qs.get('as_csv') == 'true')
     if raw:
@@ -92,7 +92,7 @@ def get_resource(request, group, resource):
 
 
 def get_chart(request, group, chart):
-    qs = dict((k,v) for k,v in request.GET.iteritems())
+    qs = dict((k,v) for k,v in request.GET.items())
     return HttpResponse(json.dumps(resource_func(group, chart, qstring=qs, chart=True),
                                    cls=DjangoJSONEncoder), content_type="application/json")
 
@@ -108,7 +108,7 @@ def output_as_csv(data, label='output'):
     response['Content-Disposition'] = 'attachment; filename=%s' % file_name
     writer = csv.writer(response)
 
-    cols = list(set(itertools.chain.from_iterable([x.as_dict().keys() for x in flat_data])))
+    cols = list(set(itertools.chain.from_iterable([list(x.as_dict().keys()) for x in flat_data])))
     
     writer.writerow(cols)
     for r in flat_data:
@@ -119,7 +119,7 @@ def output_as_csv(data, label='output'):
 
 
 def get_item(request, group, resource, item):
-    qs = dict((k, request.GET.get(k)) for k in request.GET.keys())
+    qs = dict((k, request.GET.get(k)) for k in list(request.GET.keys()))
     raw = (qs.get('raw') == 'true')
     as_csv = (qs.get('as_csv') == 'true')
     if raw:

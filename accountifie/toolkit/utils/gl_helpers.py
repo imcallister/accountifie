@@ -33,4 +33,4 @@ def find_first(path, acct_list):
 def order_paths(path_list):
     ACCT_LIST = dict((a['id'], a['path']) for a in api_func('gl', 'account'))
     d = dict((p, find_first(p, ACCT_LIST)) for p in path_list)
-    return [x[0] for x in sorted(d.items(), key=operator.itemgetter(1))]
+    return [x[0] for x in sorted(list(d.items()), key=operator.itemgetter(1))]

@@ -1,7 +1,7 @@
 from django.conf.urls import *
 
-import views
-import jobs
+from . import views
+from . import jobs
 
 
 urlpatterns = [

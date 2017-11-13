@@ -17,11 +17,11 @@ from dateutil.parser import parse as parse_date
 from decimal import Decimal
 from django.conf import settings
 from pandas.util.testing import assert_frame_equal
-from query_manager_remote_strategy import QueryManagerRemoteStrategy
-from query_manager_local_strategy import QueryManagerLocalStrategy
-from query_manager_test_strategy import QueryManagerTestStrategy
-from query_manager_snapshot_strategy import QueryManagerSnapshotStrategy
-from query_manager_forecast_strategy import QueryManagerForecastStrategy
+from .query_manager_remote_strategy import QueryManagerRemoteStrategy
+from .query_manager_local_strategy import QueryManagerLocalStrategy
+from .query_manager_test_strategy import QueryManagerTestStrategy
+from .query_manager_snapshot_strategy import QueryManagerSnapshotStrategy
+from .query_manager_forecast_strategy import QueryManagerForecastStrategy
 from accountifie.common.api import api_func
 
 
@@ -98,11 +98,11 @@ class QueryManagerStrategyFactory(object):
         self.strategy_singletons[strategy].take_snapshot(company_id)
 
   def compare(self, method_name, method_args):
-    fetch_with = lambda(obj): getattr(obj, method_name)(**method_args)
-    fmt = lambda(obj): ', '.join(['%s=%s' % (k, obj[k]) for k in obj])
+    fetch_with = lambda obj: getattr(obj, method_name)(**method_args)
+    fmt = lambda obj: ', '.join(['%s=%s' % (k, obj[k]) for k in obj])
     column_weights = { 'id': '000', 'date': '001' }
-    weigh_column = lambda(col): column_weights[col] + col if col in column_weights else '500' + col
-    weighted_col_sort = lambda(cols): sorted(cols, key=weigh_column)
+    weigh_column = lambda col: column_weights[col] + col if col in column_weights else '500' + col
+    weighted_col_sort = lambda cols: sorted(cols, key=weigh_column)
 
     remote_start = time.time()
     remote_result = fetch_with(self.get(strategy='remote'))
@@ -136,16 +136,16 @@ class QueryManagerStrategyFactory(object):
     # diff = difflib.unified_diff(remote_res_str, local_res_str, fromfile='remote_strategy', tofile='local_strategy', n=3)
     diff = difflib.ndiff(remote_res_str, local_res_str)
 
-    print '=== DIFF ==='
+    print('=== DIFF ===')
     for line in diff:
-      print line
-    print ''
+      print(line)
+    print('')
 
-    print '!! Call:    %s(%s)' % (method_name, fmt(method_args))
-    print '!! Matches: %s' % (is_equal)
-    if match_error: print '!! Match Error: %s' % match_error
-    print '!! Times:   local %0.2fs, remote %0.2fs' % (local_time, remote_time)
-    print ''
+    print('!! Call:    %s(%s)' % (method_name, fmt(method_args)))
+    print('!! Matches: %s' % (is_equal))
+    if match_error: print('!! Match Error: %s' % match_error)
+    print('!! Times:   local %0.2fs, remote %0.2fs' % (local_time, remote_time))
+    print('')
 
   def __default_strategy(self):
     if self.force_default_strategy:

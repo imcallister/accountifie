@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 from .celery_main import app as celery_app
 from django.http import JsonResponse
 
@@ -26,6 +26,6 @@ def run_task(self, *args, **kwargs):
     try:
         rslts = kwargs['calc'](*args, **kwargs)
         return {'status': 'COMPLETED', 'task_name': task_name, 'output': rslts}
-    except Exception, e:
+    except Exception as e:
         return {'status': 'FAILED', 'task_name': task_name, 'output': {'error': str(e)}}
     

@@ -15,7 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         verbosity = options["verbosity"]
         if verbosity > 0:
-            print "Dropping general ledger and rebuilding all entries"
+            print("Dropping general ledger and rebuilding all entries")
 
         with transaction.atomic():
             #quicker to do the two delets ourselves than let the engine work out all the cascading stuff
@@ -29,7 +29,7 @@ class Command(BaseCommand):
             
             if issubclass(model, BusinessModelObject):
                 if verbosity > 0:
-                    print "rebuilding GL entries from %s.%s" % (model._meta.app_label, model.__name__)
+                    print("rebuilding GL entries from %s.%s" % (model._meta.app_label, model.__name__))
                 with transaction.atomic():
                     for bmo in model.objects.all():
                         bmo.save()

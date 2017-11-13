@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import itertools
-import query_manager_strategy_factory
+from . import query_manager_strategy_factory
 
 from django.conf import settings
 

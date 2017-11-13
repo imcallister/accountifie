@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Variable, Config, Alias
+from .models import Variable, Config, Alias
 
 class VariableAdmin(admin.ModelAdmin):
     ordering = ('key',)

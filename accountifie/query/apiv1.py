@@ -22,6 +22,6 @@ def cp_balance_changes(company_id, qstring):
     
     closing = dict((l['cp'], Decimal(l['total'])) for l in results['closingBalance'])
     opening = dict((l['cp'], Decimal(l['total'])) for l in results['openingBalance'])
-    all_cps = list(set(opening.keys() + closing.keys()))
+    all_cps = list(set(list(opening.keys()) + list(closing.keys())))
     return [{'total': str(_get_chg(cp)), 'cp': cp} for cp in all_cps]
     

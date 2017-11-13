@@ -4,7 +4,7 @@ Adapted with permission from ReportLab's DocEngine framework
 
 
 from django.conf.urls import url
-from views import *
+from .views import *
 
 urlpatterns = [
     url(r'^logs_data/$', db_logs_modal, name='dashboard_logs'),

@@ -9,7 +9,7 @@ with permission
 Cache for general ledger values
 
 This is a singleton object used for all common 'financial queries' -
-balances, activity, history.   
+balances, activity, history.
 
 The name is misleading.  Long ago I needed an in-memory cache and
 spent forever worrying about cache invalidation.  With a well indexed
@@ -20,7 +20,6 @@ SQL queries for everything we need.
 """
 from datetime import date, timedelta
 from decimal import Decimal
-from types import StringTypes
 
 import pandas as pd
 from django.db import connection
@@ -42,9 +41,9 @@ def get_cache(company_id):
 
 
 def normalize_acc(thing):
-    if isinstance(thing, StringTypes):
+    if isinstance(thing, str):
         return thing
-    elif hasattr(thing, 'id'):  #account 
+    elif hasattr(thing, 'id'):  #account
         return thing.id
     else:
         raise ValueError("Expected Account or equivalent text id, but got %s" % repr(thing))
@@ -86,8 +85,8 @@ class GLCache(object):
         if imbalance:
             #find where
 
-            sql = """SELECT t.id, t.date, t.comment, sum(l.amount) 
-            FROM gl_transaction t, gl_tranline l 
+            sql = """SELECT t.id, t.date, t.comment, sum(l.amount)
+            FROM gl_transaction t, gl_tranline l
             WHERE t.id = l.transaction_id
             AND t.company_id = ANY(%s)
             GROUP BY t.id
@@ -95,7 +94,7 @@ class GLCache(object):
             """
             rows = self.query(sql, self.company_list)
             return rows
-    
+
     def count(self):
         sql = """SELECT count(t.id) FROM gl_transaction t
               WHERE t.company_id = ANY(%s)"""
@@ -151,7 +150,7 @@ class GLCache(object):
         sql = """
         SELECT l.counterparty_id, sum(l.amount)
         FROM gl_transaction t, gl_tranline l
-        WHERE t.id = l.transaction_id 
+        WHERE t.id = l.transaction_id
         AND l.account_id = %s
         AND t.date <= %s
         AND t.company_id = ANY(%s)
@@ -205,19 +204,19 @@ class GLCache(object):
         #whether they passed in a string id or an object, extract the id
         acc = normalize_acc(acc)
         sql = """SELECT sum(l.amount)
-        FROM gl_transaction t, gl_tranline l 
-        WHERE t.id = l.transaction_id 
-        AND l.account_id = %s 
+        FROM gl_transaction t, gl_tranline l
+        WHERE t.id = l.transaction_id
+        AND l.account_id = %s
         AND t.date <= %s
         AND t.company_id = ANY(%s)
         """
 
         rows = self.query(sql, acc, date, self.company_list)
-        
+
         if not rows:
             return DZERO
 
-        return to_decimal(rows[0][0]) 
+        return to_decimal(rows[0][0])
 
 
 
@@ -255,7 +254,7 @@ class GLCache(object):
 
         #Can you believe how much escaping we need to get one '%' character through to
         #the database engine?
-        sql = u"select distinct path, ordering from gl_account where path like '" + path + "%'"
+        sql = "select distinct path, ordering from gl_account where path like '" + path + "%'"
         matches = self.query(sql)
 
 
@@ -276,7 +275,7 @@ class GLCache(object):
                 children.add(subpath)
             elif count >= 1+nodes:
                 #e.g. jump from
-                #   assets.curr.cashandeq 
+                #   assets.curr.cashandeq
                 #to
                 #   assets.curr.cashandeq.checking.jpm
                 #without having an actual account for 'checking'
@@ -291,5 +290,3 @@ class GLCache(object):
             sorter.append((priority, subpath))
         sorter.sort()
         return [b for (a,b) in sorter]
-
-

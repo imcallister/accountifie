@@ -8,13 +8,13 @@ Use query_manager_strategy_factory.py to get an instance of this class.
 
 import time
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 from decimal import Decimal
 
 from dateutil.parser import parse
 from django.conf import settings
-from query_manager_strategy import QueryManagerStrategy
+from .query_manager_strategy import QueryManagerStrategy
 from accountifie.common.api import api_func
 import logging
 
@@ -181,12 +181,12 @@ class accountifieSvcSnapshotClient(object):
         else:
             params = {'snapshotDate': self.snapshot_time}
 
-        params = urllib.urlencode(params)
+        params = urllib.parse.urlencode(params)
         url = '%s%s?%s' % (self.url_base, path, params)
 
         start_time = time.time()
-        request = urllib2.Request(url)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(url)
+        response = urllib.request.urlopen(request)
         json_result = json.load(response)
 
         logger.info('Ran snapshots. %d seconds. URL=%s' % (time.time() - start_time, url))

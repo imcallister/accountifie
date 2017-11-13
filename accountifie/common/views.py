@@ -75,7 +75,7 @@ def base_templates(request):
             'base_template': loader.select_template([_base_prefix+'base.html', 'base.html', 'common/base.html']),
             'base_site_template': loader.select_template([_base_prefix+'base_site.html', 'base_site.html', 'common/base_site.html']),
             'REGISTRATION_OPEN': _docengine_registration and _registration_open,
-            'HAS_PROFILE': isinstance(_USER_PROFILE, basestring),
+            'HAS_PROFILE': isinstance(_USER_PROFILE, str),
             'PROJECT_TITLE': os.path.split(settings.ENVIRON_DIR)[1]
         }
     
@@ -247,7 +247,7 @@ def media_types(app_name=''):
     try:
         return [entry for entry in os.listdir(media_path) if os.path.isdir(os.path.join(media_path, entry)) ]
     except OSError:
-        raise True, "%s does not exist or it is not a folder" % media_path
+        raise True("%s does not exist or it is not a folder" % media_path)
     
     
 def media(media_type, app_name=''):
@@ -274,7 +274,7 @@ def upload(request):
             os.makedirs(settings.UPLOAD_DIR)
 
         if len(request.FILES) == 1:
-            upload = request.FILES.values()[0]
+            upload = list(request.FILES.values())[0]
             rawdata = upload.read()
             result['bytes_received'] = len(rawdata)
             

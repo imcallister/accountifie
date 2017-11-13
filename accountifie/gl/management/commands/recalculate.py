@@ -44,14 +44,14 @@ class Command(BaseCommand):
             for cmpny in [c['id'] for c in api_func('gl', 'company')]:
                 QueryManagerStrategyFactory().erase(cmpny)
             
-            print "deleted all transactions"
+            print("deleted all transactions")
             QueryManagerStrategyFactory().set_fast_inserts('*', True)
             for klass in klasses:
-                print 'working on', klass    
+                print('working on', klass)    
                 qs =klass.objects.all()
                 for obj in qs:
                     obj.update_gl()
-                print 'finished with', klass    
+                print('finished with', klass)    
             QueryManagerStrategyFactory().set_fast_inserts('*', False)
             QueryManagerStrategyFactory().take_snapshot('*')
-        print "updated %d transactions" % qs.count()
+        print("updated %d transactions" % qs.count())

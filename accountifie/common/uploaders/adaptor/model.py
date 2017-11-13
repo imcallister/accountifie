@@ -5,7 +5,7 @@ import copy
 
 import csv
 from django.db.models.base import Model
-from .fields import Field, IgnoredField, ComposedKeyField, XMLRootField
+from .fields import Field, IgnoredField, ComposedKeyField
 from .exceptions import ForeignKeyFieldError, FieldValueMissing
 
 
@@ -30,7 +30,7 @@ class CsvDataException(CsvException):
         self.error = error
         self.field_error = field_error
         err_msg = self.error if self.error else self.field_error
-        super(CsvDataException, self).__init__(u"Line %d: %s" % (self.line, err_msg))
+        super(CsvDataException, self).__init__("Line %d: %s" % (self.line, err_msg))
 
 
 class CsvFieldDataException(CsvDataException):
@@ -160,9 +160,9 @@ class BaseModel(object):
         return self
 
     def export(self):
-        line = u""
+        line = ""
         for field_name, field in self.get_fields():
-            line += unicode(getattr(self, field_name))
+            line += str(getattr(self, field_name))
             line += self.delimiter
         return line.rstrip(self.delimiter) # remove the extra delimiter
 
@@ -506,10 +506,10 @@ class CsvImporter(object):
 
         if skip_rows > 0:
             for i in range(skip_rows):
-                reader.next()
+                next(reader)
 
         if self.csvModel.has_header():
-            reader.next()
+            next(reader)
             line_number = 1
 
         for line in reader:

@@ -19,4 +19,4 @@ def counterparty(cp_id, qstring):
     if cp is None:
         return None
     else:
-        return dict((k,v) for k,v in cp.__dict__.iteritems() if k in ['id','name'])
+        return dict((k,v) for k,v in cp.__dict__.items() if k in ['id','name'])

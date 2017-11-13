@@ -22,7 +22,7 @@ import djcelery.models
 
 from .models import Forecast
 from .forms import ForecastForm
-import apiv1 as fcst_api
+from . import apiv1 as fcst_api
 from accountifie.query.query_manager import QueryManager
 from accountifie.query.query_manager_strategy_factory import QueryManagerStrategyFactory
 import accountifie.toolkit.utils as utils
@@ -64,7 +64,7 @@ def upload_gl(request):
     else:
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
-            upload = io.StringIO(unicode(request.FILES.values()[0].read()), newline=None)
+            upload = io.StringIO(str(list(request.FILES.values())[0].read()), newline=None)
             data = [row for row in csv.DictReader(upload)]
             forecast_obj = Forecast.objects.get(id=request.GET.get('forecast'))
             forecast_obj.hardcode_projections = data
@@ -73,7 +73,7 @@ def upload_gl(request):
 
 
 def _order_projections(projs):
-    cols = [x for x in projs[0].keys() if x not in ['Debit','Credit','Counterparty','Company']]
+    cols = [x for x in list(projs[0].keys()) if x not in ['Debit','Credit','Counterparty','Company']]
 
     def _idxer(label):
         lbls = label.split('M')
@@ -82,7 +82,7 @@ def _order_projections(projs):
         return 2015 * yr + mth
 
     col_indexer = dict((x, _idxer(x)) for x in cols)
-    return [x[0] for x in sorted(col_indexer.items(), key=operator.itemgetter(1))]
+    return [x[0] for x in sorted(list(col_indexer.items()), key=operator.itemgetter(1))]
 
 
 @login_required
@@ -91,7 +91,7 @@ def hardcode_projections(request):
     hcode_projs = fcst_api.hardcode_projections(fcast_id, {})
     if len(hcode_projs) > 0:
         col_order = _order_projections(hcode_projs)
-        context = {'cols': zip(['Debit', 'Credit', 'Counterparty', 'Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
+        context = {'cols': list(zip(['Debit', 'Credit', 'Counterparty', 'Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order)))}
         context['data_url'] = '/api/forecasts/hardcode_projections/%s?raw=true' % fcast_id
     else:
         context = {}
@@ -104,7 +104,7 @@ def all_projections(request):
     projs = fcst_api.all_projections(fcast_id, {})
     if len(projs) > 0:
         col_order = _order_projections(projs)
-        context = {'cols': zip(['Debit', 'Credit', 'Counterparty', 'Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order))}
+        context = {'cols': list(zip(['Debit', 'Credit', 'Counterparty', 'Company'] + col_order, ['nameFormatter']*4 + ['valueFormatter'] * len(col_order)))}
         context['data_url'] = '/api/forecasts/all_projections/%s?raw=true' % fcast_id
     else:
         context = {}

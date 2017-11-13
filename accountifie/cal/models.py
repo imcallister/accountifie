@@ -9,7 +9,7 @@ from django.db import models
 class Year(models.Model):
     id = models.IntegerField(primary_key=True, help_text="4 digit year e.g. 2009")
     def __unicode__(self):
-        return unicode(self.id)
+        return str(self.id)
         
 class Quarter(models.Model):
     id = models.CharField(primary_key=True, max_length=6, help_text='e.g. "2009Q1"')
@@ -22,7 +22,7 @@ class Month(models.Model):
     quarter = models.ForeignKey(Quarter, db_index=True)
     year = models.ForeignKey(Year, db_index=True)
     def __unicode__(self):
-        return unicode(self.id)
+        return str(self.id)
         
     def first_of_month(self):
         yyyy, mm = self.id.split('M')
@@ -49,5 +49,5 @@ class Day(models.Model):
     quarter = models.ForeignKey(Quarter, db_index=True)
     year = models.ForeignKey(Year, db_index=True)
     def __unicode__(self):
-        return u'%04d-%02d-%02d' % (self.id.year, self.id.month, self.id.day)
+        return '%04d-%02d-%02d' % (self.id.year, self.id.month, self.id.day)
     
