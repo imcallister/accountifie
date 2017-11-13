@@ -24,11 +24,11 @@ class ActivityTestCase(TestCase):
         '1002': 0.00,
         '1003': 24.00
       },
-       'chg in year': {
+       'chg in period': {
         '1001': 100.00,
         '1002': -1.00,
         '1003': 20.00
-       }, 
+       },
        '2015-12-31': {
         '1001': 110.00,
         '1002': -1.00,
@@ -75,5 +75,3 @@ class ActivityTestCase(TestCase):
     self.assertEqual(result[2]['2014-12-31']['text'], 24.0)
     self.assertEqual(result[2]['chg in period']['text'], 20.0)
     self.assertEqual(result[2]['2015-12-31']['text'], 44.0)
-
-    
