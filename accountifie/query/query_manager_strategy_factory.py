@@ -48,9 +48,6 @@ class QueryManagerStrategyFactory(object):
     if strategy == 'snapshot':
       return QueryManagerSnapshotStrategy()
 
-    if strategy == 'forecast':
-      return QueryManagerForecastStrategy()
-
     matched_snapshot_strategy = re.match(r'snapshot_(.+)', strategy)
     if matched_snapshot_strategy:
       date_str = matched_snapshot_strategy.group(1)

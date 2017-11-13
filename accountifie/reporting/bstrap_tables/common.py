@@ -77,12 +77,3 @@ def snapshots():
                 {'data_field': 'snapped_at', 'value': 'Snapped At', 'formatter': 'nameFormatter'},
             ]
     return get_bstrap_table(data_url, row_defs)
-
-
-def forecasts():
-    data_url = "/api/forecasts/forecast/"
-    row_defs = [{'data_field': 'id_link', 'value': 'Label', 'formatter': 'nameFormatter'},
-                {'data_field': 'start_date', 'value': 'Start Date', 'formatter': 'nameFormatter'},
-                {'data_field': 'comment', 'value': 'Comment', 'formatter': 'nameFormatter'}
-            ]
-    return get_bstrap_table(data_url, row_defs)
