@@ -25,9 +25,9 @@ LOG_ENTRIES_PER_PAGE = 25
 
 def localsets():
     res = {}
-    project_name = os.path.basename(settings.PROJECT_DIR) 
+    project_name = os.path.basename(settings.PROJECT_DIR)
     try:
-        ls = __import__('%s.localsettings' % project_name) 
+        ls = __import__('%s.localsettings' % project_name)
         for k, v in list(ls.localsettings.__dict__.items()):
             if k == k.upper() and re.match("[^__]", k):
                 res[k]=v
@@ -82,7 +82,7 @@ def index(request):
                 context['versions'][name] = result
         except:
             pass
-    # machine status    
+    # machine status
     context['machine'] = OrderedDict()
     if sys.platform == 'darwin':
         context['machine']['Uptime'] = 'not done yet on MacOS'
@@ -98,14 +98,14 @@ def index(request):
 
     context['stats'] = utils.get_available_stats()
 
-    gan = (lambda app: app.__name__) if settings.DJANGO_18 else (lambda app: app)
+    gan = lambda app: app
     context['apps'] = [(gan(app), ', '.join([model.__name__ for model in models])) for app, models in all_concrete_models()]
     context['relations'] = [[(model.__name__, ', '.join(['%s (%s) through %s' % (relation.__name__, relation.__module__, field.__class__.__name__)
-                                                        for field, relation in relations]), gan(app)) 
-                                                            for model, relations in rel_info] 
+                                                        for field, relation in relations]), gan(app))
+                                                            for model, relations in rel_info]
                                                                 for app, rel_info in all_relations()]
-    #context['rel_graph'] = 
-    
+    #context['rel_graph'] =
+
     context['config_warnings'] = utils.get_configuration_warnings()
 
     return render(request, 'dashboard/index.html', context)
@@ -173,7 +173,7 @@ def stat(request, app_name, stat_name):
 
     found = False
     if hasattr(stats, 'SQL_QUERIES'):
-        for (name, help_text, sql) in stats.SQL_QUERIES: 
+        for (name, help_text, sql) in stats.SQL_QUERIES:
             if name == stat_name:
                 found = True
                 cur = connection.cursor()

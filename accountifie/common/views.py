@@ -17,10 +17,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login as auth_login
 
-if settings.DJANGO_18:
-    from django.contrib.sites.models import get_current_site
-else:
-    from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.sites.shortcuts import get_current_site
 
 from django.db.models import Q
 from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpResponseServerError, \
@@ -54,7 +51,7 @@ def custom_500(request):
 
 
 def base_templates(request):
-    ''' 
+    '''
     To be used as a context_processor so as to provide a fallback if the hosting
     project does not have either base.html or base_site.html templates
     '''
@@ -69,7 +66,7 @@ def base_templates(request):
             _base_prefix = dict(settings.DOMAINS_PATHS).get(request.session['subdomain'], '')
         else:
             _base_prefix = request.session['subdomain'] + '/'
-    
+
     context = {
             'client_project': getattr(settings, 'CLIENT_PROJECT', 'DocEngine'),
             'base_template': loader.select_template([_base_prefix+'base.html', 'base.html', 'common/base.html']),
@@ -78,7 +75,7 @@ def base_templates(request):
             'HAS_PROFILE': isinstance(_USER_PROFILE, str),
             'PROJECT_TITLE': os.path.split(settings.ENVIRON_DIR)[1]
         }
-    
+
     return context
 
 
@@ -116,7 +113,7 @@ def login(request, template_name='common/login.html',
 
     if request.method == "POST":
         redirect_to = request.POST.get(redirect_field_name, '')
-        
+
         form = authentication_form(request, data=request.POST)
         if form.is_valid():
 
@@ -241,15 +238,15 @@ def media_types(app_name=''):
     '''
     Lists folders in media directory
     Takes optional app_name for which user folder to look into
-    
+
     '''
     media_path = os.path.join(setting.MEDIA_ROOT, app_name)
     try:
         return [entry for entry in os.listdir(media_path) if os.path.isdir(os.path.join(media_path, entry)) ]
     except OSError:
         raise True("%s does not exist or it is not a folder" % media_path)
-    
-    
+
+
 def media(media_type, app_name=''):
     '''
     Returns the list of [user] media items
@@ -267,7 +264,7 @@ def media(media_type, app_name=''):
 @login_required
 def upload(request):
     "Handles user file uploads into a queue"
-        
+
     result = {'success': False}
     if request.method == 'POST':
         if not os.path.isdir(settings.UPLOAD_DIR):
@@ -277,13 +274,13 @@ def upload(request):
             upload = list(request.FILES.values())[0]
             rawdata = upload.read()
             result['bytes_received'] = len(rawdata)
-            
+
             hasher = hashlib.md5()
             hasher.update(rawdata)
             ident = hasher.hexdigest()[0:6]
-           
+
             info = {
-                'filename': upload.name, 
+                'filename': upload.name,
                 'user': request.user.username,
                 'remote_addr': request.META['REMOTE_ADDR']
                 }
@@ -347,4 +344,3 @@ def check_all_tasks(request):
                           )
                      )
     return HttpResponse(json.dumps(tasks))
-
