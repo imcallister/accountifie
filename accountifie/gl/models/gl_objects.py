@@ -39,7 +39,7 @@ class Account(models.Model):
         app_label = 'gl'
         db_table = 'gl_account'
     
-    def __unicode__(self):
+    def __str__(self):
         return '%s: %s' % (self.id, self.display_name)
 
 
@@ -59,7 +59,7 @@ class Transaction(models.Model):
         app_label = 'gl'
         db_table = 'gl_transaction'
     
-    def __unicode__(self):
+    def __str__(self):
         return '%s' % self.comment
 
     def delete(self):
@@ -85,7 +85,7 @@ class TranLine(models.Model):
         app_label = 'gl'
         db_table = 'gl_tranline'
 
-    def __unicode__(self):
+    def __str__(self):
         return '%.2f: Account %s' %(self.amount, self.account)
 
     @property

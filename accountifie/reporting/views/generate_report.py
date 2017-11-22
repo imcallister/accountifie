@@ -1,7 +1,6 @@
 import csv
 import json
 
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import RequestContext, Context
@@ -16,8 +15,6 @@ import logging
 logger = logging.getLogger('default')
 
 
-
-@login_required
 def report(request, id):
 
     report, is_report = rptutils.report_prep(request, id)
