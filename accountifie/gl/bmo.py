@@ -43,13 +43,12 @@ class BusinessModelObject(object):
         bmo_id = '%s.%s' %(self.short_code, self.id)
         QMSF.getInstance().get().delete_bmo_transactions(self.company.id, bmo_id)
 
-
     def create_gl_transactions(self, trans):
         dflt_strategy = Variable.objects \
                                 .filter(key='DEFAULT_GL_STRATEGY') \
                                 .first()
         gl_strategy = dflt_strategy.value if dflt_strategy else GL_STRATEGY
-        
+
         "Make any GL transactions this needs"
         for td in trans:
             try:
@@ -79,9 +78,7 @@ class BusinessModelObject(object):
                     else:
                         db_lines = [tl._to_dict() for tl in db_tl_set]
                         new_lines = [tl._to_dict() for tl in new_tl_set]
-
                         chgs = DeepDiff(db_lines, new_lines)
-
                         if len(chgs) > 0:
                             # if any changes then just delete/set to historical
                             save_tranlines(db_tl_set, new_tl_set)
@@ -92,29 +89,30 @@ class BusinessModelObject(object):
                     logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
 
             elif gl_strategy == 'remote':
-                source_object = {'object_id': self.id,
-                                 'model_name': self._meta.model_name,
-                                 'app_name': self._meta.app_label}
-                td['source_object'] = source_object
+                d2 = td.copy()
+                if 'date_end' not in d2:
+                    d2['date_end'] = d2['date']
 
-                lines = [{'company': _model_to_id(td['company']),
-                          'date': str(td['date']),
-                          'date_end': str(td.get('date_end', None) or td['date']),
-                          'comment': comment,
-                          'account': _model_to_id(account),
-                          'amount': Decimal("{0:.2f}".format(amount)),
-                          'counterparty': _model_to_id(counterparty),
-                          'tags': tags,
-                          'bmo_id': td['bmo_id'],
-                          'source_object': self
-                          } for account, amount, counterparty, tags in td['lines']]
-                
-                if sum(l['amount'] for l in lines) == DZERO:
-                    QMSF.getInstance() \
-                        .get(strategy='remote') \
-                        .create_gl_transactions(td, lines, td['bmo_id'], td['bmo_id'])
-                else:
-                    logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
+                try:
+                    tags = ','.join(d2.pop('tags'))
+                except:
+                    tags = ''
+
+                d2['company'] = d2['company'].id if isinstance (d2['company'], accountifie.gl.models.Company) else d2['company']
+
+                lines = d2.pop('lines')
+                trans_id = d2.pop('trans_id')
+                bmo_id = d2.pop('bmo_id')
+
+                lines = [{'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
+                          'amount': "{0:.2f}".format(amount),
+                          'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
+                          'tags': tags
+                          } for account, amount, counterparty, tags in lines]
+
+                QMSF.getInstance() \
+                    .get(strategy='remote') \
+                    .create_gl_transactions(d2, lines, trans_id, bmo_id)
 
     def update_gl(self):
         "Fix up GL after any kind of change"
