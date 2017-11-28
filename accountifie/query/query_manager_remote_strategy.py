@@ -334,6 +334,7 @@ class accountifieSvcClient(object):
             'dateEnd': transaction['date_end'],
             'comment': transaction['comment'],
             'type': transaction['type'],
+            'source_object': transaction['source_object'],
             'lines': [{'accountId': line['account'],
                        'amount': line['amount'],
                        'counterpartyId': line['counterparty'],

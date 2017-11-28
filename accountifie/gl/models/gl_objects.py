@@ -1,5 +1,7 @@
 import six
+from deepdiff import DeepDiff
 
+#import accountifie.gl.bmo
 from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -42,25 +44,37 @@ class Account(models.Model):
     def __str__(self):
         return '%s: %s' % (self.id, self.display_name)
 
-
-class Transaction(models.Model):
+"""
+class Transaction(models.Model, accountifie.gl.bmo.BusinessModelObject):
     company = models.ForeignKey('gl.Company')
     date = models.DateField(db_index=True)
     date_end = models.DateField(db_index=True, blank=True, null=True)
     comment = models.CharField(max_length=100)
     long_desc = models.CharField(max_length=200, blank=True, null=True)
     bmo_id = models.CharField(max_length=100)
-    
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    source_object =  GenericForeignKey()
+    source_object = GenericForeignKey()
 
     class Meta:
         app_label = 'gl'
         db_table = 'gl_transaction'
-    
+
     def __str__(self):
         return '%s' % self.comment
+
+    def save(self):
+        db_tr = Transaction.objects.filter(bmo_id=self.bmo_id).first()
+        if db_tr is None:
+            super(Transaction, self).save()
+        else:
+            if len(DeepDiff(self._to_dict(), db_tr._to_dict())) > 0:
+                print('CHANGED')
+                print(DeepDiff(self, db_tr))
+                super(Transaction, self).save()
+            else:
+                print('not saving it')
+        self.update_gl()
 
     def delete(self):
         tranlines = TranLine.objects.filter(transaction__id=self.id)
@@ -73,13 +87,35 @@ class Transaction(models.Model):
         content_type = ContentType.objects.get_for_model(self.__class__)
         return urlresolvers.reverse("admin:%s_%s_change" % (content_type.app_label, content_type.model), args=(self.id,))
 
+    def _to_dict(self):
+        return dict((f.attname, getattr(self, f.attname))
+                    for f in self._meta.fields if f.attname not in ['id'])
+
+    def _tlines_to_dict(self):
+        return dict((tl.id, tl._to_dict()) for tl in self.tranline_set.all())
+
+    def get_changes(self):
+        db_tr = Transaction.objects.filter(bmo_id=self.bmo_id).first()
+        if db_tr is None:
+            return {}
+        return DeepDiff(self, db_tr)
+"""
+
 
 class TranLine(models.Model):
-    transaction = models.ForeignKey(Transaction)
+    #transaction = models.ForeignKey(Transaction)
+    company = models.ForeignKey('gl.Company')
+    date = models.DateField(db_index=True)
+    date_end = models.DateField(db_index=True, blank=True, null=True)
+    comment = models.CharField(max_length=100, blank=True, null=True)
     account = models.ForeignKey(Account)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
-    counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True)
+    counterparty = models.ForeignKey('gl.Counterparty')
     tags = models.CharField(max_length=200, blank=True)
+    bmo_id = models.CharField(max_length=100)
+    content_type = models.ForeignKey(ContentType, blank=True, null=True)
+    object_id = models.PositiveIntegerField(blank=True, null=True)
+    source_object = GenericForeignKey()
 
     class Meta:
         app_label = 'gl'
@@ -91,8 +127,12 @@ class TranLine(models.Model):
     @property
     def date(self):
         return self.transaction.date
-    
-    
+
+    def _to_dict(self):
+        return dict((f.attname, getattr(self, f.attname))
+                    for f in self._meta.fields if f.attname not in ['id'])
+
+
 class ExternalBalance(models.Model):
     "Assertion that account X has balance Y on date Z"
     company = models.ForeignKey('gl.Company')

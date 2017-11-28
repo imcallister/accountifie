@@ -10,7 +10,7 @@ import dateutil.parser
 import pandas as pd
 import accountifie.gl.cache
 from accountifie.common.api import api_func
-import accountifie.gl.models
+
 import accountifie.toolkit.utils as utils
 
 from decimal import Decimal, ROUND_HALF_UP
@@ -119,23 +119,13 @@ class QueryManagerLocalStrategy(QueryManagerStrategy):
         return entries
 
 
+    """
     def create_gl_transactions(self, d2, lines, trans_id, bmo_id):
 
-        if type(d2['company']) in (str,):
-            d2['company'] = accountifie.gl.models.Company.objects.get(id=d2['company'])
-
-        # check whether anythin has changed
-        # 1. has transaction changed
-
+        
         tran = accountifie.gl.models.Transaction(**d2)
         tran.source_object = d2.pop('source_object')
         tran.bmo_id = bmo_id
-
-        try:
-            if len(tran.comment) >= 100:
-                tran.comment = tran.comment[:99]
-        except:
-            pass
         tran.save()
 
         for l in lines:
@@ -147,7 +137,7 @@ class QueryManagerLocalStrategy(QueryManagerStrategy):
                                      amount=l['amount'],
                                      counterparty=l['counterparty'],
                                      tags=l['tags'])
-
+    """
 
     def delete_bmo_transactions(self, company_id, bmo_id):
         logger.info('Deleting transactions: bmo ID=%s, Company=%s' % (company_id, bmo_id))

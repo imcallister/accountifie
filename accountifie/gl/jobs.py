@@ -7,7 +7,7 @@ import datetime
 from django.db import transaction
 from django.http import HttpResponseRedirect
 
-from accountifie.gl.models import Transaction
+#from accountifie.gl.models import Transaction
 from accountifie.gl.bmo import BusinessModelObject
 from accountifie.common.api import api_func
 from accountifie.celery import background_task

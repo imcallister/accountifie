@@ -6,8 +6,10 @@ with permission
 from decimal import Decimal
 import logging
 
-import accountifie.gl.models
+from django.db import transaction
+
 import accountifie.query.query_manager_strategy_factory as QMSF
+from accountifie.gl.models import TranLine
 
 
 DZERO = Decimal('0')
@@ -15,6 +17,11 @@ DZERO = Decimal('0')
 logger = logging.getLogger('default')
 
 GL_STRATEGY = 'local'
+
+
+def _model_to_id(x):
+    return x if type(x) == str else x.id
+
 
 class BusinessModelObject(object):
     """Something else which has an effect on the GL.
@@ -37,31 +44,64 @@ class BusinessModelObject(object):
         bmo_id = '%s.%s' %(self.short_code, self.id)
         QMSF.getInstance().get().delete_bmo_transactions(self.company.id, bmo_id)
 
+
     def create_gl_transactions(self, trans):
         "Make any GL transactions this needs"
-        for trandict in trans:
-            d2 = trandict.copy()
-
-            if 'date_end' not in d2:
-                d2['date_end'] = d2['date']
+        for td in trans:
             try:
-                tags = ','.join(d2.pop('tags'))
+                comment = td['comment'][:99]
             except:
-                tags = ''
+                comment = ''
 
-            d2['company'] = d2['company'].id if isinstance(d2['company'], accountifie.gl.models.Company) else d2['company']
-            d2['source_object'] = self
+            # old style
+            if GL_STRATEGY == 'local':
+                print('=' * 20)
+                print(td['lines'][0])
+                lines = [{'company_id': _model_to_id(td['company']),
+                          'date': td['date'],
+                          'date_end': td.get('date_end', td['date']),
+                          'comment': comment,
+                          'account_id': _model_to_id(account),
+                          'amount': Decimal("{0:.2f}".format(amount)),
+                          'counterparty_id': _model_to_id(counterparty),
+                          'tags': ','.join(tags or []),
+                          'bmo_id': td['bmo_id'],
+                          'source_object': self
+                          } for account, amount, counterparty, tags in td['lines']]
+                if sum(l['amount'] for l in lines) == DZERO:
+                    # 1. check for balance
+                    # 2. check for changes
 
-            lines = d2.pop('lines')
-            trans_id = d2.pop('trans_id')
-            bmo_id = d2.pop('bmo_id')
+                    # 3. if any changes then just delete/set to historical
+                    #    the prior ones
+                    save_tranlines(lines)
 
-            lines = [{'account': account.id if isinstance(account, accountifie.gl.models.Account) else account,
-                      'amount': "{0:.2f}".format(amount),
-                      'counterparty': counterparty.id if isinstance(counterparty, accountifie.gl.models.Counterparty) else counterparty,
-                      'tags': tags
-                      } for account, amount, counterparty, tags in lines]
-            QMSF.getInstance().get(strategy=GL_STRATEGY).create_gl_transactions(d2, lines, trans_id, bmo_id)
+                else:
+                    logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
+
+            elif GL_STRATEGY == 'remote':
+                source_object = {'object_id': self.id,
+                                 'model_name': self._meta.model_name,
+                                 'app_name': self._meta.app_label}
+                td['source_object'] = source_object
+
+                lines = [{'company': _model_to_id(td['company']),
+                          'date': str(td['date']),
+                          'date_end': str(td.get('date_end', None) or td['date']),
+                          'comment': comment,
+                          'account': _model_to_id(l['account']),
+                          'amount': "{0:.2f}".format(l['amount']),
+                          'counterparty': _model_to_id(l['counterparty']),
+                          'tags': l.get('tags', None) or [],
+                          'bmo_id': td['bmo_id'],
+                          'source_object': self
+                          } for account, amount, counterparty, tags in td['lines']]
+                if sum(l['amount'] for l in lines) == DZERO:
+                    QMSF.getInstance() \
+                        .get(strategy=GL_STRATEGY) \
+                        .create_gl_transactions(td, lines, td['bmo_id'], td['bmo_id'])
+                else:
+                    logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
 
     def update_gl(self):
         "Fix up GL after any kind of change"
@@ -80,6 +120,12 @@ class BusinessModelObject(object):
 
     def get_company(self):
         return self.company.id
+
+
+@transaction.atomic
+def save_tranlines(lines):
+    for l in lines:
+        TranLine(**l).save()
 
 
 def on_bmo_save(sender, **kwargs):

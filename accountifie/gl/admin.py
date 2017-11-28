@@ -5,16 +5,16 @@ from .models import *
 class TranLineInline(admin.TabularInline):
     model = TranLine
 
-
+"""
 class TransactionAdmin(admin.ModelAdmin):
-    list_display=('company', 'id', 'date', 'date_end', 'comment', 'source_object')
+    list_display=('company', 'id', 'date', 'date_end', 'comment', 'bmo_id', 'source_object')
     list_filter = ('company',)
     ordering = ('-date','id')
     search_fields = ('comment','id',)
     inlines = [
         TranLineInline,
         ]
-
+"""
 
 class TranLineAdmin(admin.ModelAdmin):
     list_display = ('id', 'account', 'counterparty',)
@@ -69,7 +69,7 @@ class ExternalAccountAdmin(admin.ModelAdmin):
     list_filter = ('gl_account','counterparty',)
 
 admin.site.register(Account, AccountAdmin)
-admin.site.register(Transaction, TransactionAdmin)
+#admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(TranLine, TranLineAdmin)
 admin.site.register(ExternalBalance, ExternalBalanceAdmin)
 admin.site.register(DepreciationPolicy, DepreciationPolicyAdmin)
