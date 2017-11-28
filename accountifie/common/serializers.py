@@ -1,8 +1,6 @@
 
 from rest_framework import serializers
 
-from .models import *
-
 
 class EagerLoadingMixin:
     """
@@ -17,11 +15,3 @@ class EagerLoadingMixin:
         if hasattr(cls, "_PREFETCH_RELATED_FIELDS"):
             queryset = queryset.prefetch_related(*cls._PREFETCH_RELATED_FIELDS)
         return queryset
-
-
-class AddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Address
-        fields = ('label', 'name', 'company', 'address1',
-                  'address2', 'city', 'postal_code', 'province',
-                  'country', 'phone', 'email')

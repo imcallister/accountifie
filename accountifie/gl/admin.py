@@ -17,7 +17,7 @@ class TransactionAdmin(admin.ModelAdmin):
 """
 
 class TranLineAdmin(admin.ModelAdmin):
-    list_display = ('id', 'account', 'counterparty',)
+    list_display = ('id', 'bmo_id', 'account', 'amount', 'counterparty',)
     search_fields = ('account__id', 'counterparty__name','id',)
     list_filter = ('account','counterparty')
     ordering = ('id',)

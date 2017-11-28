@@ -196,6 +196,7 @@ class QueryManagerRemoteStrategy(QueryManagerStrategy):
                 'date_end': str(d2.get('date_end', None) or d2['date']),
                 'comment': d2['comment'],
                 'company': d2['company'],
+                'source_object': d2['source_object'],
                 'type': None,
                 'lines': [dict(account=line['account'],
                                 amount=str(Decimal(line['amount'])),
