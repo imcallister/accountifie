@@ -66,7 +66,7 @@ class Log(models.Model):
         verbose_name_plural = 'Log entries'
         ordering = ['-time','id']
         app_label = 'common'
-        db_table = 'common_loss'
+        db_table = 'common_log'
 
     def __unicode__(self):
             return 'Log("%s", %s, "%s...")' % (self.level, self.time, self.message[0:50])
