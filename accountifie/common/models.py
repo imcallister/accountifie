@@ -20,6 +20,11 @@ class Address(models.Model):
     def __unicode__(self):
         return self.label
 
+    class Meta:
+        app_label = 'common'
+        db_table = 'common_address'
+    
+
 class McModel(models.Model):
 
     class Meta:

@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(name='accountifie',
       description='Core Accouting Functionality',
       author='Ian McAllister',
-      version = '0.3.1',
+      version = '0.3.2',
       author_email='ian.mcallister@electronifie.com',
       url='https://github.com/electronifie/accountifie',
       packages=find_packages(),
