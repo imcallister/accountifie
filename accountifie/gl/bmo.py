@@ -8,18 +8,41 @@ import logging
 from deepdiff import DeepDiff
 
 from django.db import transaction
+from django.apps import apps
 
 import accountifie.query.query_manager_strategy_factory as QMSF
 from accountifie.environment.models import Variable
-from accountifie.gl.models import TranLine
+from accountifie.gl.models import TranLine, Company, Account, Counterparty
 
 DZERO = Decimal('0')
 
 logger = logging.getLogger('default')
 GL_STRATEGY = 'local'
 
+
 def _model_to_id(x):
     return x if type(x) == str else x.id
+
+
+def get_gl_strategy():
+    dflt_strategy = Variable.objects \
+                            .filter(key='DEFAULT_GL_STRATEGY') \
+                            .first()
+    return dflt_strategy.value if dflt_strategy else GL_STRATEGY
+
+
+def recalc_all():
+    ctr = 0
+    for model in apps.get_models():
+        if issubclass(model, BusinessModelObject):
+            if ctr < 100:
+                for bmo in model.objects.all():
+                    try:
+                        bmo.save()
+                    except:
+                        print('failed', bmo.__dict__)
+            else:
+                break
 
 
 class BusinessModelObject(object):
@@ -40,14 +63,14 @@ class BusinessModelObject(object):
 
     def delete_from_gl(self):
         "Find and remove all GL entries which depend on self"
-        bmo_id = '%s.%s' %(self.short_code, self.id)
-        QMSF.getInstance().get().delete_bmo_transactions(self.company.id, bmo_id)
+        if get_gl_strategy() == 'remote':
+            bmo_id = '%s.%s' %(self.short_code, self.id)
+            QMSF.getInstance() \
+                .get(strategy='remote') \
+                .delete_bmo_transactions(self.company.id, bmo_id)
 
     def create_gl_transactions(self, trans):
-        dflt_strategy = Variable.objects \
-                                .filter(key='DEFAULT_GL_STRATEGY') \
-                                .first()
-        gl_strategy = dflt_strategy.value if dflt_strategy else GL_STRATEGY
+        gl_strategy = get_gl_strategy()
 
         "Make any GL transactions this needs"
         for td in trans:
@@ -98,15 +121,15 @@ class BusinessModelObject(object):
                 except:
                     tags = ''
 
-                d2['company'] = d2['company'].id if isinstance (d2['company'], accountifie.gl.models.Company) else d2['company']
+                d2['company'] = d2['company'].id if isinstance (d2['company'], Company) else d2['company']
 
                 lines = d2.pop('lines')
                 trans_id = d2.pop('trans_id')
                 bmo_id = d2.pop('bmo_id')
 
-                lines = [{'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
+                lines = [{'account': account.id if isinstance (account, Account) else account,
                           'amount': "{0:.2f}".format(amount),
-                          'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
+                          'counterparty': counterparty.id if isinstance (counterparty, Counterparty) else counterparty,
                           'tags': tags
                           } for account, amount, counterparty, tags in lines]
 
