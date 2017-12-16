@@ -124,10 +124,6 @@ class TranLine(models.Model):
     def __str__(self):
         return '%.2f: Account %s' %(self.amount, self.account)
 
-    @property
-    def date(self):
-        return self.transaction.date
-
     def _to_dict(self):
         return dict((f.attname, getattr(self, f.attname))
                     for f in self._meta.fields if f.attname not in ['id'])

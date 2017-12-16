@@ -16,7 +16,7 @@ DZERO = Decimal('0')
 
 logger = logging.getLogger('default')
 
-GL_STRATEGY = 'local'
+GL_STRATEGY = 'postgres'
 
 
 def _model_to_id(x):
@@ -54,7 +54,7 @@ class BusinessModelObject(object):
                 comment = ''
 
             # old style
-            if GL_STRATEGY == 'local':
+            if GL_STRATEGY == 'postgres':
                 lines = [{'company_id': _model_to_id(td['company']),
                           'date': td['date'],
                           'date_end': td.get('date_end', td['date']),
