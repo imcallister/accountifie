@@ -20,7 +20,7 @@ class Command(BaseCommand):
         with transaction.atomic():
             #quicker to do the two delets ourselves than let the engine work out all the cascading stuff
             TranLine.objects.all().delete()
-            Transaction.objects.all().delete()
+            #Transaction.objects.all().delete()
             QueryManagerStrategyFactory().erase('*')
 
 
