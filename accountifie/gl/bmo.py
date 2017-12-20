@@ -5,22 +5,43 @@ with permission
 
 from decimal import Decimal
 import logging
+from deepdiff import DeepDiff
 
 from django.db import transaction
+from django.apps import apps
 
 import accountifie.query.query_manager_strategy_factory as QMSF
-from accountifie.gl.models import TranLine
-
+from accountifie.environment.models import Variable
+from accountifie.gl.models import TranLine, Company, Account, Counterparty
 
 DZERO = Decimal('0')
 
 logger = logging.getLogger('default')
-
 GL_STRATEGY = 'postgres'
-
 
 def _model_to_id(x):
     return x if type(x) == str else x.id
+
+
+def get_gl_strategy():
+    dflt_strategy = Variable.objects \
+                            .filter(key='DEFAULT_GL_STRATEGY') \
+                            .first()
+    return dflt_strategy.value if dflt_strategy else GL_STRATEGY
+
+
+def recalc_all():
+    ctr = 0
+    for model in apps.get_models():
+        if issubclass(model, BusinessModelObject):
+            if ctr < 100:
+                for bmo in model.objects.all():
+                    try:
+                        bmo.save()
+                    except:
+                        print('failed', bmo.__dict__)
+            else:
+                break
 
 
 class BusinessModelObject(object):
@@ -41,11 +62,15 @@ class BusinessModelObject(object):
 
     def delete_from_gl(self):
         "Find and remove all GL entries which depend on self"
-        bmo_id = '%s.%s' %(self.short_code, self.id)
-        QMSF.getInstance().get().delete_bmo_transactions(self.company.id, bmo_id)
-
+        if get_gl_strategy() == 'remote':
+            bmo_id = '%s.%s' %(self.short_code, self.id)
+            QMSF.getInstance() \
+                .get(strategy='remote') \
+                .delete_bmo_transactions(self.company.id, bmo_id)
 
     def create_gl_transactions(self, trans):
+        gl_strategy = get_gl_strategy()
+
         "Make any GL transactions this needs"
         for td in trans:
             try:
@@ -67,16 +92,23 @@ class BusinessModelObject(object):
                           'source_object': self
                           } for account, amount, counterparty, tags in td['lines']]
                 if sum(l['amount'] for l in lines) == DZERO:
-                    # 1. check for balance
-                    # 2. check for changes
+                    db_tl_set = TranLine.objects.filter(bmo_id=td['bmo_id'])
+                    new_tl_set = [TranLine(**l) for l in lines]
 
-                    # 3. if any changes then just delete/set to historical
-                    #    the prior ones
-                    save_tranlines(lines)
-
+                    if db_tl_set.count() == 0:
+                        save_tranlines(None, new_tl_set)
+                    else:
+                        db_lines = [tl._to_dict() for tl in db_tl_set]
+                        new_lines = [tl._to_dict() for tl in new_tl_set]
+                        chgs = DeepDiff(db_lines, new_lines)
+                        if len(chgs) > 0:
+                            # if any changes then just delete/set to historical
+                            save_tranlines(db_tl_set, new_tl_set)
+                        else:
+                            print('no chnages')
+                            pass
                 else:
                     logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
-
             elif GL_STRATEGY == 'remote':
                 d2 = td.copy()
                 if 'date_end' not in d2:
@@ -87,22 +119,21 @@ class BusinessModelObject(object):
                 except:
                     tags = ''
 
-                d2['company'] = d2['company'].id if isinstance (d2['company'], accountifie.gl.models.Company) else d2['company']
+                d2['company'] = d2['company'].id if isinstance (d2['company'], Company) else d2['company']
 
                 lines = d2.pop('lines')
                 trans_id = d2.pop('trans_id')
                 bmo_id = d2.pop('bmo_id')
 
-                lines = [{'account': account.id if isinstance (account, accountifie.gl.models.Account) else account,
+                lines = [{'account': account.id if isinstance (account, Account) else account,
                           'amount': "{0:.2f}".format(amount),
-                          'counterparty': counterparty.id if isinstance (counterparty, accountifie.gl.models.Counterparty) else counterparty,
+                          'counterparty': counterparty.id if isinstance (counterparty, Counterparty) else counterparty,
                           'tags': tags
                           } for account, amount, counterparty, tags in lines]
 
                 QMSF.getInstance() \
                     .get(strategy='remote') \
                     .create_gl_transactions(d2, lines, trans_id, bmo_id)
-
 
     def update_gl(self):
         "Fix up GL after any kind of change"
@@ -124,9 +155,12 @@ class BusinessModelObject(object):
 
 
 @transaction.atomic
-def save_tranlines(lines):
-    for l in lines:
-        TranLine(**l).save()
+def save_tranlines(old_tl_set, new_tl_set):
+    if old_tl_set:
+        old_tl_set.delete()
+    
+    for l in new_tl_set:
+        l.save()
 
 
 def on_bmo_save(sender, **kwargs):
