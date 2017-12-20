@@ -36,6 +36,13 @@ class QueryManager:
         self.gl_strategy = strategy_inst
 
 
+    def acct_balances(self, company_id, as_of):
+        return self.gl_strategy \
+                   .account_balances_for_dates(company_id,
+                                               None,
+                                               [as_of],
+                                               None, None, None)[as_of]
+
     ## REFERENCES: 0 internal, 2 external
     def path_drilldown(self, company_id, dates, path, excl_contra=None, excl_interco=None):
         paths = api_func('gl', 'child_paths', path)

@@ -2,6 +2,14 @@ from decimal import Decimal
 from accountifie.query.query_manager import QueryManager
 import datetime
 
+
+def acct_balances(company_id, as_of):
+    qm = QueryManager()
+    return qm.gl_strategy.account_balances_for_dates(company_id,
+                                         None,
+                                         [as_of],
+                                         None, None, None)
+
 def cp_balances(company_id, qstring):
     as_of = qstring.get('date', datetime.datetime.now().date())
     account_id = qstring.get('account')

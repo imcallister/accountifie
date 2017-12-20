@@ -20,6 +20,11 @@ class Address(models.Model):
     def __unicode__(self):
         return self.label
 
+    class Meta:
+        app_label = 'common'
+        db_table = 'common_address'
+    
+
 class McModel(models.Model):
 
     class Meta:
@@ -56,11 +61,13 @@ class Log(models.Model):
     message = models.TextField()
     traceback = models.TextField()
     request = models.TextField()
-    
+
     class Meta:
         verbose_name_plural = 'Log entries'
         ordering = ['-time','id']
-    
+        app_label = 'common'
+        db_table = 'common_log'
+
     def __unicode__(self):
             return 'Log("%s", %s, "%s...")' % (self.level, self.time, self.message[0:50])
 
@@ -79,6 +86,8 @@ class TaskMonitor(models.Model):
     
     class Meta:
         ordering = ['-creation_timestamp']
-    
+        app_label = 'common'
+        db_table = 'common_taskmonitor'
+
     def __unicode__(self):
         return "monitor for %s, %s" % (self.task_name, self.task_id)

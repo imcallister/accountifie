@@ -17,8 +17,7 @@ from accountifie.gl.models import TranLine, Company, Account, Counterparty
 DZERO = Decimal('0')
 
 logger = logging.getLogger('default')
-GL_STRATEGY = 'local'
-
+GL_STRATEGY = 'postgres'
 
 def _model_to_id(x):
     return x if type(x) == str else x.id
@@ -80,7 +79,7 @@ class BusinessModelObject(object):
                 comment = ''
 
             # old style
-            if gl_strategy == 'local':
+            if GL_STRATEGY == 'postgres':
                 lines = [{'company_id': _model_to_id(td['company']),
                           'date': td['date'],
                           'date_end': td.get('date_end', td['date']),
@@ -110,8 +109,7 @@ class BusinessModelObject(object):
                             pass
                 else:
                     logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
-
-            elif gl_strategy == 'remote':
+            elif GL_STRATEGY == 'remote':
                 d2 = td.copy()
                 if 'date_end' not in d2:
                     d2['date_end'] = d2['date']
