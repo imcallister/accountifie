@@ -21,7 +21,7 @@ class Company(models.Model):
         return self.id
 
 class Counterparty(models.Model):
-    id = models.CharField(max_length=12, primary_key=True)
+    id = models.CharField(max_length=30, primary_key=True)
     name = models.CharField(max_length=100)
 
     class Meta:

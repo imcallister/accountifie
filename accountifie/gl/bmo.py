@@ -104,9 +104,6 @@ class BusinessModelObject(object):
                         if len(chgs) > 0:
                             # if any changes then just delete/set to historical
                             save_tranlines(db_tl_set, new_tl_set)
-                        else:
-                            print('no chnages')
-                            pass
                 else:
                     logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
             elif GL_STRATEGY == 'remote':
@@ -158,9 +155,13 @@ class BusinessModelObject(object):
 def save_tranlines(old_tl_set, new_tl_set):
     if old_tl_set:
         old_tl_set.delete()
-    
+
     for l in new_tl_set:
-        l.save()
+        try:
+            l.save()
+        except:
+            print('-' * 20)
+            print(l.__dict__)
 
 
 def on_bmo_save(sender, **kwargs):

@@ -110,7 +110,7 @@ class TranLine(models.Model):
     comment = models.CharField(max_length=100, blank=True, null=True)
     account = models.ForeignKey(Account, blank=True, null=True)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
-    counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True)
+    counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True, max_length=50)
     tags = models.CharField(max_length=200, blank=True)
     bmo_id = models.CharField(max_length=100, blank=True, null=True)
     content_type = models.ForeignKey(ContentType, blank=True, null=True)

@@ -13,4 +13,9 @@ include/
 lib/
 man/
 src/
+selenium/
+dist/
+djcelery/
+accountifie.egg-info/
+pip-selfcheck.json
 npm-debug.log
