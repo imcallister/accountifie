@@ -103,7 +103,6 @@ class Transaction(models.Model, accountifie.gl.bmo.BusinessModelObject):
 
 
 class TranLine(models.Model):
-    #transaction = models.ForeignKey(Transaction)
     company = models.ForeignKey('gl.Company', blank=True, null=True)
     date = models.DateField(db_index=True)
     date_end = models.DateField(db_index=True, blank=True, null=True)

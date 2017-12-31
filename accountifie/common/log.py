@@ -8,8 +8,9 @@ import logging
 import json
 import traceback
 
-from django.views.debug import ExceptionReporter, get_exception_reporter_filter
+from django.views.debug import get_exception_reporter_filter
 from django.conf import settings
+
 
 class DbLogHandler(logging.Handler):
     def emit(self, record):
@@ -29,16 +30,17 @@ class DbLogHandler(logging.Handler):
             exc_info = (None, record.getMessage(), None)
             stack_trace = "No stack trace available"
 
-        rec = Log(level = record.levelname,
-                  message = record.getMessage(),
-                  request = request_repr,
-                  traceback = stack_trace
-              )
+        rec = Log(level=record.levelname,
+                  message=record.getMessage(),
+                  request=request_repr,
+                  traceback=stack_trace
+                  )
+        if hasattr(record, 'corrId'):
+            rec.corrId = record.corrId
         rec.save()
+
 
 class SlackHandler(logging.Handler):
     def emit(self, record):
-        
-        new_data = {"text":'%s: %s' %(record.levelname, record.getMessage())}
-        r = requests.post(settings.SLACK_ENDPOINT_URL, data=json.dumps(new_data))
-        
+        new_data = {"text": '%s: %s' % (record.levelname, record.getMessage())}
+        requests.post(settings.SLACK_ENDPOINT_URL, data=json.dumps(new_data))

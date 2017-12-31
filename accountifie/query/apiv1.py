@@ -5,9 +5,14 @@ import datetime
 
 def acct_balances(company_id, as_of):
     qm = QueryManager()
+    if type(as_of) == list:
+        dates = as_of
+    else:
+        dates = [as_of]
+
     return qm.gl_strategy.account_balances_for_dates(company_id,
                                          None,
-                                         [as_of],
+                                         dates,
                                          None, None, None)
 
 def cp_balances(company_id, qstring):

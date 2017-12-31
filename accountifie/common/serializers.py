@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 
-from .models import Address
+from .models import Address, Log
 
 class EagerLoadingMixin:
     """
@@ -24,3 +24,9 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ('label', 'name', 'company', 'address1',
                   'address2', 'city', 'postal_code', 'province',
                   'country', 'phone', 'email')
+
+
+class LogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log
+        fields = ('level', 'time', 'message')

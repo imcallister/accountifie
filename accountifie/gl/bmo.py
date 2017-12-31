@@ -81,8 +81,8 @@ class BusinessModelObject(object):
             # old style
             if GL_STRATEGY == 'postgres':
                 lines = [{'company_id': _model_to_id(td['company']),
-                          'date': td['date'],
-                          'date_end': td.get('date_end', td['date']),
+                          'date': date,
+                          'date_end': date,
                           'comment': comment,
                           'account_id': _model_to_id(account),
                           'amount': Decimal("{0:.2f}".format(amount)),
@@ -90,7 +90,7 @@ class BusinessModelObject(object):
                           'tags': ','.join(tags or []),
                           'bmo_id': td['bmo_id'],
                           'source_object': self
-                          } for account, amount, counterparty, tags in td['lines']]
+                          } for account, date, amount, counterparty, tags in td['lines']]
                 if sum(l['amount'] for l in lines) == DZERO:
                     db_tl_set = TranLine.objects.filter(bmo_id=td['bmo_id'])
                     new_tl_set = [TranLine(**l) for l in lines]
@@ -101,6 +101,13 @@ class BusinessModelObject(object):
                         db_lines = [tl._to_dict() for tl in db_tl_set]
                         new_lines = [tl._to_dict() for tl in new_tl_set]
                         chgs = DeepDiff(db_lines, new_lines)
+                        print('=' * 20)
+                        for l in db_lines:
+                            print(l)
+                        print()
+                        for l in new_lines:
+                            print(l)
+                    
                         if len(chgs) > 0:
                             # if any changes then just delete/set to historical
                             save_tranlines(db_tl_set, new_tl_set)

@@ -61,6 +61,7 @@ class Log(models.Model):
     message = models.TextField()
     traceback = models.TextField()
     request = models.TextField()
+    corrId = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Log entries'
