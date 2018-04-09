@@ -29,4 +29,4 @@ class AddressSerializer(serializers.ModelSerializer):
 class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
-        fields = ('level', 'time', 'message')
+        fields = ('level', 'time', 'message', 'corrId')
