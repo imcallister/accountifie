@@ -1,7 +1,9 @@
 from colorful.fields import RGBColorField
 
 from django.db import models
+from django.core.validators import RegexValidator
 
+ALPHANUMERIC = RegexValidator(r'^[0-9a-zA-Z]*$', 'Only alphanumeric characters are allowed. In particular.. no spaces.')
 
 
 class Company(models.Model):
@@ -23,7 +25,7 @@ class Company(models.Model):
 
 
 class Counterparty(models.Model):
-    id = models.CharField(max_length=30, primary_key=True)
+    id = models.CharField(max_length=30, primary_key=True, validators=[ALPHANUMERIC])
     label = models.CharField(max_length=20, default='TBD')
     name = models.CharField(max_length=100)
 

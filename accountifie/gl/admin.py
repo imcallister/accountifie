@@ -46,12 +46,12 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 class CompanyAdmin(admin.ModelAdmin):
     ordering = ('id',)
-    list_display = ('id', 'name', 'cmpy_type')
+    list_display = ('id', 'label', 'name', 'cmpy_type')
     
  
 class CounterpartyAdmin(admin.ModelAdmin):
     ordering = ('id',)
-    list_display = ('id', 'name',)
+    list_display = ('id', 'label', 'name',)
     
 class ProjectAdmin(admin.ModelAdmin):
     ordering = ('id',)
