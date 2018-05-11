@@ -21,7 +21,6 @@ from .query_manager_remote_strategy import QueryManagerRemoteStrategy
 from .query_manager_local_strategy import QueryManagerLocalStrategy
 from .query_manager_postgres_strategy import QueryManagerPostgresStrategy
 from .query_manager_test_strategy import QueryManagerTestStrategy
-from .query_manager_snapshot_strategy import QueryManagerSnapshotStrategy
 from accountifie.common.api import api_func
 
 

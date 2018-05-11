@@ -6,6 +6,7 @@ from django.db import models
 
 class Company(models.Model):
     id = models.CharField(max_length=5, primary_key=True)
+    label = models.CharField(max_length=20, default='TBD')
     name = models.CharField(max_length=50)
     cmpy_type = models.CharField(max_length=10, choices=[('ALO', 'Standalone'),('CON', 'Consolidation'),])
     color_code = RGBColorField(blank=True)
@@ -18,10 +19,12 @@ class Company(models.Model):
         db_table = 'gl_company'
 
     def __str__(self):
-        return self.id
+        return self.label
+
 
 class Counterparty(models.Model):
     id = models.CharField(max_length=30, primary_key=True)
+    label = models.CharField(max_length=20, default='TBD')
     name = models.CharField(max_length=100)
 
     class Meta:
@@ -30,7 +33,7 @@ class Counterparty(models.Model):
         db_table = 'gl_counterparty'
 
     def __str__(self):
-        return self.id
+        return self.label
 
 class Project(models.Model):
     id = models.CharField(max_length=12, primary_key=True)

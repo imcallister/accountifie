@@ -11,8 +11,12 @@ Use query_manager_strategy_factory.py to get an instance of this class.
 import pandas as pd
 import itertools
 import json
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
+
+try: #python3
+    from urllib.request import urlopen
+except: #python2
+    from urllib2 import urlopen
+
 from decimal import Decimal
 from collections import defaultdict
 
@@ -258,7 +262,7 @@ class accountifieSvcClient(object):
         url = '%s%s' % (self.url_base, path)
         request = urllib.request.Request(url, data=params, headers={'Content-Type': 'application/json'})
         try:
-            response = urllib.request.urlopen(request)
+            response = urlopen(request)
             json_result = json.load(response)
             return json_result
         except:
@@ -274,7 +278,7 @@ class accountifieSvcClient(object):
 
         start_time = time.time()
         request = urllib.request.Request(url)
-        response = urllib.request.urlopen(request)
+        response = urlopen(request)
         json_result = json.load(response)
 
         resp_time = time.time() - start_time
