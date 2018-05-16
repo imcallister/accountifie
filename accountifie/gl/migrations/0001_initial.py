@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('depreciation_period', models.PositiveIntegerField()),
-                ('cap_account', models.ForeignKey(related_name='deppolicy_acct', to='gl.Account'), on_delete=models.CASCADE),
+                ('cap_account', models.ForeignKey(related_name='deppolicy_acct', to='gl.Account', on_delete=models.CASCADE)),
                 ('depreciation_account', models.ForeignKey(related_name='deppolicy_depacct', to='gl.Account', on_delete=models.CASCADE)),
             ],
             options={
