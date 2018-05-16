@@ -68,7 +68,7 @@ class Employee(models.Model):
     e_mail = models.CharField(max_length=200, null=True)
     role = models.CharField(max_length=200, null=True)
     employee_name = models.CharField(max_length=200, null=True)
-    department = models.ForeignKey(Department)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     p_card = models.CharField(max_length=200, null=True)
 
     class Meta:
@@ -79,9 +79,9 @@ class Employee(models.Model):
         return '%s'  % (self.employee_name)
 
 class ExternalAccount(models.Model):
-    company = models.ForeignKey('gl.Company')
-    gl_account = models.ForeignKey('gl.Account')
-    counterparty = models.ForeignKey('gl.Counterparty')
+    company = models.ForeignKey('gl.Company', on_delete=models.CASCADE)
+    gl_account = models.ForeignKey('gl.Account', on_delete=models.CASCADE)
+    counterparty = models.ForeignKey('gl.Counterparty', on_delete=models.CASCADE)
     label = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
 

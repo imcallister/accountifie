@@ -8,12 +8,8 @@ from io import StringIO
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.views.generic.detail import DetailView
 from django.shortcuts import render
-from django.template import RequestContext
 from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.db import transaction
 from django.apps import apps
 from django.core.serializers.json import DjangoJSONEncoder

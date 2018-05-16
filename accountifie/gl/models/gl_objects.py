@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.core import urlresolvers
+from django.urls import reverse
 
 
 
@@ -103,16 +103,16 @@ class Transaction(models.Model, accountifie.gl.bmo.BusinessModelObject):
 
 
 class TranLine(models.Model):
-    company = models.ForeignKey('gl.Company', blank=True, null=True)
+    company = models.ForeignKey('gl.Company', blank=True, null=True, on_delete=models.CASCADE)
     date = models.DateField(db_index=True)
     date_end = models.DateField(db_index=True, blank=True, null=True)
     comment = models.CharField(max_length=100, blank=True, null=True)
-    account = models.ForeignKey(Account, blank=True, null=True)
+    account = models.ForeignKey(Account, blank=True, null=True, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
-    counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True, max_length=50)
+    counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True, max_length=50, on_delete=models.CASCADE)
     tags = models.CharField(max_length=200, blank=True)
     bmo_id = models.CharField(max_length=100, blank=True, null=True)
-    content_type = models.ForeignKey(ContentType, blank=True, null=True)
+    content_type = models.ForeignKey(ContentType, blank=True, null=True, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     source_object = GenericForeignKey()
 
@@ -130,8 +130,8 @@ class TranLine(models.Model):
 
 class ExternalBalance(models.Model):
     "Assertion that account X has balance Y on date Z"
-    company = models.ForeignKey('gl.Company')
-    account = models.ForeignKey(Account)
+    company = models.ForeignKey('gl.Company', on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     date = models.DateField(db_index=True)
     balance = models.DecimalField(max_digits=11, decimal_places=2)
     comment = models.CharField(max_length=100,blank=True,null=True)
@@ -141,8 +141,8 @@ class ExternalBalance(models.Model):
         db_table = 'gl_externalbalance'
 
 class DepreciationPolicy(models.Model):
-    cap_account = models.ForeignKey(Account, related_name='deppolicy_acct')
-    depreciation_account = models.ForeignKey(Account, related_name='deppolicy_depacct')
+    cap_account = models.ForeignKey(Account, related_name='deppolicy_acct', on_delete=models.CASCADE)
+    depreciation_account = models.ForeignKey(Account, related_name='deppolicy_depacct', on_delete=models.CASCADE)
     depreciation_period = models.PositiveIntegerField()
 
     class Meta:

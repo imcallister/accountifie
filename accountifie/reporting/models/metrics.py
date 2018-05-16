@@ -10,7 +10,7 @@ class Metric(models.Model):
 
 
 class MetricEntry(models.Model):
-    metric = models.ForeignKey(Metric, null=True, blank=True)
+    metric = models.ForeignKey(Metric, null=True, blank=True, on_delete=models.CASCADE)
     label = models.CharField(max_length=20, null=True, blank=True)
     date = models.DateField(db_index=True)
     as_of = models.DateField(db_index=True)

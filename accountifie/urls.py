@@ -5,7 +5,7 @@ admin.autodiscover()
 
 urlpatterns = [
 
-    url(r'^admin/', include(admin.site.urls)),
+    #url(r'^admin/', include(admin.site.urls)),
 
     url(r'', include('accountifie.toolkit.urls')),
     url(r'', include('accountifie.common.urls')),

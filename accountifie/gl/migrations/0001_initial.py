@@ -66,8 +66,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('depreciation_period', models.PositiveIntegerField()),
-                ('cap_account', models.ForeignKey(related_name='deppolicy_acct', to='gl.Account')),
-                ('depreciation_account', models.ForeignKey(related_name='deppolicy_depacct', to='gl.Account')),
+                ('cap_account', models.ForeignKey(related_name='deppolicy_acct', to='gl.Account'), on_delete=models.CASCADE),
+                ('depreciation_account', models.ForeignKey(related_name='deppolicy_depacct', to='gl.Account', on_delete=models.CASCADE)),
             ],
             options={
                 'db_table': 'gl_depreciationpolicy',
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ('role', models.CharField(max_length=200, null=True)),
                 ('employee_name', models.CharField(max_length=200, null=True)),
                 ('p_card', models.CharField(max_length=200, null=True)),
-                ('department', models.ForeignKey(to='gl.Department')),
+                ('department', models.ForeignKey(to='gl.Department', on_delete=models.CASCADE)),
             ],
             options={
                 'db_table': 'gl_employee',
@@ -95,9 +95,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('label', models.CharField(max_length=10)),
                 ('name', models.CharField(max_length=100)),
-                ('company', models.ForeignKey(to='gl.Company')),
-                ('counterparty', models.ForeignKey(to='gl.Counterparty')),
-                ('gl_account', models.ForeignKey(to='gl.Account')),
+                ('company', models.ForeignKey(to='gl.Company', on_delete=models.CASCADE)),
+                ('counterparty', models.ForeignKey(to='gl.Counterparty', on_delete=models.CASCADE)),
+                ('gl_account', models.ForeignKey(to='gl.Account', on_delete=models.CASCADE)),
             ],
             options={
                 'db_table': 'gl_externalaccount',
@@ -110,8 +110,8 @@ class Migration(migrations.Migration):
                 ('date', models.DateField(db_index=True)),
                 ('balance', models.DecimalField(max_digits=11, decimal_places=2)),
                 ('comment', models.CharField(max_length=100, null=True, blank=True)),
-                ('account', models.ForeignKey(to='gl.Account')),
-                ('company', models.ForeignKey(to='gl.Company')),
+                ('account', models.ForeignKey(to='gl.Account', on_delete=models.CASCADE)),
+                ('company', models.ForeignKey(to='gl.Company', on_delete=models.CASCADE)),
             ],
             options={
                 'db_table': 'gl_externalbalance',
@@ -134,8 +134,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('amount', models.DecimalField(max_digits=11, decimal_places=2)),
                 ('tags', models.CharField(max_length=200, blank=True)),
-                ('account', models.ForeignKey(to='gl.Account')),
-                ('counterparty', models.ForeignKey(blank=True, to='gl.Counterparty', null=True)),
+                ('account', models.ForeignKey(to='gl.Account', on_delete=models.CASCADE)),
+                ('counterparty', models.ForeignKey(blank=True, to='gl.Counterparty', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'db_table': 'gl_tranline',
@@ -150,8 +150,8 @@ class Migration(migrations.Migration):
                 ('comment', models.CharField(max_length=100)),
                 ('long_desc', models.CharField(max_length=200, null=True, blank=True)),
                 ('object_id', models.PositiveIntegerField()),
-                ('company', models.ForeignKey(to='gl.Company')),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('company', models.ForeignKey(to='gl.Company', on_delete=models.CASCADE)),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
                 'db_table': 'gl_transaction',
@@ -160,6 +160,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tranline',
             name='transaction',
-            field=models.ForeignKey(to='gl.Transaction'),
+            field=models.ForeignKey(to='gl.Transaction', on_delete=models.CASCADE),
         ),
     ]

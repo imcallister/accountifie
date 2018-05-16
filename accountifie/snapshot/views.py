@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
 from django.views.generic.edit import CreateView
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse

@@ -10,12 +10,12 @@ class Variable(models.Model):
 
 class Config(models.Model):
   name = models.CharField(max_length=20, unique=True)
-  reporting = models.ForeignKey(Variable)
+  reporting = models.ForeignKey(Variable, on_delete=models.CASCADE)
 
 class Alias(models.Model):
   name = models.CharField(max_length=100)
   display_as = models.CharField(max_length=100)
-  context = models.ForeignKey('gl.Company', null=True, blank=True)
+  context = models.ForeignKey('gl.Company', null=True, blank=True, on_delete=models.CASCADE)
 
 def get_env_variable(key):
   try:

@@ -34,8 +34,8 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(max_length=7, serialize=False, primary_key=True)),
                 ('first_day', models.DateField(null=True)),
                 ('last_day', models.DateField(null=True)),
-                ('end_month', models.ForeignKey(related_name='end_week_set', to='cal.Month')),
-                ('start_month', models.ForeignKey(related_name='start_week_set', to='cal.Month')),
+                ('end_month', models.ForeignKey(related_name='end_week_set', to='cal.Month', on_delete=models.CASCADE)),
+                ('start_month', models.ForeignKey(related_name='start_week_set', to='cal.Month', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -47,36 +47,36 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='week',
             name='year',
-            field=models.ForeignKey(to='cal.Year'),
+            field=models.ForeignKey(to='cal.Year', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='quarter',
             name='year',
-            field=models.ForeignKey(to='cal.Year'),
+            field=models.ForeignKey(to='cal.Year', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='month',
             name='quarter',
-            field=models.ForeignKey(to='cal.Quarter'),
+            field=models.ForeignKey(to='cal.Quarter', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='month',
             name='year',
-            field=models.ForeignKey(to='cal.Year'),
+            field=models.ForeignKey(to='cal.Year', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='day',
             name='month',
-            field=models.ForeignKey(to='cal.Month'),
+            field=models.ForeignKey(to='cal.Month', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='day',
             name='quarter',
-            field=models.ForeignKey(to='cal.Quarter'),
+            field=models.ForeignKey(to='cal.Quarter', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='day',
             name='year',
-            field=models.ForeignKey(to='cal.Year'),
+            field=models.ForeignKey(to='cal.Year', on_delete=models.CASCADE),
         ),
     ]

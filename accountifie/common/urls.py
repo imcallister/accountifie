@@ -7,7 +7,6 @@ Adapted with permission from ReportLab's DocEngine framework
 
 from django.conf import settings
 from django.conf.urls import include, url, handler500
-from django.core.urlresolvers import reverse_lazy
 from django.template.loader import select_template
 from django.views.generic.base import RedirectView, TemplateView
 
@@ -39,7 +38,5 @@ urlpatterns = [
     url(r'', include(_ACCOUNT_URLS)),
     url(r'^$', accountifie.common.views.index, name='index'),
     url(r'^check_all_tasks/$', accountifie.common.views.check_all_tasks, name="check_all_tasks"),
-    # shortcuts
-    #url(r'^login/', RedirectView.as_view(url=reverse_lazy("accounts_login"))),
-    #url(r'^logout/', RedirectView.as_view(url=reverse_lazy("accounts_logout"))),
+    
 ]

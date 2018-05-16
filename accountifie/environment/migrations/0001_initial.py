@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
                 ('display_as', models.CharField(max_length=100)),
-                ('context', models.ForeignKey(blank=True, to='gl.Company', null=True)),
+                ('context', models.ForeignKey(blank=True, to='gl.Company', null=True, on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -38,6 +38,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='config',
             name='reporting',
-            field=models.ForeignKey(to='environment.Variable'),
+            field=models.ForeignKey(to='environment.Variable', on_delete=models.CASCADE),
         ),
     ]
