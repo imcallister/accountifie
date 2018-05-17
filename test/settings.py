@@ -163,11 +163,7 @@ INSTALLED_APPS = (
     'accountifie.common',
     'accountifie.cal',
     'accountifie.gl',
-    'accountifie.snapshot',
     'accountifie.environment',
-    'accountifie.reporting',
-
-
 
     'django_admin_bootstrapped',
     'django.contrib.admin',
