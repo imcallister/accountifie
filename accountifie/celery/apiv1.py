@@ -28,7 +28,7 @@ def _get_info(t):
 	data['date_done'] = t['date_done']
 	
 	if rslt:
-		data['task_status'] = status_tag(rslt.get('status', 'UNKNOWN'))
+		data['task_status'] = rslt.get('status', 'UNKNOWN')
 		data['task_name'] = rslt.get('task_name')
 
 		if output:

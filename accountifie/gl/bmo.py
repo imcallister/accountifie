@@ -31,17 +31,15 @@ def get_gl_strategy():
 
 
 def recalc_all():
-    ctr = 0
     for model in apps.get_models():
         if issubclass(model, BusinessModelObject):
-            if ctr < 100:
-                for bmo in model.objects.all():
-                    try:
-                        bmo.save()
-                    except:
-                        print('failed', bmo.__dict__)
-            else:
-                break
+            for bmo in model.objects.all():
+                logger.info('Saving all objects for %s' % bmo, extra={'corrId': 'ACCOUNTIFIE.GL'})
+                try:
+                    bmo.save()
+                except Exception as e:
+                    msg = 'Recalc Fail. %s. %s' % (bmo.__dict__, e)
+                    logger.exception(msg, extra={'corrId': 'ACCOUNTIFIE.GL'})
 
 
 class BusinessModelObject(object):
@@ -101,13 +99,7 @@ class BusinessModelObject(object):
                         db_lines = [tl._to_dict() for tl in db_tl_set]
                         new_lines = [tl._to_dict() for tl in new_tl_set]
                         chgs = DeepDiff(db_lines, new_lines)
-                        print('=' * 20)
-                        for l in db_lines:
-                            print(l)
-                        print()
-                        for l in new_lines:
-                            print(l)
-                    
+                        
                         if len(chgs) > 0:
                             # if any changes then just delete/set to historical
                             save_tranlines(db_tl_set, new_tl_set)
@@ -166,10 +158,9 @@ def save_tranlines(old_tl_set, new_tl_set):
     for l in new_tl_set:
         try:
             l.save()
-        except:
-            print('-' * 20)
-            print(l.__dict__)
-
+        except Exception as e:
+            msg = 'Error saving tranlines. %s. %s' % (e, l.__dict__)
+            logger.exception(msg, extra={'corrId': 'ACCOUNTIFIE.GL'})
 
 def on_bmo_save(sender, **kwargs):
     """Alternative method - maintain GL through a signal
