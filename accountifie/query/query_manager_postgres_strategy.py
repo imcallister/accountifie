@@ -29,12 +29,14 @@ class QueryManagerPostgresStrategy(QueryManagerStrategy):
 
         return bals
 
-    def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra):
+    def account_balances_for_dates(self, company_id, account_ids, dates, with_counterparties, excl_interco, excl_contra,filter_closing_entries=False):
         bals = {}
         for dt in dates:
             qs = TranLine.objects \
                          .filter(company_id=company_id) \
                          .filter(date__lte=dt)
+            if filter_closing_entries:
+                qs = qs.exclude(closing_entry=True)
             if account_ids:
                 qs = qs.filter(account_id__in=account_ids)
             if with_counterparties:

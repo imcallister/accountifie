@@ -3,7 +3,7 @@ from accountifie.query.query_manager import QueryManager
 import datetime
 
 
-def acct_balances(company_id, as_of):
+def acct_balances(company_id, as_of, filter_closing_entries=False):
     qm = QueryManager()
     if type(as_of) == list:
         dates = as_of
@@ -13,7 +13,8 @@ def acct_balances(company_id, as_of):
     return qm.gl_strategy.account_balances_for_dates(company_id,
                                          None,
                                          dates,
-                                         None, None, None)
+                                         None, None, None,
+                                         filter_closing_entries=filter_closing_entries)
 
 def cp_balances(company_id, qstring):
     as_of = qstring.get('date', datetime.datetime.now().date())
