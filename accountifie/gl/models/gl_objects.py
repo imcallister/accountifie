@@ -114,6 +114,7 @@ class TranLine(models.Model):
     bmo_id = models.CharField(max_length=100, blank=True, null=True)
     content_type = models.ForeignKey(ContentType, blank=True, null=True, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(blank=True, null=True)
+    closing_entry = models.BooleanField(default=False)
     source_object = GenericForeignKey()
 
     class Meta:
