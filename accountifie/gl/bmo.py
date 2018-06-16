@@ -87,7 +87,8 @@ class BusinessModelObject(object):
                           'counterparty_id': _model_to_id(counterparty),
                           'tags': ','.join(tags or []),
                           'bmo_id': td['bmo_id'],
-                          'source_object': self
+                          'source_object': self,
+                          'closing_entry': td.get('closing_entry', False)
                           } for account, date, amount, counterparty, tags in td['lines']]
                 if sum(l['amount'] for l in lines) == DZERO:
                     db_tl_set = TranLine.objects.filter(bmo_id=td['bmo_id'])

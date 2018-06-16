@@ -33,3 +33,4 @@ preppy==2.3.4
 requests==2.9.1
 mock==1.3.0
 deepdiff==3.3.0
+celery==4.1.0
