@@ -9,6 +9,7 @@ from deepdiff import DeepDiff
 
 from django.db import transaction
 from django.apps import apps
+from django.core.exceptions import ObjectDoesNotExist
 
 import accountifie.query.query_manager_strategy_factory as QMSF
 from accountifie.environment.models import Variable
@@ -41,6 +42,15 @@ def recalc_all():
                     msg = 'Recalc Fail. %s. %s' % (bmo.__dict__, e)
                     logger.exception(msg, extra={'corrId': 'ACCOUNTIFIE.GL'})
 
+    # delete any orphan tranlines
+    for tl in TranLine.objects.all():
+        try:
+            bmo_obj = tl.content_type.get_object_for_this_type(id=tl.object_id)
+            if bmo_obj is None:
+                tl.delete()
+        except ObjectDoesNotExist as e:
+            tl.delete()
+
 
 class BusinessModelObject(object):
     """Something else which has an effect on the GL.
@@ -65,6 +75,10 @@ class BusinessModelObject(object):
             QMSF.getInstance() \
                 .get(strategy='remote') \
                 .delete_bmo_transactions(self.company.id, bmo_id)
+        elif GL_STRATEGY == 'postgres':
+            TranLine.objects \
+                    .filter(bmo_id='%s.%s' % (self.short_code, self.id)) \
+                    .delete()
 
     def create_gl_transactions(self, trans):
         gl_strategy = get_gl_strategy()
