@@ -2,13 +2,14 @@ import operator
 import os
 
 from accountifie.common.api import api_func
+from django.conf import settings
 
 
 def get_default_company():
     try:
         return api_func('environment', 'variable', 'DEFAULT_COMPANY_ID')
     except:
-        return os.environ.get('DEFAULT_COMPANY_ID', 'TEST')
+        return settings.DEFAULT_COMPANY_ID
 
 
 def get_alias(name):
