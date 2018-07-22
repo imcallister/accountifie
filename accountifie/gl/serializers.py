@@ -12,4 +12,4 @@ class TranLineSerializer(serializers.ModelSerializer, EagerLoadingMixin):
 
     class Meta:
         model = TranLine
-        fields = ('date', 'bmo_id', 'counterparty', 'date', 'amount', 'comment')
+        fields = ('id', 'date', 'bmo_id', 'counterparty', 'account_id', 'amount', 'comment')
