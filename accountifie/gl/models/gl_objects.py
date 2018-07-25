@@ -112,6 +112,7 @@ class TranLine(models.Model):
     counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True, max_length=50, on_delete=models.CASCADE)
     tags = models.CharField(max_length=200, blank=True)
     bmo_id = models.CharField(max_length=100, blank=True, null=True)
+    trans_id = models.CharField(max_length=100, blank=True, null=True)
     content_type = models.ForeignKey(ContentType, blank=True, null=True, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     closing_entry = models.BooleanField(default=False)

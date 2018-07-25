@@ -82,69 +82,80 @@ class BusinessModelObject(object):
 
     def create_gl_transactions(self, trans):
         gl_strategy = get_gl_strategy()
+        if GL_STRATEGY == 'postgres':
+            self.create_postgres_gl_transactions(trans)
+        else:
+            self.create_remote_gl_transactions(trans)
 
-        "Make any GL transactions this needs"
+    def create_postgres_gl_transactions(self, trans):
+        for td in trans:
+            
+            print('^' * 20)
+            print('in postrgres strategy')
+            print(td)
+            lines = self._postgres_lines(td)
+            if sum(l['amount'] for l in lines) == DZERO:
+                db_tl_set = TranLine.objects.filter(bmo_id=td['bmo_id'])
+                new_tl_set = [TranLine(**l) for l in lines]
+
+                if db_tl_set.count() == 0:
+                    save_tranlines(None, new_tl_set)
+                else:
+                    db_lines = [tl._to_dict() for tl in db_tl_set]
+                    new_lines = [tl._to_dict() for tl in new_tl_set]
+                    chgs = DeepDiff(db_lines, new_lines)
+                    
+                    if len(chgs) > 0:
+                        # if any changes then just delete/set to historical
+                        save_tranlines(db_tl_set, new_tl_set)
+            else:
+                logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
+    
+    def _postgres_lines(self, td):
+        return [{'company_id': _model_to_id(td['company']),
+                 'date': date,
+                 'date_end': date,
+                 'comment': comment[:99] if comment else '',
+                 'account_id': _model_to_id(account),
+                 'amount': Decimal("{0:.2f}".format(amount)),
+                 'counterparty_id': _model_to_id(counterparty),
+                 'tags': ','.join(tags or []),
+                 'bmo_id': td['bmo_id'],
+                 'source_object': self,
+                 'closing_entry': td.get('closing_entry', False)
+                } for account, date, amount, counterparty, tags, comment, trans_id in td['lines']]
+
+    def create_remote_gl_transactions(self, trans):
         for td in trans:
             try:
                 comment = td['comment'][:99]
             except:
                 comment = ''
 
-            # old style
-            if GL_STRATEGY == 'postgres':
-                lines = [{'company_id': _model_to_id(td['company']),
-                          'date': date,
-                          'date_end': date,
-                          'comment': comment,
-                          'account_id': _model_to_id(account),
-                          'amount': Decimal("{0:.2f}".format(amount)),
-                          'counterparty_id': _model_to_id(counterparty),
-                          'tags': ','.join(tags or []),
-                          'bmo_id': td['bmo_id'],
-                          'source_object': self,
-                          'closing_entry': td.get('closing_entry', False)
-                          } for account, date, amount, counterparty, tags in td['lines']]
-                if sum(l['amount'] for l in lines) == DZERO:
-                    db_tl_set = TranLine.objects.filter(bmo_id=td['bmo_id'])
-                    new_tl_set = [TranLine(**l) for l in lines]
+            d2 = td.copy()
+            if 'date_end' not in d2:
+                d2['date_end'] = d2['date']
 
-                    if db_tl_set.count() == 0:
-                        save_tranlines(None, new_tl_set)
-                    else:
-                        db_lines = [tl._to_dict() for tl in db_tl_set]
-                        new_lines = [tl._to_dict() for tl in new_tl_set]
-                        chgs = DeepDiff(db_lines, new_lines)
-                        
-                        if len(chgs) > 0:
-                            # if any changes then just delete/set to historical
-                            save_tranlines(db_tl_set, new_tl_set)
-                else:
-                    logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
-            elif GL_STRATEGY == 'remote':
-                d2 = td.copy()
-                if 'date_end' not in d2:
-                    d2['date_end'] = d2['date']
+            try:
+                tags = ','.join(d2.pop('tags'))
+            except:
+                tags = ''
 
-                try:
-                    tags = ','.join(d2.pop('tags'))
-                except:
-                    tags = ''
+            d2['company'] = d2['company'].id if isinstance (d2['company'], Company) else d2['company']
 
-                d2['company'] = d2['company'].id if isinstance (d2['company'], Company) else d2['company']
+            lines = d2.pop('lines')
+            trans_id = d2.pop('trans_id')
+            bmo_id = d2.pop('bmo_id')
 
-                lines = d2.pop('lines')
-                trans_id = d2.pop('trans_id')
-                bmo_id = d2.pop('bmo_id')
+            lines = [{'account': account.id if isinstance (account, Account) else account,
+                        'amount': "{0:.2f}".format(amount),
+                        'counterparty': counterparty.id if isinstance (counterparty, Counterparty) else counterparty,
+                        'tags': tags
+                        } for account, amount, counterparty, tags in lines]
 
-                lines = [{'account': account.id if isinstance (account, Account) else account,
-                          'amount': "{0:.2f}".format(amount),
-                          'counterparty': counterparty.id if isinstance (counterparty, Counterparty) else counterparty,
-                          'tags': tags
-                          } for account, amount, counterparty, tags in lines]
-
-                QMSF.getInstance() \
-                    .get(strategy='remote') \
-                    .create_gl_transactions(d2, lines, trans_id, bmo_id)
+            QMSF.getInstance() \
+                .get(strategy='remote') \
+                .create_gl_transactions(d2, lines, trans_id, bmo_id)
 
     def update_gl(self):
         "Fix up GL after any kind of change"
@@ -163,6 +174,10 @@ class BusinessModelObject(object):
 
     def get_company(self):
         return self.company.id
+
+
+def _postgres_lines():
+    pass
 
 
 @transaction.atomic
