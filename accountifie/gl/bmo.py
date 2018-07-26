@@ -90,9 +90,6 @@ class BusinessModelObject(object):
     def create_postgres_gl_transactions(self, trans):
         for td in trans:
             
-            print('^' * 20)
-            print('in postrgres strategy')
-            print(td)
             lines = self._postgres_lines(td)
             if sum(l['amount'] for l in lines) == DZERO:
                 db_tl_set = TranLine.objects.filter(bmo_id=td['bmo_id'])
@@ -190,7 +187,8 @@ def save_tranlines(old_tl_set, new_tl_set):
             l.save()
         except Exception as e:
             msg = 'Error saving tranlines. %s. %s' % (e, l.__dict__)
-            logger.exception(msg, extra={'corrId': 'ACCOUNTIFIE.GL'})
+            print(msg)
+            #logger.exception(msg, extra={'corrId': 'ACCOUNTIFIE.GL'})
 
 def on_bmo_save(sender, **kwargs):
     """Alternative method - maintain GL through a signal
