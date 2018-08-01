@@ -44,63 +44,6 @@ class Account(models.Model):
     def __str__(self):
         return '%s: %s' % (self.id, self.display_name)
 
-"""
-class Transaction(models.Model, accountifie.gl.bmo.BusinessModelObject):
-    company = models.ForeignKey('gl.Company')
-    date = models.DateField(db_index=True)
-    date_end = models.DateField(db_index=True, blank=True, null=True)
-    comment = models.CharField(max_length=100)
-    long_desc = models.CharField(max_length=200, blank=True, null=True)
-    bmo_id = models.CharField(max_length=100)
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    source_object = GenericForeignKey()
-
-    class Meta:
-        app_label = 'gl'
-        db_table = 'gl_transaction'
-
-    def __str__(self):
-        return '%s' % self.comment
-
-    def save(self):
-        db_tr = Transaction.objects.filter(bmo_id=self.bmo_id).first()
-        if db_tr is None:
-            super(Transaction, self).save()
-        else:
-            if len(DeepDiff(self._to_dict(), db_tr._to_dict())) > 0:
-                print('CHANGED')
-                print(DeepDiff(self, db_tr))
-                super(Transaction, self).save()
-            else:
-                print('not saving it')
-        self.update_gl()
-
-    def delete(self):
-        tranlines = TranLine.objects.filter(transaction__id=self.id)
-        for tl in tranlines:
-            tl.delete()
-        models.Model.delete(self)
-
-    def get_admin_url(self):
-        #https://djangosnippets.org/snippets/1916/
-        content_type = ContentType.objects.get_for_model(self.__class__)
-        return urlresolvers.reverse("admin:%s_%s_change" % (content_type.app_label, content_type.model), args=(self.id,))
-
-    def _to_dict(self):
-        return dict((f.attname, getattr(self, f.attname))
-                    for f in self._meta.fields if f.attname not in ['id'])
-
-    def _tlines_to_dict(self):
-        return dict((tl.id, tl._to_dict()) for tl in self.tranline_set.all())
-
-    def get_changes(self):
-        db_tr = Transaction.objects.filter(bmo_id=self.bmo_id).first()
-        if db_tr is None:
-            return {}
-        return DeepDiff(self, db_tr)
-"""
-
 
 class TranLine(models.Model):
     company = models.ForeignKey('gl.Company', blank=True, null=True, on_delete=models.CASCADE)
@@ -110,14 +53,10 @@ class TranLine(models.Model):
     account = models.ForeignKey(Account, blank=True, null=True, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=11, decimal_places=2)
     counterparty = models.ForeignKey('gl.Counterparty', blank=True, null=True, max_length=50, on_delete=models.CASCADE)
-    tags = models.CharField(max_length=200, blank=True)
     bmo_id = models.CharField(max_length=100, blank=True, null=True)
     trans_id = models.CharField(max_length=100, blank=True, null=True)
-    content_type = models.ForeignKey(ContentType, blank=True, null=True, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(blank=True, null=True)
     closing_entry = models.BooleanField(default=False)
-    source_object = GenericForeignKey()
-
+    
     class Meta:
         app_label = 'gl'
         db_table = 'gl_tranline'

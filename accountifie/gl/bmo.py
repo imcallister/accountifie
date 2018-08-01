@@ -68,105 +68,42 @@ class BusinessModelObject(object):
 
     """
 
+    def bmo_id(self):
+        return '%s.%s' % (self.short_code, self.id)
+    
     def delete_from_gl(self):
         "Find and remove all GL entries which depend on self"
-        if get_gl_strategy() == 'remote':
-            bmo_id = '%s.%s' %(self.short_code, self.id)
-            QMSF.getInstance() \
-                .get(strategy='remote') \
-                .delete_bmo_transactions(self.company.id, bmo_id)
-        elif GL_STRATEGY == 'postgres':
-            TranLine.objects \
-                    .filter(bmo_id='%s.%s' % (self.short_code, self.id)) \
-                    .delete()
+        TranLine.objects \
+                .filter(bmo_id=self.bmo_id()) \
+                .delete()
 
-    def create_gl_transactions(self, trans):
-        gl_strategy = get_gl_strategy()
-        if GL_STRATEGY == 'postgres':
-            self.create_postgres_gl_transactions(trans)
-        else:
-            self.create_remote_gl_transactions(trans)
+    def create_gl_transactions(self, lines):
+        self.create_postgres_gl_transactions(lines)
+        
+    def create_postgres_gl_transactions(self, lines):
+        if sum(l['amount'] for l in lines) == DZERO:
+            db_tl_set = TranLine.objects.filter(bmo_id=self.bmo_id())
+            new_tl_set = [TranLine(**l) for l in lines]
 
-    def create_postgres_gl_transactions(self, trans):
-        for td in trans:
-            
-            lines = self._postgres_lines(td)
-            if sum(l['amount'] for l in lines) == DZERO:
-                db_tl_set = TranLine.objects.filter(bmo_id=td['bmo_id'])
-                new_tl_set = [TranLine(**l) for l in lines]
-
-                if db_tl_set.count() == 0:
-                    save_tranlines(None, new_tl_set)
-                else:
-                    db_lines = [tl._to_dict() for tl in db_tl_set]
-                    new_lines = [tl._to_dict() for tl in new_tl_set]
-                    chgs = DeepDiff(db_lines, new_lines)
-                    
-                    if len(chgs) > 0:
-                        # if any changes then just delete/set to historical
-                        save_tranlines(db_tl_set, new_tl_set)
+            if db_tl_set.count() == 0:
+                save_tranlines(None, new_tl_set)
             else:
-                logger.error('Imbalanced GL entries for %s' % td['bmo_id'])
-    
-    def _postgres_lines(self, td):
-        return [{'company_id': _model_to_id(td['company']),
-                 'date': date,
-                 'date_end': date,
-                 'comment': comment[:99] if comment else '',
-                 'account_id': _model_to_id(account),
-                 'amount': Decimal("{0:.2f}".format(amount)),
-                 'counterparty_id': _model_to_id(counterparty),
-                 'tags': ','.join(tags or []),
-                 'bmo_id': td['bmo_id'],
-                 'source_object': self,
-                 'closing_entry': td.get('closing_entry', False)
-                } for account, date, amount, counterparty, tags, comment, trans_id in td['lines']]
-
-    def create_remote_gl_transactions(self, trans):
-        for td in trans:
-            try:
-                comment = td['comment'][:99]
-            except:
-                comment = ''
-
-            d2 = td.copy()
-            if 'date_end' not in d2:
-                d2['date_end'] = d2['date']
-
-            try:
-                tags = ','.join(d2.pop('tags'))
-            except:
-                tags = ''
-
-            d2['company'] = d2['company'].id if isinstance (d2['company'], Company) else d2['company']
-
-            lines = d2.pop('lines')
-            trans_id = d2.pop('trans_id')
-            bmo_id = d2.pop('bmo_id')
-
-            lines = [{'account': account.id if isinstance (account, Account) else account,
-                        'amount': "{0:.2f}".format(amount),
-                        'counterparty': counterparty.id if isinstance (counterparty, Counterparty) else counterparty,
-                        'tags': tags
-                        } for account, amount, counterparty, tags in lines]
-
-            QMSF.getInstance() \
-                .get(strategy='remote') \
-                .create_gl_transactions(d2, lines, trans_id, bmo_id)
+                db_lines = [tl._to_dict() for tl in db_tl_set]
+                new_lines = [tl._to_dict() for tl in new_tl_set]
+                chgs = DeepDiff(db_lines, new_lines)
+                if len(chgs) > 0:
+                    save_tranlines(db_tl_set, new_tl_set)
+        else:
+            logger.error('Imbalanced GL entries for %s' % self.bmo_id())
 
     def update_gl(self):
         "Fix up GL after any kind of change"
-        trans = self.get_gl_transactions()
-        self.delete_from_gl()
-        self.create_gl_transactions(trans)
+        lines = self.get_gl_transactions()
+        #self.delete_from_gl()
+        self.create_gl_transactions(lines)
 
     def get_gl_transactions(self):
-        """Override this.  Create a list of transactions.
-
-        Create a list of transactions in dictionary form
-        which should exist.  It will create them all in the
-        GL on saving if they do not already exist.
-        """
+        # Override this.  Create a list of transactions.
         return []
 
     def get_company(self):
