@@ -14,7 +14,7 @@ from django.conf import settings
 
 class DbLogHandler(logging.Handler):
     def emit(self, record):
-        from .models import Log
+        from .models import Log, Issue
         try:
             request = record.request
             filter = get_exception_reporter_filter(request)
@@ -37,7 +37,11 @@ class DbLogHandler(logging.Handler):
                   )
         if hasattr(record, 'corrId'):
             rec.corrId = record.corrId
+
         rec.save()
+
+        if record.levelname == 'ERROR':
+            Issue(log=rec, status='NOTSTARTED').save()
 
 
 class SlackHandler(logging.Handler):

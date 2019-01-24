@@ -9,7 +9,7 @@ def get_default_company():
     try:
         return api_func('environment', 'variable', 'DEFAULT_COMPANY_ID')
     except:
-        return settings.DEFAULT_COMPANY_ID
+        return getattr(settings, 'DEFAULT_COMPANY_ID', '')
 
 
 def get_alias(name):

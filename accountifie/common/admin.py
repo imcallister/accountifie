@@ -8,6 +8,11 @@ class LogAdmin(admin.ModelAdmin):
     
 admin.site.register(Log, LogAdmin)
 
+class IssueAdmin(admin.ModelAdmin):
+    list_display = ('log', 'status',)
+    
+admin.site.register(Issue, IssueAdmin)
+
 class AddressAdmin(admin.ModelAdmin):
     list_display = ('label', 'name', 'company',)
     

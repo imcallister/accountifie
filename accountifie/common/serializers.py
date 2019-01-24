@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 
-from .models import Address, Log
+from .models import Address, Log, Issue
 
 class EagerLoadingMixin:
     """
@@ -30,3 +30,12 @@ class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
         fields = ('id', 'level', 'time', 'message', 'corrId')
+
+
+class IssueSerializer(serializers.ModelSerializer):
+    message = serializers.CharField(source='log.message')
+    corrId = serializers.CharField(source='log.corrId')
+
+    class Meta:
+        model = Issue
+        fields = ('id', 'message', 'corrId', 'created', 'status', 'notes')

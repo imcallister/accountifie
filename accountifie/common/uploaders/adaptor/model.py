@@ -534,12 +534,12 @@ class CsvImporter(object):
         except SkipRow:
             pass
         except ForeignKeyFieldError as e:
-            return False, 'Line # %d. %s' % (line_number, str(e))
+            return False, 'Line # %d. %s. %s' % (line_number, str(e), line)
         except ValueError as e:
             if line_number == 0 and self.csvModel.has_header():
                 pass
             else:
-                return False, 'Line # %d. Data error: %s' % (line_number, str(e))
+                return False, 'Line # %d. Data error: %s. %s' % (line_number, str(e), line)
         except IndexError as e:
             return False, "Number of fields invalid. Check file."
         return value

@@ -53,7 +53,6 @@ class McModel(models.Model):
 Adapted with permission from ReportLab's DocEngine framework
 """
 
-
 class Log(models.Model):
     '''Log data for any internal housekeeping'''
     level = models.CharField(max_length = 10)
@@ -92,3 +91,21 @@ class TaskMonitor(models.Model):
 
     def __unicode__(self):
         return "monitor for %s, %s" % (self.task_name, self.task_id)
+
+
+"""
+############################################################
+"""
+
+ISSUE_STATUSES = [
+    ('RESOLVED', 'Resolved'),
+    ('PROGRESS', 'In Progress'),
+    ('NOTSTARTED', 'Not Started')
+]
+
+
+class Issue(models.Model):
+    log = models.ForeignKey(Log, null=True, blank=True, on_delete=models.CASCADE)
+    status = models.CharField(max_length=25, null=True, choices=ISSUE_STATUSES)
+    created = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(null=True)
