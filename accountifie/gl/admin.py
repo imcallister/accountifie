@@ -26,6 +26,7 @@ class TranLineAdmin(admin.ModelAdmin):
 class AccountAdmin(admin.ModelAdmin):
     list_display = ('id', 'display_name', 'path', 'ordering', 'role')
     list_filter = ('role',)
+    search_fields = ('id', 'display_name', 'path')
     ordering = ('id',)
     save_on_top = True
     save_as = True
@@ -52,6 +53,7 @@ class CompanyAdmin(admin.ModelAdmin):
 class CounterpartyAdmin(admin.ModelAdmin):
     ordering = ('id',)
     list_display = ('id', 'label', 'name',)
+    search_fields = ['id', 'label', 'name']
     
 class ProjectAdmin(admin.ModelAdmin):
     ordering = ('id',)
@@ -68,6 +70,7 @@ class ExternalAccountAdmin(admin.ModelAdmin):
     ordering = ('gl_account',)
     list_display = ('gl_account', 'counterparty', 'name', 'label')
     list_filter = ('gl_account','counterparty',)
+    search_fields = ('gl_account',)
 
 admin.site.register(Account, AccountAdmin)
 #admin.site.register(Transaction, TransactionAdmin)

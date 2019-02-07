@@ -35,7 +35,7 @@ class Counterparty(models.Model):
         db_table = 'gl_counterparty'
 
     def __str__(self):
-        return self.label
+        return self.name
 
 class Project(models.Model):
     id = models.CharField(max_length=12, primary_key=True)

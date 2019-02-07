@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import login as auth_login
+from django.contrib.auth import login as auth_login
 
 from django.contrib.sites.shortcuts import get_current_site
 

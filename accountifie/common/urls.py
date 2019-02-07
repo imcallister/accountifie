@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^dashboard/', include('accountifie.dashboard.urls'), name="docengine_dashboard"),
     url(r'^docs/$', TemplateView.as_view(template_name='common/docs.html')),
     url(r'^about/$', TemplateView.as_view(template_name='common/about.html')),
-    url(r'', include(_ACCOUNT_URLS)),
+    #url(r'', include(_ACCOUNT_URLS)),
     url(r'^$', accountifie.common.views.index, name='index'),
     url(r'^check_all_tasks/$', accountifie.common.views.check_all_tasks, name="check_all_tasks"),
     
