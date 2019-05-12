@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelTable(
             name='address',
             table='common_address',
+            atomic = False
         ),
         migrations.AlterModelTable(
             name='log',
