@@ -1,4 +1,4 @@
-numpy==1.13.3
+numpy==1.22.0
 pandas==0.20.3
 Django==2.0.5
 django-behave==0.1.5
